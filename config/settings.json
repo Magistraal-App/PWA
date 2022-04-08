@@ -1,0 +1,34 @@
+{
+    "appointments": {
+        "icon": "fal fa-calendar-alt",
+        "items": {
+            "google_calendar": {
+                "icon": "fab fa-google",
+                "items": {
+                    "synchronize": {
+                        "options": [true, false],
+                        "default": true
+                    },
+                    "connect": {
+                        "options": [],
+                        "default": "<a href=\"//google.com\"></a>"
+                    }
+                }
+            },
+            "smart_detect_canceled": {
+                "icon": "fal fa-calendar-times",
+                "options": [true, false],
+                "default": true
+            }
+        }
+    },
+    "grades": {
+        "icon": "fal fa-award",
+        "items": {
+            "color_coding": {
+                "options": [true, false],
+                "default": true
+            }
+        }
+    }
+}
