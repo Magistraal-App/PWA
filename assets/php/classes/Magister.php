@@ -174,7 +174,7 @@
                 'payload' => [
                     'client_id' => 'M6LOAPP',
                     'grant_type' => 'authorization_code',
-                    'redirect_uri' => 'm6loapp%3A%2F%2Foauth2redirect%2F',
+                    'redirect_uri' => 'm6loapp://oauth2redirect/',
                     'code' => $openid['code'],
                     'code_verifier' => \Magister\Session::$codeVerifier
                 ]
