@@ -45,11 +45,9 @@
             }
 
             foreach ($options['headers'] as $key => $value) {
+                $key = strtolower($key);
                 $headers[] = "{$key}: {$value}";
             }
-
-            // echo($url."\n\n");
-            // print_r($options['headers']);
 
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

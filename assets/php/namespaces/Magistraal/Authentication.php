@@ -30,11 +30,11 @@
     }
 
     function generate_code_verifier() {
-        return str_repeat('0', 32);
+        return random_str(128);
     }
 
     function generate_code_challenge($code_verifier) {
-        return base64_url_encode(hash('sha256', $code_verifier));
+        return base64_url_encode(pack('H*', hash('sha256', $code_verifier)));
     }
 
     /* ============================ */
