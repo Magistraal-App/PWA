@@ -1,30 +1,26 @@
 <?php 
     namespace Magistraal\Encryption;
 
-    function encrypt($str, $encrypt_key_index = 0) {
-        $iv_len      = openssl_cipher_iv_length($_ENV['ENCRYPT_CIPHER']);
-        $tag_length  = 16;
-        $iv          = openssl_random_pseudo_bytes($iv_len);
-        $tag         = '';
-        $encrypt_key = $_ENV['ENCRYPT_KEYS'][$encrypt_key_index] ?? $_ENV['ENCRYPT_KEYS'][0];
-
-        $ciphertext  = openssl_encrypt($str, $_ENV['ENCRYPT_CIPHER'], $encrypt_key, OPENSSL_RAW_DATA, $iv, $tag, '', $tag_length);
-        $encrypted   = base64_encode($iv.$ciphertext.$tag);
+    function encrypt($decrypted) {
+        $iv_len         = openssl_cipher_iv_length($_ENV['ENCRYPT_CIPHER']);
+        $iv             = openssl_random_pseudo_bytes($iv_len);
+        $ciphertext_raw = openssl_encrypt($decrypted, $_ENV['ENCRYPT_CIPHER'], $_ENV['ENCRYPT_KEY'], $options=OPENSSL_RAW_DATA, $iv);
+        $hmac           = hash_hmac('sha256', $ciphertext_raw, $_ENV['ENCRYPT_KEY'], true);
+        $encrypted      = base64_encode($iv.$hmac.$ciphertext_raw);
 
         return $encrypted;
     }
 
-    function decrypt($encrypted, $encrypt_key_index = 0) {
-        $encrypted   = base64_decode($encrypted);
-        $iv_len      = openssl_cipher_iv_length($_ENV['ENCRYPT_CIPHER']);
-        $tag_length  = 16;
-        $iv          = substr($encrypted, 0, $iv_len);
-        $ciphertext  = substr($encrypted, $iv_len, -$tag_length);
-        $tag         = substr($encrypted, -$tag_length);
-
-        $encrypt_key = $_ENV['ENCRYPT_KEYS'][$encrypt_key_index] ?? $_ENV['ENCRYPT_KEYS'][0];
-        $decrypted   = openssl_decrypt($ciphertext, $_ENV['ENCRYPT_CIPHER'], $encrypt_key, OPENSSL_RAW_DATA, $iv, $tag);
-    
-        return $decrypted;
+    function decrypt($encrypted) {
+        $encrypted = base64_decode($encrypted);
+        $iv_len = openssl_cipher_iv_length($_ENV['ENCRYPT_CIPHER']);
+        $iv = substr($encrypted, 0, $iv_len);
+        $hmac = substr($encrypted, $iv_len, 32);
+        $ciphertext_raw = substr($encrypted, $iv_len + 32);
+        $decrypted = openssl_decrypt($ciphertext_raw, $_ENV['ENCRYPT_CIPHER'], $_ENV['ENCRYPT_KEY'], $options=OPENSSL_RAW_DATA, $iv);
+        $calcmac = hash_hmac('sha256', $ciphertext_raw, $_ENV['ENCRYPT_KEY'], true);
+        if (hash_equals($hmac, $calcmac)) {
+            return $decrypted;
+        }
     }
 ?>

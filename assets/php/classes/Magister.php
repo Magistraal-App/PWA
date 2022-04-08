@@ -105,7 +105,7 @@
             $login_path = \Magistraal\Authentication\generate_login_path();
 
             // Redirect to actual login page
-            $response  = \Magistraal\Api\call(\Magistraal\Config\get('domain_accounts').$login_path);
+            $response  = \Magistraal\Api\call('https://accounts.magister.net'.$login_path);
             $login_url = $response['info']['url'];
             parse_str(parse_url($login_url)['query'], $login_url_query);
 
@@ -114,7 +114,7 @@
             \Magister\Session::$authCode  = \Magister\Session::getAuthCode();
 
             // Enter tenant
-            $response = \Magistraal\Api\call(\Magistraal\Config\get('domain_accounts').'/challenges/tenant/', [
+            $response = \Magistraal\Api\call('https://accounts.magister.net/challenges/tenant/', [
                 'authCode'  => \Magister\Session::$authCode,
                 'returnUrl' => \Magister\Session::$returnUrl,
                 'sessionId' => \Magister\Session::$sessionId,
@@ -125,7 +125,7 @@
         }
 
         public static function loginUsername($username) {
-            $response = \Magistraal\Api\call(\Magistraal\Config\get('domain_accounts').'/challenges/username/', [
+            $response = \Magistraal\Api\call('https://accounts.magister.net/challenges/username/', [
                 'authCode'  => \Magister\Session::$authCode,
                 'returnUrl' => \Magister\Session::$returnUrl,
                 'sessionId' => \Magister\Session::$sessionId,
@@ -136,7 +136,7 @@
         }
 
         public static function loginPassword($password) {
-            $response = \Magistraal\Api\call(\Magistraal\Config\get('domain_accounts').'/challenges/password/', [
+            $response = \Magistraal\Api\call('https://accounts.magister.net/challenges/password/', [
                 'authCode'  => \Magister\Session::$authCode,
                 'returnUrl' => \Magister\Session::$returnUrl,
                 'sessionId' => \Magister\Session::$sessionId,
@@ -147,7 +147,7 @@
         }
 
         public static function obtainTokens() {
-            // $response = \Magistraal\Browser\Browser::request(\Magistraal\Config\get('domain_accounts').'/connect/token', [
+            // $response = \Magistraal\Browser\Browser::request('https://accounts.magister.net/connect/token', [
             //     'headers' => [
             //         'X-API-Client-ID' => 'EF15',
             //         'Content-Type'    => 'application/x-www-form-urlencoded'
@@ -160,12 +160,12 @@
             //         'redirect_uri' => 'm6loapp%3A%2F%2Foauth2redirect%2F'
             //     ]
             // ]);
-            $response     = \Magistraal\Api\call(\Magistraal\Config\get('domain_accounts').\Magister\Session::$returnUrl);
+            $response     = \Magistraal\Api\call('https://accounts.magister.net'.\Magister\Session::$returnUrl);
             $redirect_uri = $response['info']['url'];
 
             parse_str(parse_url($redirect_uri, PHP_URL_FRAGMENT), $openid);
             
-            $response = \Magistraal\Browser\Browser::request(\Magistraal\Config\get('domain_accounts').'/connect/token', [
+            $response = \Magistraal\Browser\Browser::request('https://accounts.magister.net/connect/token', [
                 'headers' => [
                     'x-api-client-id' => 'EF15',
                     'content-type'    => 'application/x-www-form-urlencoded',
@@ -179,17 +179,10 @@
                     'code_verifier' => \Magister\Session::$codeVerifier
                 ]
             ]);
-
-
-            var_dump($response);
-
-            // if(empty($bearer)) {
-            //     \Magistraal\Response\error('error_obtaining_bearer');
-            // }
-
-            \Magister\Session::$accessToken        = $bearer['access_token'] ?? null;
-            \Magister\Session::$refreshToken       = $bearer['refresh_token'] ?? null;
-            \Magister\Session::$accessTokenExpires = time() + ($bearer['expires_in'] ?? 0);
+            
+            \Magister\Session::$accessToken        = $response['access_token'] ?? null;
+            \Magister\Session::$refreshToken       = $response['refresh_token'] ?? null;
+            \Magister\Session::$accessTokenExpires = time() + ($response['expires_in'] ?? 0);
 
             return true;
         }

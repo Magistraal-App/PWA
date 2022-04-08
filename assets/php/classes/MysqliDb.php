@@ -38,7 +38,7 @@
  * @method string getLastError()
  * @method string getLastQuery()
  */
-class Mysqli {
+class MysqliDb {
     /**
      * Working instance of MysqliDb created earlier
      *
