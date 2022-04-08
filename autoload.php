@@ -5,8 +5,7 @@
 
     session_start();
 
-    define('ROOT', rtrim(__DIR__), '/');
-    define('API', ROOT.'/api');
+    define('ROOT', rtrim(__DIR__, '/'));
     define('CONFIG', parse_ini_file(ROOT.'/config/Magistraal.ini'));
 
     include_once(ROOT.'/assets/php/functions.php');
