@@ -165,24 +165,22 @@
 
             parse_str(parse_url($redirect_uri, PHP_URL_FRAGMENT), $openid);
             
-            $response = \Magistraal\Browser\Browser::request(\Magistraal\Config\get('domain_accounts').'/connect/token', [
+            $response = \Magistraal\Browser\Browser::request(\Magistraal\Config\get('domain_accounts').'/connect/token?client_id=M6LOAPP&grant_type=authorization_code&redirect_uri=m6loapp%3A%2F%2Foauth2redirect%2F', [
                 'headers' => [
                     'x-api-client-id' => 'EF15',
                     'content-type'    => 'application/x-www-form-urlencoded'
                 ],
                 'payload' => [
                     'code' => $openid['code'],
-                    'code_verifier' => \Magister\Session::$codeVerifier,
-                    'client_id' => 'M6LOAPP',
-                    'grant_type' => 'authorization_code',
-                    'redirect_uri' => 'm6loapp%3A%2F%2Foauth2redirect%2F'
+                    'code_verifier' => \Magister\Session::$codeVerifier
                 ]
             ]);
+
             var_dump($response);
 
-            if(empty($bearer)) {
-                \Magistraal\Response\error('error_obtaining_bearer');
-            }
+            // if(empty($bearer)) {
+            //     \Magistraal\Response\error('error_obtaining_bearer');
+            // }
 
             \Magister\Session::$accessToken        = $bearer['access_token'] ?? null;
             \Magister\Session::$refreshToken       = $bearer['refresh_token'] ?? null;
