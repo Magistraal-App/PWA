@@ -165,23 +165,24 @@
 
             parse_str(parse_url($redirect_uri, PHP_URL_FRAGMENT), $openid);
             
+            print_r('Code verifier: '.\Magister\Session::$codeVerifier."\n");
+            print_r('Code challenge: '.\Magister\Session::$codeChallenge."\n");
+            print_r('Code: '.$openid['code']."\n\n\n");
             $response = \Magistraal\Browser\Browser::request(\Magistraal\Config\get('domain_accounts').'/connect/token', [
                 'headers' => [
-                    'x-api-client-id' => 'EF15',
-                    'content-type'    => 'application/x-www-form-urlencoded',
-                    'host'            => 'accounts.magister.net'
+                    'X-API-Client-ID' => 'EF15',
+                    'Content-Type'    => 'application/x-www-form-urlencoded',
+                    'Host'            => 'accounts.magister.net'
                 ],
                 'payload' => [
                     'client_id' => 'M6LOAPP',
                     'grant_type' => 'authorization_code',
                     'redirect_uri' => 'm6loapp://oauth2redirect/',
-                    'code' => $openid['code'],
-                    'code_verifier' => \Magister\Session::$codeVerifier
+                    'code' => '2204081m6NTDIjGsoPPRNZ9m4-NjggHpsKgo6znAM', //$openid['code'],
+                    'code_verifier' => 'r-kszNPcaAIh0Q8PlZgSLE4Z7bSScx1IgATBTn2-dmE' // \Magister\Session::$codeVerifier
                 ]
             ]);
 
-            print_r('Code verifier: '.\Magister\Session::$codeVerifier."\n");
-            print_r('Code challenge: '.\Magister\Session::$codeChallenge."\n\n\n");
 
             var_dump($response);
 
