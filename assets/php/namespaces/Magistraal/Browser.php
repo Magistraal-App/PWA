@@ -27,6 +27,8 @@
                 'cache-control'  => 'no-cache'
             ], $options['headers'] ?? []);
 
+            if(isset($options['headers']))
+
             // Set cookie header
             if(!empty(\Magistraal\Browser\Browser::$cookies)) {
                 $options['headers']['cookie'] = \Magistraal\Browser\encode_cookie_header(\Magistraal\Browser\Browser::$cookies);
@@ -54,8 +56,13 @@
             curl_setopt($ch, CURLOPT_HEADER, true);
             curl_setopt($ch, CURLINFO_HEADER_OUT, true);
             curl_setopt($ch, CURLOPT_POST, false);
+
             if(!empty($options['payload'])) {
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options['payload']));
+                if(isset($options['headers']['content-type']) && $options['headers']['content-type'] == 'application/json') {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options['payload']));
+                } else {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($options['payload']));
+                }
             }
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($options['method']));
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);

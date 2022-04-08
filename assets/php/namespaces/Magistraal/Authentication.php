@@ -14,8 +14,11 @@
 
         \Magister\Session::$codeChallenge = $code_challenge;
         \Magister\Session::$codeVerifier  = $code_verifier;
+
+        print_r('Code verifier: '.$code_verifier."\n");
+        print_r('Code challenge: '.$code_challenge."\n\n\n");
         
-        return "/connect/authorize?client_id=M6LOAPP&redirect_uri=m6loapp%3A%2F%2Foauth2redirect%2F&scope=openid%20profile%20offline_access%20magister.mobile%20magister.ecs&response_type=code%20id_token&state={$state}&nonce={$nonce}&code_challenge={$code_challenge}&code_challenge_method=S256&prompt=select_account";
+        return "/connect/authorize?client_id=M6LOAPP&redirect_uri=m6loapp%3A%2F%2Foauth2redirect%2F&scope=openid%20profile%20offline_access%20magister.mobile%20magister.ecs&response_type=code%20id_token&state={$state}&nonce={$nonce}&code_challenge={$code_challenge}&code_challenge_method=S256";
     }
 
     function generate_nonce() {

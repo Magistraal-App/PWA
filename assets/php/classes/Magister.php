@@ -165,16 +165,23 @@
 
             parse_str(parse_url($redirect_uri, PHP_URL_FRAGMENT), $openid);
             
-            $response = \Magistraal\Browser\Browser::request(\Magistraal\Config\get('domain_accounts').'/connect/token?client_id=M6LOAPP&grant_type=authorization_code&redirect_uri=m6loapp%3A%2F%2Foauth2redirect%2F', [
+            $response = \Magistraal\Browser\Browser::request(\Magistraal\Config\get('domain_accounts').'/connect/token', [
                 'headers' => [
                     'x-api-client-id' => 'EF15',
-                    'content-type'    => 'application/x-www-form-urlencoded'
+                    'content-type'    => 'application/x-www-form-urlencoded',
+                    'host'            => 'accounts.magister.net'
                 ],
                 'payload' => [
+                    'client_id' => 'M6LOAPP',
+                    'grant_type' => 'authorization_code',
+                    'redirect_uri' => 'm6loapp%3A%2F%2Foauth2redirect%2F',
                     'code' => $openid['code'],
                     'code_verifier' => \Magister\Session::$codeVerifier
                 ]
             ]);
+
+            print_r('Code verifier: '.\Magister\Session::$codeVerifier."\n");
+            print_r('Code challenge: '.\Magister\Session::$codeChallenge."\n\n\n");
 
             var_dump($response);
 
