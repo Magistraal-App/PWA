@@ -30,7 +30,7 @@
     }
 
     function generate_code_verifier() {
-        return random_str(128);
+        return random_base64(128);
     }
 
     function generate_code_challenge($code_verifier) {

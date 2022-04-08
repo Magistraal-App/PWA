@@ -3,8 +3,11 @@
         return substr(bin2hex(random_bytes($length)), 0, $length);
     }
 
-    function random_str($length = 32) {
-        $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    function random_base64($length = 32) {
+        return random_str($length, 'abcdef0123456789');
+    }
+
+    function random_str($length = 32, $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789') {
         return substr(str_shuffle(str_repeat($chars, $length)), 0, $length);
     }
 
