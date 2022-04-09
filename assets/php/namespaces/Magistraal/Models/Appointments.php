@@ -31,7 +31,7 @@
 
             // Seperate Microsoft Teams meeting link from content
             list($content, $ms_teams_link) = \Magistraal\Appointments\seperate_lesson_content($appointment['Inhoud']);
-
+            
             // Obtain solely link
             if(strpos($appointment['Inhoud'], '://teams.microsoft.com/l/meetup-join/') !== false) {
                 $ms_teams_link = 'https://teams.microsoft.com/l/meetup-join/'.str_between('://teams.microsoft.com/l/meetup-join/', '"', $appointment['Inhoud']);
@@ -40,15 +40,13 @@
             // Calculate content length
             $content_length = strlen(trim(strip_tags($content)));
 
-            // Set type to none if there's no content
-            if($appointment['InfoType'] && $content_length == 0) {
-                $type = 'none';
-            }
-
             // Clear facility when it's just a dash or quotes
             if(in_array($appointment['Lokatie'], ['""', '\'\'', '-', null, 'null'])) {
                 $appointment['Lokatie'] = '';
             }
+
+            // Remove none-UTF8 characters from content
+            $content = utf8_encode($content);
 
             $result[$start_date]['appointments'][] = [
                 'all_day'          => $appointment['DuurtHeleDag'],
@@ -157,6 +155,7 @@
         $content_html = $content_dom->saveHTML($content_dom->documentElement);
 
         $content_html = preg_replace('!\s+!', ' ', $content_html);
+
 
         // Remove semi-empty tags and everything outside body
         $content_html = str_between(

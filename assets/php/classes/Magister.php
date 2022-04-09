@@ -20,7 +20,7 @@
             global $_REQUESTHEADERS;
             
             if(!isset($_REQUESTHEADERS['x-auth-token'])) {
-                \Magistraal\Response\error('header_x-auth-token_missing', 200);
+                \Magistraal\Response\error('token_invalid');
             }
             
             return \Magister\Session::loginToken($_REQUESTHEADERS['x-auth-token']);
@@ -29,7 +29,7 @@
         public static function setupEnvironment() {
             \Magister\Session::$tenantSubdomain = \Magister\Session::$tenant;
             // \Magister\Session::$tenantSubdomain = \Magistraal\Tenants\get(\Magister\Session::$tenant)['subdomain'] ?? \Magistraal\Response\error('tenant_invalid');
-            \Magister\Session::$domain          = 'https://'.\Magister\Session::$tenantSubdomain.'.'.\Magistraal\Config\get('domain');
+            \Magister\Session::$domain          = 'https://'.\Magister\Session::$tenantSubdomain.'.magister.net';
         }
 
         public static function login($tenant, $username, $password) {
@@ -48,11 +48,11 @@
                 return ['success' => false, 'info' => 'invalid_password'];
             }
             
-            \Magister\Session::obtainTokens();
-            \Magister\Session::storeUserId();
+            \Magister\Session::getTokens();
+            \Magister\Session::getUserId();
             
             return ['success' => true, 'token_id' => \Magistraal\Authentication\token_put([
-                'tenant'               => $tenant,
+                'tenant'               => \Magister\Session::$tenant,
                 'access_token'         => \Magister\Session::$accessToken,
                 'access_token_expires' => \Magister\Session::$accessTokenExpires,
                 'refresh_token'        => \Magister\Session::$refreshToken
@@ -61,7 +61,7 @@
 
         public static function loginToken($token_id) {
             $token_data = \Magistraal\Authentication\token_get($token_id);
-            if($token_data === false) {
+            if(is_null($token_data)) {
                 \Magistraal\Response\error('token_invalid');
             }
 
@@ -73,7 +73,7 @@
                 \Magister\Session::$accessToken        = $token_data['access_token'];
                 \Magister\Session::$accessTokenExpires = $token_data['access_token_expires'];
                 \Magister\Session::setupEnvironment();
-                \Magister\Session::storeUserId();
+                \Magister\Session::getUserId();
             } else {    
                 // Create new access token using refresh token
                 // $tenant = $token_data['tenant'];
@@ -146,7 +146,7 @@
             return $response['headers']['http_code'] == 200;
         }
 
-        public static function obtainTokens() {
+        public static function getTokens() {
             // $response = \Magistraal\Browser\Browser::request('https://accounts.magister.net/connect/token', [
             //     'headers' => [
             //         'X-API-Client-ID' => 'EF15',
@@ -179,10 +179,10 @@
                     'code_verifier' => \Magister\Session::$codeVerifier
                 ]
             ]);
-            
-            \Magister\Session::$accessToken        = $response['access_token'] ?? null;
-            \Magister\Session::$refreshToken       = $response['refresh_token'] ?? null;
-            \Magister\Session::$accessTokenExpires = time() + ($response['expires_in'] ?? 0);
+
+            \Magister\Session::$accessToken        = $response['body']['access_token'] ?? null;
+            \Magister\Session::$refreshToken       = $response['body']['refresh_token'] ?? null;
+            \Magister\Session::$accessTokenExpires = time() + ($response['body']['expires_in'] ?? 0);
 
             return true;
         }
@@ -199,7 +199,7 @@
             ]);
         }
 
-        public static function storeUserId() {
+        public static function getUserId() {
             $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/account?noCache=0');
             \Magister\Session::$userId = $response['body']['Persoon']['Id'] ?? null;
 
