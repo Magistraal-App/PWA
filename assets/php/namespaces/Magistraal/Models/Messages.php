@@ -9,32 +9,10 @@
         $result = [];
             
         foreach ($messages as $message) {
-            $result[] = [
-                'folder_id'       => $message['mapId'],
-                'forwarded_at'    => strtotime($message['doorgestuurdOp']),
-                'has_attachments' => $message['heeftBijlagen'],
-                'id'              => $message['id'],
-                'priority'        => $message['heeftPrioriteit'] ? 1 : 0,
-                'read'            => $message['isGelezen'],
-                'replied_at'      => strtotime($message['beantwoordOp']),
-                'sender'          => [
-                    'id'              => $message['afzender']['id'],
-                    'name'            => $message['afzender']['naam']
-                ],
-                'sent_at'         => strtotime($message['verzondenOp']),
-                'subject'         => $message['onderwerp']
-            ];
+            $result[] = \Magistraal\Messages\format($message);
         }
 
         return $result;
-    }
-
-    function get($id) {
-        $response = \Magistraal\Browser\Browser::request(\Magister\Session::$domain."/api/berichten/berichten/{$id}/", [
-            'method' => 'POST'
-        ]);
-
-        return \Magistraal\Messages\format($response['body']);
     }
 
     function format($message) {
@@ -91,6 +69,14 @@
         }
 
         return $result;
+    }
+
+    function get($id) {
+        $response = \Magistraal\Browser\Browser::request(\Magister\Session::$domain."/api/berichten/berichten/{$id}/", [
+            'method' => 'POST'
+        ]);
+
+        return \Magistraal\Messages\format($response['body']);
     }
 
     function mark_read($id, $read = true) {

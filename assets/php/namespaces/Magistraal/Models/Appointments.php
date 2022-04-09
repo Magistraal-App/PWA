@@ -9,77 +9,83 @@
         $result = [];
 
         if(isset($from) && isset($to)) {
-            /* Generate an array with keys of dates between from and to */
-            $appointments_unixes = range($from, $to, 86400);
-            foreach ($appointments_unixes as $unix) {
-                $result[date('Y-m-d', $unix)] = [
-                    'unix' => $unix,
-                    'appointments' => []
-                ];
+            // Generate an array with keys of dates between from and to
+            for ($unix=$from; $unix < $to;) { 
+                $unix = strtotime('+1 day', $unix);
+                $result[date('Y-m-d', $unix)] = ['unix' => $unix, 'appointments' => []];
             }
         }
 
+
         foreach ($appointments as $appointment) {
             $start      = strtotime($appointment['Start']);
-            $end        = strtotime($appointment['Einde']);
             $start_date = date('Y-m-d', $start);
+
+            echo($start_date);
 
             // Some appointments passed don't fit in the desired timespan, skip those
             if(!isset($result[$start_date])) {
                 continue;
             }
 
-            // Seperate Microsoft Teams meeting link from content
-            list($content, $ms_teams_link) = \Magistraal\Appointments\seperate_lesson_content($appointment['Inhoud']);
-            
-            // Obtain solely link
-            if(strpos($appointment['Inhoud'], '://teams.microsoft.com/l/meetup-join/') !== false) {
-                $ms_teams_link = 'https://teams.microsoft.com/l/meetup-join/'.str_between('://teams.microsoft.com/l/meetup-join/', '"', $appointment['Inhoud']);
-            }
-
-            // Calculate content length
-            $content_length = strlen(trim(strip_tags($content)));
-
-            // Clear facility when it's just a dash or quotes
-            if(in_array($appointment['Lokatie'], ['""', '\'\'', '-', null, 'null'])) {
-                $appointment['Lokatie'] = '';
-            }
-
-            // Remove none-UTF8 characters from content
-            $content = utf8_encode($content);
-
-            $result[$start_date]['appointments'][] = [
-                'all_day'          => $appointment['DuurtHeleDag'],
-                'content_length'   => $content_length,
-                'content_text'     => strip_tags(str_replace('</p>', '</p> ', $content)),
-                'content'          => $content,
-                'designation'      => $appointment['Omschrijving'],
-                'duration'         => [
-                    'seconds'           => ($end - $start),
-                    'lessons'           => ($appointment['LesuurTotMet']+1 ?? 0) - ($appointment['LesuurVan'] ?? 0) 
-                ],
-                'end'              => [
-                    'unix'              => $end,
-                    'lesson'            => $appointment['LesuurTotMet'] ?? 0
-                ],  
-                'facility'         => $appointment['Lokatie'],
-                'finished'         => $appointment['Afgerond'],
-                'has_meeting_link' => $ms_teams_link == '' ? false : true,
-                'id'               => $appointment['Id'],
-                'info_type'        => \Magistraal\Appointments\remap_info_type($appointment['InfoType']),
-                'meeting_link'     => $ms_teams_link,
-                'start'            => [
-                    'unix'              => $start,
-                    'lesson'            => $appointment['LesuurVan'] ?? 0
-                ],  
-                'status'           => \Magistraal\Appointments\remap_status($appointment['Status']),
-                'subjects'         => array_column($appointment['Vakken'], 'Naam'),
-                'teachers'         => array_column($appointment['Docenten'], 'Naam'),
-                'type'             => \Magistraal\Appointments\remap_type($appointment['Type'])
-            ];
+            $result[$start_date]['appointments'][] = \Magistraal\Appointments\format($appointment);
         }
 
         return $result;
+    }
+
+    function format($appointment) {
+        $start      = strtotime($appointment['Start']);
+        $end        = strtotime($appointment['Einde']);
+
+        // Seperate Microsoft Teams meeting link from content
+        list($content, $ms_teams_link) = \Magistraal\Appointments\seperate_lesson_content($appointment['Inhoud']);
+        
+        // Obtain solely link
+        if(strpos($appointment['Inhoud'], '://teams.microsoft.com/l/meetup-join/') !== false) {
+            $ms_teams_link = 'https://teams.microsoft.com/l/meetup-join/'.str_between('://teams.microsoft.com/l/meetup-join/', '"', $appointment['Inhoud']);
+        }
+
+        // Calculate content length
+        $content_length = strlen(trim(strip_tags($content)));
+
+        // Clear facility when it's just a dash or quotes
+        if(in_array($appointment['Lokatie'], ['""', '\'\'', '-', null, 'null'])) {
+            $appointment['Lokatie'] = '';
+        }
+
+        // Remove non-UTF8 characters from content
+        $content = utf8_encode($content);
+
+        return [
+            'all_day'          => $appointment['DuurtHeleDag'],
+            'content_length'   => $content_length,
+            'content_text'     => strip_tags(str_replace('</p>', '</p> ', $content)),
+            'content'          => $content,
+            'designation'      => $appointment['Omschrijving'],
+            'duration'         => [
+                'seconds'           => ($end - $start),
+                'lessons'           => ($appointment['LesuurTotMet']+1 ?? 0) - ($appointment['LesuurVan'] ?? 0) 
+            ],
+            'end'              => [
+                'unix'              => $end,
+                'lesson'            => $appointment['LesuurTotMet'] ?? 0
+            ],  
+            'facility'         => $appointment['Lokatie'],
+            'finished'         => $appointment['Afgerond'],
+            'has_meeting_link' => $ms_teams_link == '' ? false : true,
+            'id'               => $appointment['Id'],
+            'info_type'        => \Magistraal\Appointments\remap_info_type($appointment['InfoType']),
+            'meeting_link'     => $ms_teams_link,
+            'start'            => [
+                'unix'              => $start,
+                'lesson'            => $appointment['LesuurVan'] ?? 0
+            ],  
+            'status'           => \Magistraal\Appointments\remap_status($appointment['Status']),
+            'subjects'         => array_column($appointment['Vakken'] ?? [], 'Naam'),
+            'teachers'         => array_column($appointment['Docenten'] ?? [], 'Naam'),
+            'type'             => \Magistraal\Appointments\remap_type($appointment['Type'])
+        ];
     }
 
     function finish($id, $finished = true) {       

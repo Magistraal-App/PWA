@@ -9,26 +9,30 @@
         $result = [];
 
         foreach ($grades as $grade) {
-            $result[] = [
-                'column_id'   => $grade['kolomId'],
-                'counts'      => $grade['teltMee'],
-                'description' => $grade['omschrijving'],
-                'entered_at'  => \strtotime($grade['behaaldOp'] ?? $grade['ingevoerdOp'] ?? null),
-                'exemption'   => $grade['heeftVrijstelling'],
-                'got_at'      => \strtotime($grade['behaaldOp'] ?? $grade['ingevoerdOp'] ?? null),
-                'make_up'     => $grade['moetInhalen'],
-                'passed'      => $grade['isVoldoende'],
-                'subject'     => [
-                    'code'        => $grade['vak']['code'],
-                    'description' => $grade['vak']['omschrijving']
-                ],
-                'value_str'   => $grade['waarde'],
-                'value'       => \Magistraal\Grades\grade_str_to_float($grade['waarde']),
-                'weight'      => $grade['weegfactor']
-            ];
+            $result[] = \Magistraal\Grades\format($grade);
         }
 
         return $result;
+    }
+
+    function format($grade) {
+        return [
+            'column_id'   => $grade['kolomId'],
+            'counts'      => $grade['teltMee'],
+            'description' => $grade['omschrijving'],
+            'entered_at'  => \strtotime($grade['behaaldOp'] ?? $grade['ingevoerdOp'] ?? null),
+            'exemption'   => $grade['heeftVrijstelling'],
+            'got_at'      => \strtotime($grade['behaaldOp'] ?? $grade['ingevoerdOp'] ?? null),
+            'make_up'     => $grade['moetInhalen'],
+            'passed'      => $grade['isVoldoende'],
+            'subject'     => [
+                'abbr'        => $grade['vak']['code'],
+                'description' => $grade['vak']['omschrijving']
+            ],
+            'value_str'   => $grade['waarde'],
+            'value'       => \Magistraal\Grades\grade_str_to_float($grade['waarde']),
+            'weight'      => $grade['weegfactor']
+        ];
     }
 
     function grade_str_to_float($str) {
