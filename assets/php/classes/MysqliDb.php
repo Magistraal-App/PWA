@@ -1,13 +1,13 @@
 <?php 
     class MysqliDb {
-        public $mysqli;
-        public $debug;
+        protected $mysqli;
+        protected $debug;
     
         public function __construct($host, $username, $password, $database, $debug = false) {
-            $this->$mysqli = new mysqli($host, $username, $password, $database);
-            $this->$debug = (bool) $debug;
+            $this->mysqli = new mysqli($host, $username, $password, $database);
+            $this->debug = (bool) $debug;
             if (mysqli_connect_errno()) {
-                if ($this->$debug) {
+                if ($this->debug) {
                     echo mysqli_connect_error();
                     debug_print_backtrace();
                 }
@@ -17,7 +17,7 @@
         }
     
         public function q($query) {
-            if ($query = $this->$mysqli->prepare($query)) {
+            if ($query = $this->mysqli->prepare($query)) {
                 if (func_num_args() > 1) {
                     $x = func_get_args();
                     $args = array_merge(array(func_get_arg(1)),
@@ -31,8 +31,8 @@
                 $query->execute();
     
                 if ($query->errno) {
-                if ($this->$debug) {
-                    echo mysqli_error($this->$mysqli);
+                if ($this->debug) {
+                    echo mysqli_error($this->mysqli);
                     debug_print_backtrace();
                 }
                 return false;
@@ -59,8 +59,8 @@
                 $query->close(); 
                 return $result;
             } else {
-                if ($this->$debug) {
-                    echo $this->$mysqli->error;
+                if ($this->debug) {
+                    echo $this->mysqli->error;
                     debug_print_backtrace();
                 }
                 return false;
@@ -68,7 +68,7 @@
         }
     
         public function handle() {
-            return $this->$mysqli;
+            return $this->mysqli;
         }
     }
 ?>

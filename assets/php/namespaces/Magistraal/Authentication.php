@@ -74,9 +74,10 @@
         $token_data['refresh_token'] = \Magistraal\Encryption\decrypt($token_data['refresh_token']);
 
         if(time() > $token_data['token_expires']) {
-            // Generate new token if it has expired
+            // Delete old token
             \Magistraal\Authentication\token_delete($token_id);
 
+            // Create new token
             $new_token_id = \Magistraal\Authentication\token_put([
                 'tenant'               => $token_data['tenant'],
                 'access_token'         => $token_data['access_token'],
