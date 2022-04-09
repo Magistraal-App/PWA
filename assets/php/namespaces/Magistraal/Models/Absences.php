@@ -25,6 +25,11 @@
             $result[$yearmonth]['absences'][] = \Magistraal\Absences\format($absence);
         }
 
+        uasort($result, function($a, $b) {
+            return ($a['unix'] < $b['unix'] ? 1 : -1);
+        });
+
+
         return $result;
     }
 

@@ -201,15 +201,11 @@
                     'grant_type'    => 'refresh_token'
                 ]
             ]);
-
-            var_dump($response);
         }
 
         public static function getUserId() {
             $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/account?noCache=0');
             
-            exit(var_dump($response));
-
             \Magister\Session::$userId = $response['body']['Persoon']['Id'] ?? null;
 
             return \Magister\Session::$userId;

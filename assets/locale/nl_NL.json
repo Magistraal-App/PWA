@@ -112,6 +112,10 @@
     "settings.setting.appointments.smart_detect_canceled.title": "Uitval detecteren",
     "settings.category.appointments.google_calendar.title": "Google Calendar",
 
+    "sidebar.table.info.absence.lesson": "Lesuur",
+    "sidebar.table.info.absence.date": "Datum",
+    "sidebar.table.info.absence.time": "Tijd",
+    "sidebar.table.info.absence.permitted": "Geoorloofd",
     "sidebar.table.info.appointment.start": "Begin",
     "sidebar.table.info.appointment.end": "Einde",
     "sidebar.table.info.appointment.facility": "Locatie",

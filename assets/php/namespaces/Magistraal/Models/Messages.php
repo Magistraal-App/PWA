@@ -17,7 +17,7 @@
 
     function format($message) {
         $result = [
-            'content'         => $message['inhoud'],
+            'content'         => $message['inhoud'] ?? '',
             'folder_id'       => $message['mapId'],
             'forwarded_at'    => strtotime($message['doorgestuurdOp']),
             'has_attachments' => $message['heeftBijlagen'],
@@ -39,7 +39,7 @@
         ];
         
         // Store recipient TO name and id
-        foreach ($message['ontvangers'] as $recipient) {
+        foreach ($message['ontvangers'] ?? [] as $recipient) {
             $result['recipients']['to']['list'][] = [
                 'id'   => $recipient['id'],
                 'name' => $recipient['weergavenaam']
@@ -49,7 +49,7 @@
         }
 
         // Store recipient CC name and id
-        foreach ($message['kopieOntvangers'] as $recipient) {
+        foreach ($message['kopieOntvangers'] ?? [] as $recipient) {
             $result['recipients']['cc']['list'][] = [
                 'id'   => $recipient['id'],
                 'name' => $recipient['weergavenaam']
@@ -59,7 +59,7 @@
         }
 
         // Store recipient BCC name and id
-        foreach ($message['blindeKopieOntvangers'] as $recipient) {
+        foreach ($message['blindeKopieOntvangers ']?? [] as $recipient) {
             $result['recipients']['bcc']['list'][] = [
                 'id'   => $recipient['id'],
                 'name' => $recipient['weergavenaam']

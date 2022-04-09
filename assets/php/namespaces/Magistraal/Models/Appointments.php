@@ -21,8 +21,6 @@
             $start      = strtotime($appointment['Start']);
             $start_date = date('Y-m-d', $start);
 
-            echo($start_date);
-
             // Some appointments passed don't fit in the desired timespan, skip those
             if(!isset($result[$start_date])) {
                 continue;
