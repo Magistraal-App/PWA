@@ -13,7 +13,8 @@
                 'payload'   => [],
                 'method'    => 'POST',
                 'cookie'    => \Magistraal\Browser\encode_cookie_header(\Magistraal\Browser\Browser::$cookies),
-                'anonymous' => false
+                'anonymous' => false,
+                'redirects' => true
             ], $options);
 
             $options['headers'] = array_replace([
@@ -87,7 +88,7 @@
             }
 
             // Redirect
-            if(isset($headers['location'])) {
+            if($options['redirects'] != false && isset($headers['location'])) {
                 $new_url = $headers['location'];
                 if(strpos($new_url, '/') === 0) { // Relative url on same domain
                     $new_url = parse_url($url, PHP_URL_SCHEME).'://'.parse_url($url, PHP_URL_HOST).$new_url;
@@ -95,6 +96,13 @@
 
                 return \Magistraal\Browser\Browser::request($new_url, $options);
             }
+
+            if($info['http_code'] == '401') {
+                \Magistraal\Response\error('token_invalid');
+            }
+
+            // If http code is 2xx ? true : false
+            $info['success'] = substr($info['http_code'], 0, 1) == '2' ? true : false;
 
             return [
                 'headers' => $headers,

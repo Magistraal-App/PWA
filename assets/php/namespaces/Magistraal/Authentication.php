@@ -43,13 +43,12 @@
 
         $token_id      = \Magistraal\Authentication\random_token_id();
         $token_expires = time() + 900; // Token will expire in 15 minutes
-        $user_agent    = $_SERVER['HTTP_USER_AGENT'] ?? null;
         $access_token  = \Magistraal\Encryption\encrypt($args['access_token']);
         $refresh_token = \Magistraal\Encryption\encrypt($args['refresh_token']);
 
         if($db->q("INSERT INTO magistraal_tokens 
-        (token_id,      token_expires,      tenant,              access_token,      access_token_expires,              refresh_token,      user_agent) VALUES 
-        ('{$token_id}', '{$token_expires}', '{$args['tenant']}', '{$access_token}', '{$args['access_token_expires']}', '{$refresh_token}', '{$user_agent}')")) {
+        (token_id,      token_expires,      tenant,              access_token,      access_token_expires,              refresh_token) VALUES 
+        ('{$token_id}', '{$token_expires}', '{$args['tenant']}', '{$access_token}', '{$args['access_token_expires']}', '{$refresh_token}')")) {
             return $token_id;
         }
 
@@ -64,11 +63,6 @@
             return null;
         }
         $token_data = $token_data[0];
-
-        if($_SERVER['HTTP_USER_AGENT'] != $token_data['user_agent'] && $token_data['user_agent'] != '') {
-            \Magistraal\Authentication\token_delete($token_id);
-            return false;
-        }
 
         $token_data['access_token']  = \Magistraal\Encryption\decrypt($token_data['access_token']);
         $token_data['refresh_token'] = \Magistraal\Encryption\decrypt($token_data['refresh_token']);
@@ -85,7 +79,7 @@
                 'refresh_token'        => $token_data['refresh_token']
             ]);
 
-            // $token_data = \Magistraal\Authentication\token_get($new_token_id);
+            $token_data = \Magistraal\Authentication\token_get($new_token_id);
         
             header("x-auth-token: {$new_token_id}");
         }

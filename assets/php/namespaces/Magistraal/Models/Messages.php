@@ -5,6 +5,26 @@
         return \Magistraal\Messages\format_all(\Magister\Session::messageList($top, $skip), $top, $skip);
     }
 
+    function mark_read($id, $read) {
+        return \Magister\Session::messageMarkRead($id, $read);
+    }
+
+    function send($to = [], $cc = [], $bcc = [], $subject = null, $content = null, $priority = null) {
+        array_walk($to, function(&$v, $k) {
+            $v = ['id' => $v, 'type' => 'persoon'];
+        });
+
+        array_walk($cc, function(&$v, $k) {
+            $v = ['id' => $v, 'type' => 'persoon'];
+        });
+
+        array_walk($bcc, function(&$v, $k) {
+            $v = ['id' => $v, 'type' => 'persoon'];
+        });
+
+        return \Magister\Session::messageSend($to, $cc, $bcc, $subject, $content, $priority);
+    }
+
     function format_all($messages, $top, $skip) {
         $result = [];
             
@@ -77,27 +97,5 @@
         ]);
 
         return \Magistraal\Messages\format($response['body']);
-    }
-
-    function mark_read($id, $read = true) {
-        \Magistraal\Browser\Browser::request(\Magister\Session::$domain."/api/berichten/berichten/", [
-            'method' => 'patch',
-            'payload' => [
-                'berichten' => [
-                    [
-                        'berichtId' => $id,
-                        'operations' => [
-                            [
-                                'op' => 'replace',
-                                'path' => '/IsGelezen',
-                                'value' => $read
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-        ]);
-
-        return true;
     }
 ?>

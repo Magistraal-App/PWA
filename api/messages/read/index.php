@@ -5,8 +5,8 @@
     if(!isset($_POST['id'])) {
         \Magistraal\Response\error('parameter_id_mising');
     }
-    $id   = $_POST['id'];
 
+    $id   = $_POST['id'];
     $read = $_POST['read'] ?? null;
 
     if(\Magistraal\Messages\mark_read($id, $read)) {

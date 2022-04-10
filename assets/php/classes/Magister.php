@@ -69,8 +69,8 @@
             \Magister\Session::$tenant        = $token_data['tenant'];
             \Magister\Session::$refreshToken  = $token_data['refresh_token'];
 
-            // Access token has expired, generate new one
-            if((time() - $token_data['access_token_expires']) > -15) {
+            // Access token will expire soon, generate new one
+            if(($token_data['access_token_expires'] - 15) <= time()) {
                 \Magister\Session::refreshAccessToken();
             }
 
@@ -265,7 +265,7 @@
                 'method'  => 'put'
             ]);
 
-            if(strpos($response['body'], 'afspraken') !== false) {
+            if(isset($response['body']['Uri']) && strpos($response['body']['Uri'], 'afspraken') !== false) {
                 return true;
             }
         }
@@ -292,6 +292,60 @@
             $messages = $response['body']['items'];
 
             return $messages;
+        }
+
+        public static function messageMarkRead($id, $read = true) {
+            return \Magistraal\Browser\Browser::request(\Magister\Session::$domain."/api/berichten/berichten/", [
+                'method' => 'patch',
+                'payload' => [
+                    'berichten' => [
+                        [
+                            'berichtId' => $id,
+                            'operations' => [
+                                [
+                                    'op' => 'replace',
+                                    'path' => '/IsGelezen',
+                                    'value' => $read
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]);
+        }
+
+        public static function messageSend($to = [], $cc = [], $bcc = [], $subject = '', $content = '', $priority = false) {          
+            $response = \Magistraal\Browser\Browser::request(\Magister\Session::$domain."/api/berichten/berichten/", [
+                'method' => 'post',
+                'payload' => [
+                    'bijlagen' => [],
+                    'blindeKopieOntvangers' => $bcc,
+                    'heeftPrioriteit' => $priority ?? false,
+                    'inhoud' => $content,
+                    'kopieOntvangers' => $cc,
+                    'onderwerp' => $subject,
+                    'ontvangers' => $to,
+                    'verzendOptie' => 'standaard'
+                ],
+                'redirects' => false
+            ]);
+
+            return $response['info']['success'];
+        }
+
+        /* ============================ */
+        /*            People            */
+        /* ============================ */
+
+        public static function peopleList($query) {
+            $query  = urlencode($query);
+            $response = \Magistraal\Api\call(\Magister\Session::$domain."/api/contacten/personen/?q={$query}&top=250&type=alle");
+
+            if($response['info']['http_code'] != 200) {
+                return [];
+            }
+
+            return $response['body']['items'];
         }
 
         // public function accountList() {

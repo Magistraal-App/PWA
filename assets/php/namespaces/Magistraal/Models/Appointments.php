@@ -112,6 +112,10 @@
             for ($i=0; $i < count($nodes); $i++) { 
                 $node = $nodes->item($i);
 
+                if($node->hasAttribute('style')) {
+                    $node->removeAttribute('style');
+                }
+
                 switch ($node->tagName) {
                     case 'a':
                         if(!$node->hasAttribute('href')) {

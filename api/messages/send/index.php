@@ -1,16 +1,29 @@
 <?php 
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
-    $Magister->loginHeaderToken();
+    \Magister\Session::start();
 
     if(!isset($_POST['to']) || empty($_POST['to'])) {
         \Magistraal\Response\error('parameter_to_missing.');
     }
 
-    $Magister->messageSend([
-        'to'      => $_POST['to'],
-        'cc'      => $_POST['cc'] ?? null,
-        'bcc'     => $_POST['bcc'] ?? null,
-        'subject' => $_POST['subject'] ?? null,
-        'content' => $_POST['content'] ?? null,
-    ]);
+    if(!isset($_POST['cc']) || $_POST['cc'] == '') {
+        $_POST['cc'] = [];
+    }
+
+    if(!isset($_POST['bcc']) || $_POST['bcc'] == '') {
+        $_POST['bcc'] = [];
+    }
+
+    if(\Magistraal\Messages\send(
+        $_POST['to'],
+        $_POST['cc'] ?? null,
+        $_POST['bcc'] ?? null,
+        $_POST['subject'] ?? null,
+        $_POST['content'] ?? null,
+        $_POST['priority'] ?? null
+    )) {
+        \Magistraal\Response\success();
+    }
+
+    \Magistraal\Response\error();
 ?>

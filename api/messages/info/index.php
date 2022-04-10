@@ -5,6 +5,7 @@
     if(!isset($_POST['id'])) {
         \Magistraal\Response\error('parameter_id_mising');
     }
+    
     $id = $_POST['id'];
 
     \Magistraal\Response\success(\Magistraal\Messages\get($id));
