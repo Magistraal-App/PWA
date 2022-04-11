@@ -2,8 +2,8 @@
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
     \Magister\Session::start();
 
-    $from = $_POST['from'] ?? time();
-    $to   = $_POST['to']   ?? time() + 86400 * 6;
+    $from = $_POST['from'] ?? strtotime('today');
+    $to   = $_POST['to']   ?? $from + 86400 * 6;
 
     \Magistraal\Response\success(\Magistraal\Appointments\get_all($from, $to));
 ?>

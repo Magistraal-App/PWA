@@ -270,6 +270,12 @@
             }
         }
 
+        public static function appointmentGet($id) {
+            $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/afspraken/{$id}");
+
+            return $response['body'];
+        }
+
         /* ============================ */
         /*            Grades            */
         /* ============================ */
@@ -312,6 +318,12 @@
                     ]
                 ]
             ]);
+        }
+
+        public static function messageGet($id) {
+            $response = \Magistraal\Browser\Browser::request(\Magister\Session::$domain."/api/berichten/berichten/{$id}/");
+
+            return $response['body'];
         }
 
         public static function messageSend($to = [], $cc = [], $bcc = [], $subject = '', $content = '', $priority = false) {          

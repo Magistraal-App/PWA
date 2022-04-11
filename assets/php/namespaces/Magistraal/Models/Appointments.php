@@ -1,35 +1,8 @@
 <?php 
     namespace Magistraal\Appointments;
 
-    function get_all($from, $to) {
-        return \Magistraal\Appointments\format_all(\Magister\Session::appointmentList($from, $to), $from, $to);
-    }
-
-    function format_all($appointments, $from, $to) {
-        $result = [];
-
-        if(isset($from) && isset($to)) {
-            // Generate an array with keys of dates between from and to
-            for ($unix=$from; $unix < $to;) { 
-                $unix = strtotime('+1 day', $unix);
-                $result[date('Y-m-d', $unix)] = ['unix' => $unix, 'appointments' => []];
-            }
-        }
-
-
-        foreach ($appointments as $appointment) {
-            $start      = strtotime($appointment['Start']);
-            $start_date = date('Y-m-d', $start);
-
-            // Some appointments passed don't fit in the desired timespan, skip those
-            if(!isset($result[$start_date])) {
-                continue;
-            }
-
-            $result[$start_date]['appointments'][] = \Magistraal\Appointments\format($appointment);
-        }
-
-        return $result;
+    function get($id) {
+        return \Magistraal\Appointments\format(\Magister\Session::appointmentGet($id));
     }
 
     function format($appointment) {
@@ -56,11 +29,18 @@
         $content = utf8_encode($content);
 
         return [
-            'all_day'          => $appointment['DuurtHeleDag'],
-            'content_length'   => $content_length,
-            'content_text'     => strip_tags(str_replace('</p>', '</p> ', $content)),
-            'content'          => $content,
-            'designation'      => $appointment['Omschrijving'],
+            'all_day'          => $appointment['DuurtHeleDag'] ?? false,
+            'attachments'      => [
+                // [
+                //     'location' => 'google.com',
+                //     'icon' => "fab fa-google",
+                //     'filename' => 'Google website'
+                // ]
+            ],
+            'content_length'   => $content_length ?? 0,
+            'content_text'     => strip_tags(str_replace('</p>', '</p> ', $content)) ?? '',
+            'content'          => $content ?? '',
+            'designation'      => $appointment['Omschrijving'] ?? '',
             'duration'         => [
                 'seconds'           => ($end - $start),
                 'lessons'           => ($appointment['LesuurTotMet']+1 ?? 0) - ($appointment['LesuurVan'] ?? 0) 
@@ -69,22 +49,54 @@
                 'unix'              => $end,
                 'lesson'            => $appointment['LesuurTotMet'] ?? 0
             ],  
-            'facility'         => $appointment['Lokatie'],
-            'finished'         => $appointment['Afgerond'],
+            'facility'         => $appointment['Lokatie'] ?? '',
+            'finished'         => $appointment['Afgerond'] ?? false,
             'has_meeting_link' => $ms_teams_link == '' ? false : true,
             'id'               => $appointment['Id'],
-            'info_type'        => \Magistraal\Appointments\remap_info_type($appointment['InfoType']),
-            'meeting_link'     => $ms_teams_link,
+            'info_type'        => \Magistraal\Appointments\remap_info_type($appointment['InfoType']) ?? 'unknown',
+            'meeting_link'     => $ms_teams_link ?? '#',
             'start'            => [
                 'unix'              => $start,
                 'lesson'            => $appointment['LesuurVan'] ?? 0
             ],  
-            'status'           => \Magistraal\Appointments\remap_status($appointment['Status']),
-            'subjects'         => array_column($appointment['Vakken'] ?? [], 'Naam'),
-            'teachers'         => array_column($appointment['Docenten'] ?? [], 'Naam'),
-            'type'             => \Magistraal\Appointments\remap_type($appointment['Type'])
+            'status'           => \Magistraal\Appointments\remap_status($appointment['Status']) ?? 'unknown',
+            'subjects'         => array_column($appointment['Vakken'] ?? [], 'Naam') ?? [],
+            'teachers'         => array_column($appointment['Docenten'] ?? [], 'Naam') ?? [],
+            'type'             => \Magistraal\Appointments\remap_type($appointment['Type']) ?? 'unknown'
         ];
     }
+
+    function get_all($from, $to) {
+        return \Magistraal\Appointments\format_all(\Magister\Session::appointmentList($from, $to), $from, $to);
+    }
+
+    function format_all($appointments, $from, $to) {
+        $result = [];
+
+        if(isset($from) && isset($to)) {
+            // Generate an array with keys of dates between from and to
+            for ($unix=$from; $unix <= $to;) { 
+                $result[date('Y-m-d', $unix)] = ['unix' => $unix, 'appointments' => []];
+                $unix = strtotime('+1 day', $unix);
+            }
+        }
+
+
+        foreach ($appointments as $appointment) {
+            $start      = strtotime($appointment['Start']);
+            $start_date = date('Y-m-d', $start);
+
+            // Some appointments passed don't fit in the desired timespan, skip those
+            if(!isset($result[$start_date])) {
+                continue;
+            }
+
+            $result[$start_date]['appointments'][] = \Magistraal\Appointments\format($appointment);
+        }
+
+        return $result;
+    }
+
 
     function finish($id, $finished = true) {       
         return \Magister\Session::appointmentFinish($id, $finished);

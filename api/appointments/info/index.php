@@ -6,5 +6,5 @@
         \Magistraal\Response\error('parameter_id_mising');
     }
     
-    \Magistraal\Response\success(\Magistraal\Messages\get($_POST['id']));
+    \Magistraal\Response\success(\Magistraal\Appointments\get($_POST['id']));
 ?>

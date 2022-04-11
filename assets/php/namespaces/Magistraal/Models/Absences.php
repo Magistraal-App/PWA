@@ -9,9 +9,9 @@
         $result = [];
 
         // Generate an array with keys of months between from and to
-        for ($unix=$from; $unix < $to;) { 
-            $unix = strtotime('+1 month', $unix);
+        for ($unix=$from; $unix <= $to;) { 
             $result[date('Y-m', $unix)] = ['unix' => $unix, 'absences' => []];
+            $unix = strtotime('+1 month', $unix);
         }
         
         foreach ($absences as $absence) {
