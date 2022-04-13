@@ -6,7 +6,7 @@
     "start_url": "/magistraal/client/main/",
     "display": "standalone",
     "background_color": "#202124",
-    "theme_color": "#202124",
+    "theme_color": "#0058db",
     "scope": "/magistraal/",
     "orientation": "portrait-primary",
     "icons": [
@@ -41,6 +41,14 @@
         {
             "src": "client/assets/images/app/logo/512x512.png",
             "type": "image/png", "sizes": "512x512"
+        },
+        {
+            "src": "client/assets/images/app/logo/768x768.png",
+            "type": "image/png", "sizes": "768x768"
+        },
+        {
+            "src": "client/assets/images/app/logo/1024x1024.png",
+            "type": "image/png", "sizes": "1024x1024"
         }
     ]
 }
