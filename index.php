@@ -1,0 +1,1 @@
+<?php header('Location: ./client/', true, 302); ?>
