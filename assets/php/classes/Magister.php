@@ -158,7 +158,7 @@
                 $bearer = \Magistraal\Authentication\token_get(\Magister\Session::$tokenId);
             }
 
-            if(!isset($bearer)) {
+            if(!isset($bearer) || !isset($bearer['access_token'])|| empty($bearer['access_token']) || !isset($bearer['refresh_token'])|| empty($bearer['refresh_token'])) {
                 // Token does NOT exist, create new token
                 $bearer = \Magister\Session::getBearer();
 
@@ -180,8 +180,8 @@
             }
 
             \Magister\Session::$tokenId            = $token_id ?? \Magister\Session::$tokenId;
-            \Magister\Session::$accessToken        = $bearer['access_token'] ?? null;
-            \Magister\Session::$refreshToken       = $bearer['refresh_token'] ?? null;
+            \Magister\Session::$accessToken        = $bearer['access_token'] ?? \Magistraal\Response\error('failed_to_obtain_access_token');
+            \Magister\Session::$refreshToken       = $bearer['refresh_token'] ?? \Magistraal\Response\error('failed_to_obtain_refresh_token');
             \Magister\Session::$accessTokenExpires = $bearer['access_token_expires'];
         }
 
