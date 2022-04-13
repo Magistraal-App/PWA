@@ -5,4 +5,4 @@ Magistraal biedt leerlingen een betere manier om het administratie- en communica
 
 ---
 
-Magistraal is niet verbonden met of onderdeel van Iddink.
+Magistraal is niet verbonden met of onderdeel van Iddink Group.
