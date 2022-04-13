@@ -6,48 +6,48 @@
     "start_url": "/magistraal/client/main/",
     "display": "standalone",
     "background_color": "#0058db",
-    "theme_color": "#000000",
+    "theme_color": "#404040",
     "scope": "/magistraal/",
     "orientation": "portrait-primary",
     "icons": [
         {
-            "src": "client/assets/images/app/logo/any.svg",
+            "src": "client/assets/images/app/logo/icon-any.svg",
             "type": "image/svg+xml", "sizes": "any"
         },
         {
-            "src": "client/assets/images/app/logo/96x96.png",
+            "src": "client/assets/images/app/logo/icon-96x96.png",
             "type": "image/png", "sizes": "96x96"
         },
         {
-            "src": "client/assets/images/app/logo/128x128.png",
+            "src": "client/assets/images/app/logo/icon-128x128.png",
             "type": "image/png","sizes": "128x128"
         },
         {
-            "src": "client/assets/images/app/logo/144x144.png",
+            "src": "client/assets/images/app/logo/icon-144x144.png",
             "type": "image/png", "sizes": "144x144"
         },
         {
-            "src": "client/assets/images/app/logo/152x152.png",
+            "src": "client/assets/images/app/logo/icon-152x152.png",
             "type": "image/png", "sizes": "152x152"
         },
         {
-            "src": "client/assets/images/app/logo/192x192.png",
+            "src": "client/assets/images/app/logo/icon-192x192.png",
             "type": "image/png", "sizes": "192x192"
         },
         {
-            "src": "client/assets/images/app/logo/384x384.png",
+            "src": "client/assets/images/app/logo/icon-384x384.png",
             "type": "image/png", "sizes": "384x384"
         },
         {
-            "src": "client/assets/images/app/logo/512x512.png",
+            "src": "client/assets/images/app/logo/icon-512x512.png",
             "type": "image/png", "sizes": "512x512"
         },
         {
-            "src": "client/assets/images/app/logo/768x768.png",
+            "src": "client/assets/images/app/logo/icon-768x768.png",
             "type": "image/png", "sizes": "768x768"
         },
         {
-            "src": "client/assets/images/app/logo/1024x1024.png",
+            "src": "client/assets/images/app/logo/icon-1024x1024.png",
             "type": "image/png", "sizes": "1024x1024"
         }
     ]
