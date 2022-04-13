@@ -52,10 +52,13 @@
             <button data-translation="login.hint.submit" role="submit" class="btn btn-secondary" data-error="login_incorrect_passsword field_empty_password"></button>
         </form>
         <div id="login-footer">
-            <p class="text-muted mb-5 pb-3">
+            <p class="text-muted mb-2 pt-4 pb-3">
                 Made with <span style="font-family: 'Segoe UI Emoji';">❤</span> by Tjalling
             </p>
-            <p class="text-muted">Magistraal is niet verbonden met Iddink Group.<br></p>
+            <p class="text-muted">
+                <span class="d-block d-md-none">Magistraal is niet verbonden met Iddink Group.</span>
+                <span class="d-none d-md-block">Magistraal is niet verbonden met of onderdeel van Iddink Group.</span>
+            </p>
         </div>
     </main>
     <footer class="bg-primary w-100 d-flex flex-row">
