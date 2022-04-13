@@ -41,14 +41,6 @@
         {
             "src": "client/assets/images/app/logo/icon-512x512.png",
             "type": "image/png", "sizes": "512x512"
-        },
-        {
-            "src": "client/assets/images/app/logo/icon-768x768.png",
-            "type": "image/png", "sizes": "768x768"
-        },
-        {
-            "src": "client/assets/images/app/logo/icon-1024x1024.png",
-            "type": "image/png", "sizes": "1024x1024"
         }
     ]
 }

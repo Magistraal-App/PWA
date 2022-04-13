@@ -82,7 +82,7 @@ const magistraal = {
 						'Accept': 'application/json',
 						'X-Auth-Token': magistraalPersistentStorage.get('token')
 					},
-					success: function (response, textStatus, request) {
+					success: function(response, textStatus, request) {
 						/* Save in cache if cachable */
 						if (cachable && typeof (response === null || response === void 0 ? void 0 : response.data) != 'undefined') {
 							magistraalPersistentStorage.set(`api_response.${api}.${JSON.stringify(data)}`, response === null || response === void 0 ? void 0 : response.data);
@@ -99,14 +99,8 @@ const magistraal = {
 						if (typeof callback == 'function') {
 							callback(response === null || response === void 0 ? void 0 : response.data, 'live');
 						}
-
-						let token = request.getResponseHeader('X-Auth-Token');
-
-						if (token) {
-							magistraalPersistentStorage.set('token', token);
-						}
 					},
-					error: function (response) {
+					error: function(response) {
 						var _response$responseJSO;
 
 						if ((response === null || response === void 0 ? void 0 : (_response$responseJSO = response.responseJSON) === null || _response$responseJSO === void 0 ? void 0 : _response$responseJSO.info) == 'token_invalid') {
@@ -125,6 +119,14 @@ const magistraal = {
 						}
 
 						reject(response);
+					},
+					complete: function(response, textStatus, request) {
+						let token = response.getResponseHeader('X-Auth-Token');
+						console.log(token);
+
+						if (token) {
+							magistraalPersistentStorage.set('token', token);
+						}
 					}
 				});
 			});
