@@ -74,10 +74,6 @@
     "grades.to_list": "Naar cijferlijst",
     "grades.to_overview": "Naar cijferoverzicht",
     "grades.to_grade_calculator": "Welk cijfer moet ik halen?",
-
-    "status.offline": "Offline",
-    "status.latest_cache_update": "Bijgewerkt",
-    "status.online": "Online",
     
     "login.placeholder.tenant": "school.magister.net",
     "login.placeholder.username": "Gebruikersnaam",

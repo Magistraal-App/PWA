@@ -38,17 +38,29 @@
     /*            TOKENS            */
     /* ============================ */
 
-    function token_put($args = []) {
+    function token_put($args = [], $token_id = null) {
         $db = \Magistraal\Database\connect();
 
-        $token_id      = \Magistraal\Authentication\random_token_id();
-        $token_expires = time() + 900; // Token will expire in 15 minutes
         $access_token  = \Magistraal\Encryption\encrypt($args['access_token']);
         $refresh_token = \Magistraal\Encryption\encrypt($args['refresh_token']);
+        $ip_address    = $_SERVER['REMOTE_ADDR'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
 
-        if($db->q("INSERT INTO magistraal_tokens 
-        (token_id,      token_expires,      tenant,              access_token,      access_token_expires,              refresh_token) VALUES 
-        ('{$token_id}', '{$token_expires}', '{$args['tenant']}', '{$access_token}', '{$args['access_token_expires']}', '{$refresh_token}')")) {
+        if(isset($token_id)) {
+            file_put_contents(ROOT."/log.txt", "[UPDATED] Login token {$token_id} updated:".json_encode(['access_token' => $access_token, 'access_token_expires' => $args['access_token_expires'], 'refresh_token' => $refresh_token])."\n", FILE_APPEND);
+            $response = $db->q("UPDATE magistraal_tokens 
+                                SET access_token='{$access_token}', access_token_expires='{$args['access_token_expires']}', refresh_token='{$refresh_token}' 
+                                WHERE token_id='{$token_id}'");
+        } else {
+            $token_expires = time() + 900; // Token will expire in 15 minutes
+
+            file_put_contents(ROOT."/log.txt", "[CREATED] Login token {$token_id} created:".json_encode(['token_expires' => $token_expires, 'tenant' => $args['tenant'], 'access_token' => $access_token, 'access_token_expires' => $args['access_token_expires'], 'refresh_token' => $refresh_token])."\n", FILE_APPEND);
+            $token_id = \Magistraal\Authentication\random_token_id();
+            $response = $db->q("INSERT INTO magistraal_tokens 
+                (token_id,      token_expires,      tenant,              access_token,      access_token_expires,              refresh_token,      ip_address) VALUES 
+                ('{$token_id}', '{$token_expires}', '{$args['tenant']}', '{$access_token}', '{$args['access_token_expires']}', '{$refresh_token}', '{$ip_address}')");
+        }
+        
+        if($response) {
             return $token_id;
         }
 
@@ -57,17 +69,18 @@
 
     function token_get($token_id) {
         $db = \Magistraal\Database\connect();
-        $token_data = $db->q("SELECT * FROM magistraal_tokens where token_id='{$token_id}'");
+        $response = $db->q("SELECT * FROM magistraal_tokens WHERE token_id='{$token_id}'");
 
-        if(!isset($token_data[0])) {
+        if(!isset($response[0])) {
             return null;
         }
-        $token_data = $token_data[0];
+        $token_data = $response[0];
 
         $token_data['access_token']  = \Magistraal\Encryption\decrypt($token_data['access_token']);
         $token_data['refresh_token'] = \Magistraal\Encryption\decrypt($token_data['refresh_token']);
 
         if(time() > $token_data['token_expires']) {
+            file_put_contents(ROOT."/log.txt", "[EXPIRED] Login token {$token_id} expired.\n", FILE_APPEND);
             // Delete old token
             \Magistraal\Authentication\token_delete($token_id);
 
@@ -81,20 +94,23 @@
 
             $token_data = \Magistraal\Authentication\token_get($new_token_id);
         
-            header("x-auth-token: {$new_token_id}");
+            header("X-Auth-Token: {$new_token_id}");
         }
 
         return $token_data;
     }
 
     function token_delete($token_id) {
-        $token_file = ROOT."/data/tokens/{$token_id}.json";
+        $db = \Magistraal\Database\connect();
+        $response = $db->q("DELETE FROM magistraal_tokens WHERE token_id='{$token_id}';");
 
-        if(!file_exists($token_file)) {
-            return false;
+        if($response) {
+            file_put_contents(ROOT."/log.txt", "[DELETED] Login token {$token_id} deleted.\n", FILE_APPEND);
+        } else {
+            file_put_contents(ROOT."/log.txt", "[ERROR] Failed to delete login token {$token_id}: ".json_encode($response)."\n", FILE_APPEND);
         }
 
-        return unlink($token_file);
+        return $response;
     }
 
     function random_token_id($length= 64) {
