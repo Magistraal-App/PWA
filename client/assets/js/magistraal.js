@@ -362,22 +362,16 @@ const magistraal = {
 	messages: {
 		paintList: (messages, source) => {
 			/* Pre-load newest three messages while painting */
-			magistraal.api.call('messages/info', {
-				'id': String(messages[0].id)
-			}, true, () => {}, null);
-			magistraal.api.call('messages/info', {
-				'id': String(messages[1].id)
-			}, true, () => {}, null);
-			magistraal.api.call('messages/info', {
-				'id': String(messages[2].id)
-			}, true, () => {}, null);
+			magistraal.api.call('messages/info', {'id': String(messages[0].id)}, true, () => {}, null);
+			magistraal.api.call('messages/info', {'id': String(messages[1].id)}, true, () => {}, null);
+			magistraal.api.call('messages/info', {'id': String(messages[2].id)}, true, () => {}, null);
 
 			let pageContent = '';
 			$.each(messages, function (i, message) {
 				let $message = magistraal.template.get('message-list-item');
 				message.subject = message.subject || magistraal.locale.translate('messages.subject.no_subject');
 				$message.find('.message-list-item-title').text(message.subject);
-				$message.find('.message-list-item-side-title').text('3 maa 2021');
+				$message.find('.message-list-item-side-title').text();
 				$message.find('.message-list-item-content').text(message.sender.name);
 				$message.attr({
 					'data-id': message.id,
@@ -385,16 +379,19 @@ const magistraal = {
 					'data-read': message.read,
 					'data-search': message.subject + message.sender.name
 				});
+
 				let icon = message.read == true ? 'envelope-open' : 'envelope';
 				$message.find('.message-list-item-icon').html(`<i class="fal fa-${icon}"></i>`);
+
 				magistraal.sidebar.addFeed($message, {
 					'title': message.subject,
 					'subtitle': message.sender.name,
 					'table': {
 						'message.sender': message.sender.name,
-						'message.sent_at': magistraal.locale.formatDate(message.sent_at, 'ldFYHi')
+						'message.sent_at': capitalizeFirst(magistraal.locale.formatDate(message.sent_at, 'ldFYHi'))
 					}
 				});
+
 				pageContent += $message.prop('outerHTML');
 			});
 			magistraal.page.setContent(pageContent);
