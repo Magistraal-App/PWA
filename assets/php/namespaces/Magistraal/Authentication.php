@@ -46,15 +46,15 @@
         $ip_address    = $_SERVER['REMOTE_ADDR'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
 
         if(isset($token_id)) {
-            file_put_contents(ROOT."/log.txt", "[UPDATED] Login token {$token_id} updated:".json_encode(['access_token' => $access_token, 'access_token_expires' => $args['access_token_expires'], 'refresh_token' => $refresh_token])."\n", FILE_APPEND);
+            // file_put_contents(ROOT."/log.txt", "[UPDATED] Login token {$token_id} updated:".json_encode(['access_token' => $access_token, 'access_token_expires' => $args['access_token_expires'], 'refresh_token' => $refresh_token])."\n", FILE_APPEND);
             $response = $db->q("UPDATE magistraal_tokens 
                                 SET access_token='{$access_token}', access_token_expires='{$args['access_token_expires']}', refresh_token='{$refresh_token}' 
                                 WHERE token_id='{$token_id}'");
         } else {
+            $token_id      = \Magistraal\Authentication\random_token_id();
             $token_expires = time() + 900; // Token will expire in 15 minutes
 
-            file_put_contents(ROOT."/log.txt", "[CREATED] Login token {$token_id} created:".json_encode(['token_expires' => $token_expires, 'tenant' => $args['tenant'], 'access_token' => $access_token, 'access_token_expires' => $args['access_token_expires'], 'refresh_token' => $refresh_token])."\n", FILE_APPEND);
-            $token_id = \Magistraal\Authentication\random_token_id();
+            // file_put_contents(ROOT."/log.txt", "[CREATED] Login token {$token_id} created:".json_encode(['token_expires' => $token_expires, 'tenant' => $args['tenant'], 'access_token' => $access_token, 'access_token_expires' => $args['access_token_expires'], 'refresh_token' => $refresh_token])."\n", FILE_APPEND);
             $response = $db->q("INSERT INTO magistraal_tokens 
                 (token_id,      token_expires,      tenant,              access_token,      access_token_expires,              refresh_token,      ip_address) VALUES 
                 ('{$token_id}', '{$token_expires}', '{$args['tenant']}', '{$access_token}', '{$args['access_token_expires']}', '{$refresh_token}', '{$ip_address}')");
@@ -80,7 +80,7 @@
         $token_data['refresh_token'] = \Magistraal\Encryption\decrypt($token_data['refresh_token']);
 
         if(time() > $token_data['token_expires']) {
-            file_put_contents(ROOT."/log.txt", "[EXPIRED] Login token {$token_id} expired.\n", FILE_APPEND);
+            // file_put_contents(ROOT."/log.txt", "[EXPIRED] Login token {$token_id} expired.\n", FILE_APPEND);
             // Delete old token
             \Magistraal\Authentication\token_delete($token_id);
 
@@ -105,9 +105,9 @@
         $response = $db->q("DELETE FROM magistraal_tokens WHERE token_id='{$token_id}';");
 
         if($response) {
-            file_put_contents(ROOT."/log.txt", "[DELETED] Login token {$token_id} deleted.\n", FILE_APPEND);
+            // file_put_contents(ROOT."/log.txt", "[DELETED] Login token {$token_id} deleted.\n", FILE_APPEND);
         } else {
-            file_put_contents(ROOT."/log.txt", "[ERROR] Failed to delete login token {$token_id}: ".json_encode($response)."\n", FILE_APPEND);
+            // file_put_contents(ROOT."/log.txt", "[ERROR] Failed to delete login token {$token_id}: ".json_encode($response)."\n", FILE_APPEND);
         }
 
         return $response;

@@ -64,7 +64,7 @@
                 <i class="fal fa-envelope"></i>
                 <span data-translation="page.messages/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-contrary" onclick="magistraal.page.load('account');" data-magistraal="nav-item-account/list">
+            <li tabindex="0" class="nav-item text-contrary text-muted" #onclick="magistraal.page.load('account');" data-magistraal="nav-item-account/list">
                 <i class="fal fa-user"></i>
                 <span data-translation="page.account/list.title"></span>
             </li>
@@ -313,13 +313,13 @@
 
             <!-- Grades list -->
             <div data-magistraal-template="page-buttons-grades/list">
-                <button class="btn btn-secondary" data-translation="grades.to_overview" onclick="magistraal.page.load('gradesoverview');"></button>
+                <!-- <button class="btn btn-secondary" data-translation="grades.to_overview" onclick="magistraal.page.load('gradesoverview');"></button> -->
                 <!-- <button class="btn btn-secondary" data-translation="grades.to_grade_calculator"></button> -->
             </div>
 
             <!-- Grades overview -->
             <div data-magistraal-template="page-buttons-grades/overview">
-                <button class="btn btn-secondary" data-translation="grades.to_list" onclick="magistraal.page.load('grades');"></button>
+                <!-- <button class="btn btn-secondary" data-translation="grades.to_list" onclick="magistraal.page.load('grades');"></button> -->
                 <!-- <button class="btn btn-secondary" data-translation="grades.to_grade_calculator"></button> -->
             </div>
 
