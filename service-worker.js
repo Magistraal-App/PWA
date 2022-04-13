@@ -4,7 +4,7 @@ self.addEventListener('fetch', function (e) {
     
     // Always load from server, except for when an error occurs (offline)
     e.respondWith(
-        networkFirst(e.request, '/sw-test/gallery/myLittleVader.jpg')
+        networkFirst(e.request, '/magistraal/client/offline/')
     );
 })
 
