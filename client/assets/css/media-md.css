@@ -24,6 +24,22 @@
         max-height: 2.5rem;
     }
 
+    .popup-item {
+        flex-direction: row;
+        display: flex;
+    }
+
+    .popup-item-key {
+        max-width: 25%;
+        font-size: initial;
+        font-family: var(--font-main);
+        display: flex;
+    }
+
+    .popup-divider {
+        display: block;
+    }
+
     ::-webkit-scrollbar-track {
         background-color: var(--primary);
     }

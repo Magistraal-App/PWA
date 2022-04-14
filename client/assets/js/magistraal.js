@@ -266,23 +266,23 @@ const magistraal = {
 		},
 
 		view: id => {
-			magistraal.console.loading();
+			magistraal.console.loading('console.loading.appointment_attachments');
 			magistraal.api.call('appointments/info', {
 				'id': id
 			}, true, magistraal.appointments.viewCallback);
 		},
 
 		viewCallback: (appointment, source) => {
-			let updatedSidebarFeed = {
+			let updateFeedWith = {
 				'table': {
 					'appointment.attachments': '<a>eeeeee</a>'
 				}
 			};
 			
-			magistraal.sidebar.updateFeed(updatedSidebarFeed, 'appointment.teachers');
+			magistraal.sidebar.updateFeed(updateFeedWith, 'appointment.teachers');
 
 			if (source == 'live') {
-				magistraal.console.success();
+				magistraal.console.success('console.success.appointment_attachments');
 			}
 		},
 
@@ -398,7 +398,7 @@ const magistraal = {
 		},
 
 		view: (id, read = true) => {
-			magistraal.console.loading();
+			magistraal.console.loading('console.loading.message_content');
 			magistraal.api.call('messages/info', {
 				'id': id
 			}, true, magistraal.messages.viewCallback, null);
@@ -412,25 +412,24 @@ const magistraal = {
 		},
 
 		viewCallback: (message, source) => {
-			let sidebarFeed = {
-				'title': message.subject || magistraal.locale.translate('messages.subject.no_subject'),
+			let updateFeedWith = {
 				'table': {
-					'message.sender': message.sender.name,
-					'message.sent_at': magistraal.locale.formatDate(message.sent_at, 'ldFYHi'),
 					'message.to': message.recipients.to.names.join(', '),
 					'message.cc': message.recipients.cc.names.join(', '),
 					'message.bcc': message.recipients.bcc.names.join(', '),
-					'message.content': message.content
+					'message.content': message.content,
 				}
 			};
-			magistraal.sidebar.setFeed(sidebarFeed);
+			
+			magistraal.sidebar.updateFeed(updateFeedWith, undefined, 'after');
 
 			if (source == 'live') {
-				magistraal.console.success();
+				magistraal.console.success('console.success.message_content');
 			}
 		},
 
 		send: $form => {
+			let popup = $form.parents('[data-magistraal-popup]').attr('data-magistraal-popup');
 			let data = {
 				'to': $form.find('[name="to"]').value(),
 				'cc': $form.find('[name="cc"]').value(),
@@ -438,9 +437,11 @@ const magistraal = {
 				'subject': $form.find('[name="subject"]').value(),
 				'content': $form.find('[name="content"]').value().replace(/\r\n|\r|\n/g, '<br/>')
 			};
-			magistraal.element.get('send-message').attr('disabled', 'disabled');
+
+			magistraal.popup.disable(popup);
 			magistraal.popup.close('messages-write-message');
 			magistraal.console.loading('console.loading.send_message');
+
 			setTimeout(() => {
 				magistraal.api.call('messages/send', data, false).then(response => {
 					magistraal.console.success('console.success.send_message');
@@ -452,8 +453,7 @@ const magistraal = {
 					// Reset form
 					$form.find('[name="to"], [name="cc"], [name="bcc"]').setTags({});
 					$form.find('[name="subject"], [name="content"]').val('');
-					magistraal.element.get('send-message').removeAttr('disabled');
-					magistraal.element.get('cancel-message').removeAttr('disabled');
+					magistraal.popup.enable(popup);
 				});
 			}, 500);
 		}
@@ -593,8 +593,8 @@ const magistraal = {
 		loadCallback: (localeData, source) => {
 			magistraalStorage.set('translations', localeData);
 			$('[data-translation]').each(function () {
-				if (this.tagName.toLowerCase() === 'input') {
-					// Set placeholder on input elements
+				if (this.tagName.toLowerCase() === 'input' || this.tagName.toLowerCase() === 'textarea') {
+					// Set placeholder on input or textarea elements
 					$(this).attr('placeholder', magistraal.locale.translate($(this).attr('data-translation')));
 				} else {
 					// Set text on other types of elements
@@ -788,9 +788,9 @@ const magistraal = {
 		
 		request: (page, data = {}, painter = null, cachable = true) => {
 			return new Promise((resolve, reject) => {
-				magistraal.console.loading();
+				magistraal.console.loading('console.loading.refresh');
 				magistraal.api.call(page, data, cachable, painter, page).then(response => {
-					magistraal.console.success();
+					magistraal.console.success('console.success.refresh');
 					resolve(response);
 				}).catch(response => {
 					reject(response);
@@ -915,7 +915,9 @@ const magistraal = {
 				this.$wrapper.addClass('input-search-wrapper');
 				this.$results = $('<ul class="input-search-results"></ul>');
 				this.$results.appendTo(this.$wrapper);
-				this.$input.attr('placeholder', magistraal.locale.translate('generic.action.search'));
+				if(!this.$input.attr('placeholder')) {
+					this.$input.attr('placeholder', magistraal.locale.translate('generic.action.search'));
+				}
 				this.$input.on('click', e => {
 					this.eventFocus(e);
 				});
@@ -1070,21 +1072,30 @@ const magistraal = {
 			}
 		},
 
-		updateFeed: (updateWithFeed, insertBeforeKey = undefined) => {
-			let newFeed     = {title: '', subtitle: '', table: {}};
-			let currentFeed = magistraal.sidebar.getSelectedFeed();
+		updateFeed: (updateWithFeed, insertNearKey = undefined, position = 'before') => {
+			let newFeed                = {title: '', subtitle: '', table: {}};
+			let currentFeed            = magistraal.sidebar.getSelectedFeed();
+			let currentFeedTableLength = Object.keys(currentFeed.table).length;
 			
 			newFeed.title = updateWithFeed?.title || currentFeed.title; 
 			newFeed.subtitle = updateWithFeed?.subtitle || currentFeed.subtitle; 
 
+			let i = 1;
 			$.each(currentFeed.table, function(currentTableKey, currentTableValue) {
-			    if(currentTableKey == insertBeforeKey) {
+				if(position != 'before') {
+					newFeed.table[currentTableKey] = currentTableValue;
+				}
+
+			    if(currentTableKey == insertNearKey || i == currentFeedTableLength) {
 					$.each(updateWithFeed.table, function(updateTableKey, updateTableValue) {
 						newFeed.table[updateTableKey] = updateTableValue;
 					})
 				}
 
-				newFeed.table[currentTableKey] = currentTableValue;
+				if(position == 'before') {
+					newFeed.table[currentTableKey] = currentTableValue;
+				}
+				i++;
 			})
 
 			magistraal.sidebar.setFeed(newFeed);
@@ -1126,6 +1137,7 @@ const magistraal = {
 		get: selector => {
 			return $(`[data-magistraal-popup="${selector}"]`).first();
 		},
+
 		open: selector => {
 			let $popup = magistraal.popup.get(selector);
 
@@ -1134,8 +1146,10 @@ const magistraal = {
 			}
 
 			magistraal.element.get('popup-backdrop').addClass('show');
+			magistraal.popup.enable(selector);
 			$popup.addClass('show');
 		},
+
 		close: selector => {
 			let $popup = magistraal.popup.get(selector);
 
@@ -1145,6 +1159,18 @@ const magistraal = {
 
 			magistraal.element.get('popup-backdrop').removeClass('show');
 			$popup.removeClass('show');
+		},
+
+		enable: selector => {
+			let $popup = magistraal.popup.get(selector);
+
+			$popup.find('[data-popup-action]').removeAttr('disabled');
+		},
+
+		disable: selector => {
+			let $popup = magistraal.popup.get(selector);
+
+			$popup.find('[data-popup-action]').attr('disabled', 'disabled');
 		}
 	},
 	template: {

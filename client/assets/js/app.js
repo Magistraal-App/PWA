@@ -146,6 +146,23 @@ $(document).on('click', '[data-magistraal="popup-backdrop"]', function(e) {
     }
 })
 
+$(document).on('click', '[data-popup-action]', function(e) {
+    e.preventDefault();
+
+    let $button = $(this);
+    let action  = $button.attr('data-popup-action');
+    let popup   = $button.parents('[data-magistraal-popup]').first().attr('data-magistraal-popup');
+    
+    switch(action) {
+        case 'confirm':
+            magistraal.popup.close(popup);
+            break;
+        case 'cancel':
+            magistraal.popup.close(popup);
+            break;
+    }
+})
+
 // $('form[data-handler="ajax"]').on('submit', function(e) {
 //     e.preventDefault();
 

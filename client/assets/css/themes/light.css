@@ -16,3 +16,7 @@
     --heavy-shadow: 0 0 3rem 0 rgba(0, 0, 0, 0.25);
     --light-shadow: 0 0 0.3rem 0 rgba(0, 0, 0, 0.4);
 }
+
+input {
+    color-scheme: light;
+}
