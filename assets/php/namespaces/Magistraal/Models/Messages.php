@@ -10,7 +10,7 @@
     }
 
     function format($message) {
-        $result = [
+        $formatted = [
             'content'         => $message['inhoud'] ?? '',
             'folder_id'       => $message['mapId'],
             'forwarded_at'    => strtotime($message['doorgestuurdOp']),
@@ -35,38 +35,38 @@
         
         // Store recipient TO name and id
         foreach ($message['ontvangers'] ?? [] as $recipient) {
-            $result['recipients']['to']['list'][] = [
+            $formatted['recipients']['to']['list'][] = [
                 'id'   => $recipient['id'],
                 'name' => $recipient['weergavenaam']
             ];
 
-            $result['recipients']['to']['names'][] = $recipient['weergavenaam'];
+            $formatted['recipients']['to']['names'][] = $recipient['weergavenaam'];
         }
 
         // Store recipient CC name and id
         foreach ($message['kopieOntvangers'] ?? [] as $recipient) {
-            $result['recipients']['cc']['list'][] = [
+            $formatted['recipients']['cc']['list'][] = [
                 'id'   => $recipient['id'],
                 'name' => $recipient['weergavenaam']
             ];
 
-            $result['recipients']['cc']['names'][] = $recipient['weergavenaam'];
+            $formatted['recipients']['cc']['names'][] = $recipient['weergavenaam'];
         }
 
         // Store recipient BCC name and id
         foreach ($message['blindeKopieOntvangers ']?? [] as $recipient) {
-            $result['recipients']['bcc']['list'][] = [
+            $formatted['recipients']['bcc']['list'][] = [
                 'id'   => $recipient['id'],
                 'name' => $recipient['weergavenaam']
             ];
 
-            $result['recipients']['bcc']['names'][] = $recipient['weergavenaam'];
+            $formatted['recipients']['bcc']['names'][] = $recipient['weergavenaam'];
         }
 
         // Add attachments
         if(isset($message['bijlagen']) && is_array($message['bijlagen']) && count($message['bijlagen']) > 0) {
             foreach($message['bijlagen'] as $attachment) {
-                $result['attachments'][] = [
+                $formatted['attachments'][] = [
                     'id'        => $attachment['id'],
                     'name'      => pathinfo($attachment['naam'], PATHINFO_FILENAME),
                     'mime_type' => $attachment['contentType'],
@@ -77,17 +77,17 @@
             }
         }
 
-        return $result;
+        return $formatted;
     }
 
     function format_all($messages, $top, $skip) {
-        $result = [];
+        $formatted = [];
             
         foreach ($messages as $message) {
-            $result[] = \Magistraal\Messages\format($message);
+            $formatted[] = \Magistraal\Messages\format($message);
         }
 
-        return $result;
+        return $formatted;
     }
 
     function mark_read($id, $read) {

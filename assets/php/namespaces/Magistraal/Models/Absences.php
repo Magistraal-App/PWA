@@ -6,11 +6,11 @@
     }
 
     function format_all($absences, $from, $to) {
-        $result = [];
+        $formatted = [];
 
         // Generate an array with keys of months between from and to
         for ($unix=$from; $unix <= $to;) { 
-            $result[date('Y-m', $unix)] = ['unix' => $unix, 'absences' => []];
+            $formatted[date('Y-m', $unix)] = ['unix' => $unix, 'absences' => []];
             $unix = strtotime('+1 month', $unix);
         }
         
@@ -18,19 +18,19 @@
             $yearmonth = date('Y-m', strtotime($absence['Afspraak']['Start']));
 
             // Skip if absence does not fit in the desired timespan
-            if(!isset($result[$yearmonth])) {
+            if(!isset($formatted[$yearmonth])) {
                 continue;
             }
 
-            $result[$yearmonth]['absences'][] = \Magistraal\Absences\format($absence);
+            $formatted[$yearmonth]['absences'][] = \Magistraal\Absences\format($absence);
         }
 
-        uasort($result, function($a, $b) {
+        uasort($formatted, function($a, $b) {
             return ($a['unix'] < $b['unix'] ? 1 : -1);
         });
 
 
-        return $result;
+        return $formatted;
     }
 
     function format($absence) {

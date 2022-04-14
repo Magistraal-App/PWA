@@ -13,22 +13,47 @@ function unique(array) {
     return [...new Set(array)];
 }
 
-$.fn.value = function() {
-    if(this.hasClass('input-tags')) {
-        let $wrapper = this.closest('.input-tags-wrapper');
-        let tags   = Object.keys($wrapper.data('tags') || {});
-        return tags;
-    } else if(this.attr('type') == 'date') {
-        return Math.round(new Date(this.val()) / 1000);
-    } else if(this.attr('type') == 'time') {
-        let [hours, minutes] = this.val().split(':');
-        hours = parseInt(hours);
-        minutes = parseInt(minutes);
+$.fn.value = function(value = undefined) {
+    if(typeof value == 'undefined') {
+        if(this.hasClass('input-tags')) {
+            let $wrapper = this.closest('.input-tags-wrapper');
+            let tags   = Object.keys($wrapper.data('tags') || {});
+            return tags;
+        } else if(this.attr('type') == 'date') {
+            return (Math.round(new Date(this.val()) / 1000) || 0);
+        } else if(this.attr('type') == 'time') {
+            let [hours, minutes] = this.val().split(':');
+            hours = parseInt(hours);
+            minutes = parseInt(minutes);
 
-        return hours * 3600 + minutes * 60;
-    } else {
-        return this.val();
+            return (hours * 3600 + minutes * 60) || 0;
+        } else {
+            return this.val();
+        }
     }
+}
+
+$.fn.formSerialize = function() {
+    let $form  = this;
+    let form   = this.get(0);
+    let output = {};
+
+    if(form.nodeName.toLowerCase() != 'form') {
+        return false;
+    }
+
+    $form.find('[name]').each(function() {
+        let $input = $(this);
+
+        if($input.get(0).nodeName.toLowerCase() == 'textarea') {
+            // Replace newline with br
+            output[$input.attr('name')] = $input.value().replace(/\r\n|\r|\n/g, '<br/>');
+        } else {
+            output[$input.attr('name')] = $input.value();
+        }
+    })
+
+    return output;
 }
 
 $(document).on('click', function(e) {
@@ -171,31 +196,14 @@ $(document).on('click', '[data-popup-action]', function(e) {
     }
 })
 
-// $('form[data-handler="ajax"]').on('submit', function(e) {
-//     e.preventDefault();
+// DOM ready
+$('input[type="date"]').each(function() {
+    this.valueAsDate = new Date();
+});
 
-//     let $form = $(this);
-//     let action = $form.attr('action');
-//     let data   = Object.fromEntries(new FormData($form.get(0)).entries());
-    
-//     magistraal.api.call(action, data).catch(() => {}).finally(() => {
-//         // Magister.popup.close($('form').closest('.show').attr('data-magistraal-popup'));
-//     });
-// })
-
-// function httpBuildQuery(arr) {
-//     let output = [];
-
-//     for (let key in arr) {
-//         if (arr.hasOwnProperty(key)) {
-//             output.push(key + '=' + encodeURIComponent(arr[key]));
-//         }
-//     }
-
-//     output = output.join('&');
-
-//     return output;
-// }
+$('input[type="time"]').each(function() {
+    this.value = `${new Date().getHours()}:00`;
+});
 
 $(window).on('hashchange', function() {
     magistraal.page.load(window.location.hash.substring(1));

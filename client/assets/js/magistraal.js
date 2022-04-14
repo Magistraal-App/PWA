@@ -1,4 +1,4 @@
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { if(key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var _magistraalStorage = {};
 const magistraalStorage = {
@@ -13,8 +13,8 @@ const magistraalPersistentStorage = {
 	get: key => {
 		let value = localStorage.getItem(`magistraal.${key}`);
 
-		if (typeof value != 'undefined' && value !== null) {
-			if (value.substring(0, 5) == 'JSON:') {
+		if(typeof value != 'undefined' && value !== null) {
+			if(value.substring(0, 5) == 'JSON:') {
 				return JSON.parse(value.substring(5));
 			} else {
 				return value;
@@ -24,9 +24,9 @@ const magistraalPersistentStorage = {
 		return undefined;
 	},
 	set: (key, value) => {
-		if (typeof value == 'object') {
+		if(typeof value == 'object') {
 			return localStorage.setItem(`magistraal.${key}`, 'JSON:' + JSON.stringify(value));
-		} else if (typeof value == 'undefined') {
+		} else if(typeof value == 'undefined') {
 			return localStorage.removeItem(`magistraal.${key}`);
 		} else {
 			return localStorage.setItem(`magistraal.${key}`, value);
@@ -39,7 +39,7 @@ const magistraalPersistentStorage = {
 		let magistraalItems = [];
 
 		for (let i = 0; i < localStorage.length; i++) {
-			if (localStorage.key(i).substring(0, 11) == 'magistraal.') {
+			if(localStorage.key(i).substring(0, 11) == 'magistraal.') {
 				magistraalItems.push(localStorage.key(i));
 			}
 		}
@@ -64,14 +64,14 @@ const magistraal = {
 
 			return new Promise((resolve, reject) => {
 				/* Pre-load from cache, only if a callback has been supplied */
-				if (parameters.cachable) {
+				if(parameters.cachable) {
 					let cachedResponseData = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`);
-					if (typeof cachedResponseData != 'undefined') {
-						if (typeof parameters.callback == 'function') {
+					if(typeof cachedResponseData != 'undefined') {
+						if(typeof parameters.callback == 'function') {
 							parameters.callback(cachedResponseData, 'server');
 						}
 
-						if (parameters.source == 'prefer_cache') {
+						if(parameters.source == 'prefer_cache') {
 							/* Don't make request to server */
 							resolve(cachedResponseData);
 							return true;
@@ -90,22 +90,22 @@ const magistraal = {
 					xhrFields: parameters.xhrFields,
 					success: function(response, textStatus, request) {
 						/* Save in cache if cachable */
-						if (parameters.cachable && typeof (response === null || response === void 0 ? void 0 : response.data) != 'undefined') {
+						if(parameters.cachable && typeof (response === null || response === void 0 ? void 0 : response.data) != 'undefined') {
 							magistraalPersistentStorage.set(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`, response === null || response === void 0 ? void 0 : response.data);
 						}
 
-						if (typeof parameters.scope != 'undefined' && parameters.scope != magistraal.page.current()) {
+						if(typeof parameters.scope != 'undefined' && parameters.scope != magistraal.page.current()) {
 							return false;
 						}
 
 						resolve(response?.data || response);
 
-						if (typeof parameters.callback == 'function') {
+						if(typeof parameters.callback == 'function') {
 							parameters.callback(response?.data || response, 'server', request);
 						}
 					},
 					error: function(response) {
-						if (typeof response.responseJSON != 'undefined' && typeof response.responseJSON.info != 'undefined' && response.responseJSON.info == 'token_invalid') {
+						if(typeof response.responseJSON != 'undefined' && typeof response.responseJSON.info != 'undefined' && response.responseJSON.info == 'token_invalid') {
 							magistraalPersistentStorage.remove('token');
 							if(api == 'logout') {
 								magistraal.page.get('login');
@@ -116,7 +116,7 @@ const magistraal = {
 
 						magistraal.console.error();
 
-						if (typeof parameters.scope != 'undefined' && parameters.scope != magistraal.page.current()) {
+						if(typeof parameters.scope != 'undefined' && parameters.scope != magistraal.page.current()) {
 							return false;
 						}
 
@@ -125,7 +125,7 @@ const magistraal = {
 					complete: function(response, textStatus, request) {
 						let token = response.getResponseHeader('X-Auth-Token');
 
-						if (token) {
+						if(token) {
 							magistraalPersistentStorage.set('token', token);
 						}
 					}
@@ -141,7 +141,7 @@ const magistraal = {
 		paintList: (absences, source) => {
 			let pageContent = '';
 			$.each(absences, function (month, data) {
-				if (data.absences.length == 0) {
+				if(data.absences.length == 0) {
 					return true;
 				}
 
@@ -189,7 +189,7 @@ const magistraal = {
 				let $appointmentsGroup = magistraal.template.get('appointments-group');
 				$appointmentsGroup.find('.appointments-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.unix, 'ldF')));
 
-				if ((data === null || data === void 0 ? void 0 : (_data$appointments = data.appointments) === null || _data$appointments === void 0 ? void 0 : _data$appointments.length) == 0) {
+				if((data === null || data === void 0 ? void 0 : (_data$appointments = data.appointments) === null || _data$appointments === void 0 ? void 0 : _data$appointments.length) == 0) {
 					// No appointments on this day
 					let $appointment = magistraal.template.get('appointment');
 					$appointment.find('.lesson-number').html('<i class="fal fa-check"></i>');
@@ -221,13 +221,13 @@ const magistraal = {
 						'data-creator': appointment.creator
 					}); // Set lesson number / icon
 
-					if (appointment['start']['lesson'] > 0) {
+					if(appointment['start']['lesson'] > 0) {
 						$appointment.find('.lesson-number').text(appointment['duration']['lessons'] <= 1 ? appointment['start']['lesson'] : `${appointment['start']['lesson']}-${appointment['end']['lesson']}`);
 					} else {
 						$appointment.find('.lesson-number').html(appointment.status == 'schedule' ? '<i class="fal fa-info"></i>' : '');
 					}
 
-					if (appointment['has_meeting_link']) {
+					if(appointment['has_meeting_link']) {
 						$appointment.find('.lesson-join-ms-teams').attr('href', appointment['meeting_link']);
 					} // Set lesson times
 
@@ -288,13 +288,13 @@ const magistraal = {
 			
 			magistraal.sidebar.updateFeed(updateFeedWith, 'appointment.end', 'after');
 
-			if (source == 'server') {
+			if(source == 'server') {
 				magistraal.console.success('console.success.appointment_attachments');
 			}
 		},
 
 		finish: (id, finished) => {
-			if ($(`.appointment[data-id="${id}"]`).attr('data-finishable') != 'true') {
+			if($(`.appointment[data-id="${id}"]`).attr('data-finishable') != 'true') {
 				return false;
 			}
 
@@ -313,7 +313,17 @@ const magistraal = {
 			});
 		},
 
-		create: options => {}
+		create: (appointment) => {
+			console.log(appointment);
+
+			magistraal.api.call({
+				url: 'appointments/create',
+				data: appointment,
+				source: 'server_only'
+			}).then(() => {
+				magistraal.page.load('appointments/list');
+			})
+		}
 	},
 
 	/* ============================ */
@@ -440,7 +450,7 @@ const magistraal = {
 				source: 'prefer_cache'
 			});
 
-			if (read != true) {
+			if(read != true) {
 				magistraal.api.call({
 					url: 'messages/info', 
 					data: {id: id, read: true}
@@ -470,41 +480,35 @@ const magistraal = {
 			
 			magistraal.sidebar.updateFeed(updateFeedWith, undefined, 'after');
 
-			if (source == 'server') {
+			if(source == 'server') {
 				magistraal.console.success('console.success.message_content');
 			}
 		},
 
-		send: $form => {
-			let popup = $form.parents('[data-magistraal-popup]').attr('data-magistraal-popup');
-			let data = {
-				'to': $form.find('[name="to"]').value(),
-				'cc': $form.find('[name="cc"]').value(),
-				'bcc': $form.find('[name="bcc"]').value(),
-				'subject': $form.find('[name="subject"]').value(),
-				'content': $form.find('[name="content"]').value().replace(/\r\n|\r|\n/g, '<br/>')
-			};
-
-			magistraal.popup.disable(popup);
-			magistraal.popup.close('messages-write-message');
+		send: (message) => {
 			magistraal.console.loading('console.loading.send_message');
 
 			setTimeout(() => {
 				magistraal.api.call({
 					url: 'messages/send', 
-					data: data,
+					data: message,
 					cachable: false
 				}).then(response => {
 					magistraal.console.success('console.success.send_message');
-				}).catch(err => {
-					console.error(err);
-					magistraal.console.error('console.error.send_message');
+				}).catch(response => {
+					console.error(response);
+
+					if(response.responseJSON.info == 'parameter_to_missing') {
+						magistraal.console.error('console.error.send_message_field_to_empty');
+					} else {
+						magistraal.console.error('console.error.generic');
+					}
+
 					magistraal.popup.open('messages-write-message');
 				}).finally(() => {
 					// Reset form
 					$form.find('[name="to"], [name="cc"], [name="bcc"]').setTags({});
 					$form.find('[name="subject"], [name="content"]').val('');
-					magistraal.popup.enable(popup);
 				});
 			}, 500);
 		}
@@ -517,7 +521,7 @@ const magistraal = {
 		paintList: settings => {
 			let pageContent = '';
 			$.each(settings.items, function (itemNamespace, item) {
-				if (typeof item.items != 'undefined') {
+				if(typeof item.items != 'undefined') {
 					// Item is a category
 					let $settingCategory = magistraal.template.get('setting-category');
 					$settingCategory.find('.setting-category-title').text(magistraal.locale.translate(`settings.category.${settings.category}.${itemNamespace}.title`));
@@ -525,7 +529,7 @@ const magistraal = {
 
 					let content = '';
 					$.each(item.items, function (childItemNamespace, childItem) {
-						if (typeof childItem.items == 'undefined') {
+						if(typeof childItem.items == 'undefined') {
 							// Child item is a setting
 							content += magistraal.locale.translate(`settings.setting.${itemNamespace}.${childItemNamespace}.title`) + ', ';
 						} else {
@@ -599,7 +603,7 @@ const magistraal = {
 								</div>
 						`); // Delete message after duration passed
 
-			if (duration >= 0) {
+			if(duration >= 0) {
 				setTimeout(() => {
 					magistraal.element.get(`console-message-${messageId}`).remove();
 				}, duration);
@@ -644,7 +648,7 @@ const magistraal = {
 		loadCallback: (localeData, source) => {
 			magistraalStorage.set('translations', localeData);
 			$('[data-translation]').each(function () {
-				if (this.tagName.toLowerCase() === 'input' || this.tagName.toLowerCase() === 'textarea') {
+				if(this.tagName.toLowerCase() === 'input' || this.tagName.toLowerCase() === 'textarea') {
 					// Set placeholder on input or textarea elements
 					$(this).attr('placeholder', magistraal.locale.translate($(this).attr('data-translation')));
 				} else {
@@ -658,7 +662,7 @@ const magistraal = {
 			fallback = fallback || key;
 			let translations = magistraalStorage.get('translations');
 
-			if (typeof translations == 'undefined' || typeof translations[key] == 'undefined') {
+			if(typeof translations == 'undefined' || typeof translations[key] == 'undefined') {
 				return fallback;
 			}
 
@@ -666,9 +670,9 @@ const magistraal = {
 		},
 
 		formatBoolean: boolean => {
-			if (boolean == '1' || boolean == 'yes' || boolean == 'true') {
+			if(boolean == '1' || boolean == 'yes' || boolean == 'true') {
 				return magistraal.locale.translate('generic.bool.true', 'true');
-			} else if (boolean == '0' || boolean == 'no' || boolean == 'false') {
+			} else if(boolean == '0' || boolean == 'no' || boolean == 'false') {
 				return magistraal.locale.translate('generic.bool.false', 'false');
 			} else {
 				return '';
@@ -676,7 +680,7 @@ const magistraal = {
 		},
 
 		formatDate: (date, format) => {
-			if (typeof date != 'object') {
+			if(typeof date != 'object') {
 				// Convert unix to date object
 				date = new Date(date * 1000);
 			}
@@ -770,7 +774,7 @@ const magistraal = {
 		},
 
 		toggle: () => {
-			if (magistraalStorage.get('nav_active') == 'true') {
+			if(magistraalStorage.get('nav_active') == 'true') {
 				magistraal.nav.close();
 			} else {
 				magistraal.nav.open();
@@ -782,7 +786,7 @@ const magistraal = {
 		load: (page, data = {}, cachable = true) => {
 			page = trim(page.replace(/[^a-zA-Z\/]/g, ''), '/');
 
-			if (page == 'login' || page == 'main') {
+			if(page == 'login' || page == 'main') {
 				window.location.href = `../${page}/`;
 				return true;
 			} else if(page == 'logout') {
@@ -812,14 +816,14 @@ const magistraal = {
 			};
 
 			let callback = undefined
-			if (typeof callbacks[page] != 'undefined') {
+			if(typeof callbacks[page] != 'undefined') {
 				callback = callbacks[page];
 			}
 
 			let $pageButtonsTemplate = magistraal.template.get(`page-buttons-${page}`);
 			let $pageButtonsContainer = magistraal.element.get('page-buttons-container');
 
-			if ($pageButtonsTemplate.length > 0) {
+			if($pageButtonsTemplate.length > 0) {
 				$pageButtonsContainer.html($pageButtonsTemplate.html());
 			} else {
 				$pageButtonsContainer.html('');
@@ -872,7 +876,7 @@ const magistraal = {
 			magistraal.api.call(action, $form.serialize()).then(response => {
 				let token = response.request.getResponseHeader('X-Auth-Token');
 
-				if (!token) {
+				if(!token) {
 					magistraal.console.error(`console.error.${response === null || response === void 0 ? void 0 : response.info}`);
 					return false;
 				}
@@ -895,7 +899,7 @@ const magistraal = {
 			}
 
 			setup() {
-				if (this.$input.closest('.input-wrapper').length == 0) {
+				if(this.$input.closest('.input-wrapper').length == 0) {
 					this.$input.wrap('<div class="input-wrapper"></div>');
 				}
 
@@ -904,7 +908,7 @@ const magistraal = {
 				this.$tags = $('<ul class="input-tags-list"></ul>');
 				this.$tags.appendTo(this.$wrapper); // Create ghost input
 
-				if (this.$wrapper.hasClass('input-search-wrapper')) {
+				if(this.$wrapper.hasClass('input-search-wrapper')) {
 					this.$inputGhost = $('<input type="text" class="form-control input-search input-ghost">');
 					this.$inputGhost.appendTo(this.$wrapper); // Move search input to tags list
 
@@ -934,7 +938,7 @@ const magistraal = {
 			}
 
 			eventChange(e) {
-				if (typeof e.addTag != undefined) {
+				if(typeof e.addTag != undefined) {
 					var _e$addTag, _e$addTag2;
 
 					this.$input.addTag((_e$addTag = e.addTag) === null || _e$addTag === void 0 ? void 0 : _e$addTag.value, (_e$addTag2 = e.addTag) === null || _e$addTag2 === void 0 ? void 0 : _e$addTag2.text);
@@ -942,7 +946,7 @@ const magistraal = {
 			}
 
 			eventKeyup(e) {
-				if (e.which == 8) {
+				if(e.which == 8) {
 					// Backspace, remove last tag
 					let lastTagValue = this.$tags.find('.input-tags-tag:last-of-type').attr('value');
 					this.$input.removeTag(lastTagValue);
@@ -967,7 +971,7 @@ const magistraal = {
 			}
 
 			setup() {
-				if (this.$input.closest('.input-wrapper').length == 0) {
+				if(this.$input.closest('.input-wrapper').length == 0) {
 					this.$input.wrap('<div class="input-wrapper"></div>');
 				}
 
@@ -1006,14 +1010,17 @@ const magistraal = {
 			}
 
 			eventInputDebounced(e) {
-				if (typeof this.$input.attr('data-magistraal-search-api') != 'undefined') {
+				if(typeof this.$input.attr('data-magistraal-search-api') != 'undefined') {
 					// Fetch data from api
 					let api = this.$input.attr('data-magistraal-search-api');
 					let query = this.$input.val() || this.$input.text();
-					magistraal.api.call(`${api}/search`, {
-						query: query
-					}, false).then(response => {
-						let results = magistraal.inputs.search.remap_api_response(api, response === null || response === void 0 ? void 0 : response.data);
+					magistraal.api.call({
+						url: `${api}/search`,
+						data: {query: query},
+						cachable: false,
+						source: 'server_only'
+					}).then(response => {
+						let results = magistraal.inputs.search.remap_api_response(api, response);
 						this.results.set(results);
 					}).catch(err => {
 						console.error(err);
@@ -1029,7 +1036,7 @@ const magistraal = {
 				let text = ((_$result$find = $result.find('.input-search-result-title')) === null || _$result$find === void 0 ? void 0 : _$result$find.text()) || $result.text();
 				this.$input.val('');
 
-				if (this.$wrapper.hasClass('input-tags-wrapper')) {
+				if(this.$wrapper.hasClass('input-tags-wrapper')) {
 					let $inputTags = this.$wrapper.find('.input-tags');
 					$inputTags.trigger({
 						type: 'magistraal.change',
@@ -1095,7 +1102,7 @@ const magistraal = {
 		},
 
 		selectFeed: ($elem, openSidebar = true) => {
-			if ($elem == null) {
+			if($elem == null) {
 				return magistraal.sidebar.setFeed(undefined, false);
 			}
 
@@ -1114,7 +1121,7 @@ const magistraal = {
 			magistraal.element.get('sidebar-subtitle').text(feed.subtitle);
 			$sidebarTable.empty();
 			$.each(feed.table, function (tableKey, tableValue) {
-				if (tableKey == '' || tableValue == '') {
+				if(tableKey == '' || tableValue == '') {
 					return true;
 				}
 
@@ -1126,7 +1133,7 @@ const magistraal = {
 				$tableValue.appendTo($sidebarTable);
 			});
 
-			if (openSidebar) {
+			if(openSidebar) {
 				setTimeout(() => {
 					magistraal.sidebar.open();
 				}, 50);
@@ -1187,7 +1194,7 @@ const magistraal = {
 			magistraalStorage.set('sidebar_active', false);
 		},
 		toggle: () => {
-			if (magistraalStorage.get('sidebar_active') == 'true') {
+			if(magistraalStorage.get('sidebar_active') == 'true') {
 				magistraal.sidebar.close();
 			} else {
 				magistraal.sidebar.open();
@@ -1202,7 +1209,7 @@ const magistraal = {
 		open: selector => {
 			let $popup = magistraal.popup.get(selector);
 
-			if ($popup.length === 0) {
+			if($popup.length === 0) {
 				return false;
 			}
 
@@ -1214,11 +1221,12 @@ const magistraal = {
 		close: selector => {
 			let $popup = magistraal.popup.get(selector);
 
-			if ($popup.length === 0) {
+			if($popup.length === 0) {
 				return false;
 			}
 
 			magistraal.element.get('popup-backdrop').removeClass('show');
+			magistraal.popup.disable(selector);
 			$popup.removeClass('show');
 		},
 

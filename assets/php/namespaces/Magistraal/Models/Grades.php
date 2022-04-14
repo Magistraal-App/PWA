@@ -6,13 +6,13 @@
     }
 
     function format_all($grades) {
-        $result = [];
+        $formatted = [];
 
         foreach ($grades as $grade) {
-            $result[] = \Magistraal\Grades\format($grade);
+            $formatted[] = \Magistraal\Grades\format($grade);
         }
 
-        return $result;
+        return $formatted;
     }
 
     function format($grade) {

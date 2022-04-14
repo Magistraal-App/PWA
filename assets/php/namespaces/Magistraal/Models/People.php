@@ -6,13 +6,13 @@
     }
 
     function format_all($people) {
-        $result = [];
+        $formatted = [];
         
         foreach ($people as $person) {
-            $result[] = \Magistraal\People\format($person);
+            $formatted[] = \Magistraal\People\format($person);
         }
 
-        return $result;
+        return $formatted;
     }
 
     function format($person) {

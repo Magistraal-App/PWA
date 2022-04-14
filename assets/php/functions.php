@@ -16,6 +16,14 @@
         return base64_decode(str_replace(['-', '_'], ['+', '/'], $str));
     }
 
+    function date_iso($unix) {
+        $datetime = new DateTime();
+        $datetime->setTimestamp($unix);
+        $datetime->setTimezone(new DateTimeZone('UTC'));
+
+        return str_replace('+00:00', '.000Z', $datetime->format(DateTime::ATOM)); 
+    }
+
     function strpos_all($haystack, $needle) {
         $needle_length = strlen($needle);
         $offset = 0;

@@ -337,7 +337,7 @@
           <!-- APPOINTMENTS -->
             <!-- Create appointment popup -->
             <div data-magistraal-popup="appointments-create-appointment" class="popup">
-                <form id="magistraal-create-appointment" method="POST" action="appointments/create">
+                <form id="magistraal-create-appointment">
                     <h3 class="popup-title" data-translation="appointments.popup.create_appointment.title"></h3>
                     <div class="popup-item">
                         <h5 class="popup-item-key">
@@ -345,15 +345,15 @@
                         </h4>
                         <div class="popup-item-value">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="appointment_variant" id="appointment-variant-1" value="personal" checked>
+                                <input class="form-check-input" type="radio" name="type" id="appointment-variant-1" value="personal" checked>
                                 <label class="form-check-label" for="appointment-variant-1" data-translation="appointments.popup.create_appointment.item.variant.personal.title"></label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="appointment_variant" id="appointment-variant-2" value="planning">
+                                <input class="form-check-input" type="radio" name="type" id="appointment-variant-2" value="planning">
                                 <label class="form-check-label" for="appointment-variant-2" data-translation="appointments.popup.create_appointment.item.variant.planning.title"></label>
                             </div>
                             <!-- <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="appointment_variant" id="appointment-variant-3" value="3">
+                                <input class="form-check-input" type="radio" name="type" id="appointment-variant-3" value="3">
                                 <label class="form-check-label" for="appointment-variant-3" data-translation="appointments.popup.create_appointment.item.variant.3"></label>
                             </div> -->
                         </div>
@@ -381,11 +381,11 @@
                         <div class="popup-item-value d-flex flex-row">
                             <div class="form-check form-check-inline mr-0">
                                 <label class="form-check-label mr-2 d-none d-md-inline" for="appointment-start-time" data-translation="appointments.popup.create_appointment.item.time_start.title"></label>
-                                <input name="appointment_start" type="time" id="appointment-start-time" class="form-control w-auto">
+                                <input name="start" type="time" id="appointment-start-time" class="form-control w-auto">
                             </div>
                             <div class="form-check form-check-inline mr-0">
                                 <label class="form-check-label mr-2" for="appointment-end-time" data-translation="appointments.popup.create_appointment.item.time_end.title"></label>
-                                <input name="appointment_start" type="time" id="appointment-end-time" class="form-control w-auto">
+                                <input name="end" type="time" id="appointment-end-time" class="form-control w-auto">
                             </div>
                         </div>
                     </div>
@@ -409,7 +409,7 @@
                     <div class="row">
                         <div class="col-auto ml-auto">
                             <button type="button" class="btn btn-danger" data-translation="generic.action.cancel" data-popup-action="confirm" onclick="let $form = $(this).parents('form'); $form.find(`[name='to'], [name='cc'], [name='bcc']`).setTags({}); $form.find(`[name='subject'], [name='subject']`).val('');"></button>
-                            <button type="button" class="btn btn-secondary"  data-translation="generic.action.save" data-popup-action="cancel" onclick="alert('Afspraken kunnen nog niet worden aangemaakt');"></button>
+                            <button type="button" class="btn btn-secondary"  data-translation="generic.action.save" data-popup-action="cancel" onclick="magistraal.appointments.create($(this).parents('form').formSerialize());"></button>
                         </div>
                     </div>
                 </div>
@@ -464,7 +464,7 @@
                     <div class="row">
                         <div class="col-auto ml-auto">
                             <button type="button" class="btn btn-danger" data-popup-action="cancel" data-translation="generic.action.cancel" onclick="let $form = $(this).parents('form'); $form.find(`[name='to'], [name='cc'], [name='bcc']`).setTags({}); $form.find(`[name='subject'], [name='subject']`).val('');"></button>
-                            <button type="button" class="btn btn-secondary"data-popup-action="confirm" data-translation="generic.action.send" onclick="magistraal.messages.send($(this).parents('form'))"></button>
+                            <button type="button" class="btn btn-secondary"data-popup-action="confirm" data-translation="generic.action.send" onclick="magistraal.messages.send($(this).parents('form').formSerialize());"></button>
                         </div>
                     </div>
                 </div>

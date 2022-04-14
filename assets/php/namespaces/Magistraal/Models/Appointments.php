@@ -5,6 +5,22 @@
         return \Magistraal\Appointments\format(\Magister\Session::appointmentGet($id));
     }
 
+    function get_all($from, $to) {
+        return \Magistraal\Appointments\format_all(\Magister\Session::appointmentList($from, $to), $from, $to);
+    }
+
+    function create($formatted) {
+        return \Magister\Session::appointmentCreate(\Magistraal\Appointments\unformat($formatted));
+    }
+
+    function remove($id) {
+        // return \Magister\Session::appointmentCreate(\Magistraal\Appointments\unformat($formatted));
+    }
+
+    function finish($id, $finished = true) {       
+        return \Magister\Session::appointmentFinish($id, $finished);
+    }
+
     function format($appointment) {
         $start      = strtotime($appointment['Start']);
         $end        = strtotime($appointment['Einde']);
@@ -28,7 +44,7 @@
         // Remove non-UTF8 characters from content
         $content = utf8_encode($content);
 
-        $result = [
+        $formatted = [
             'all_day'          => $appointment['DuurtHeleDag'] ?? false,
             'has_attachments'  => $appointment['HeeftBijlagen'] ?? false,
             'attachments'      => [],
@@ -62,7 +78,7 @@
 
         if(isset($appointment['Bijlagen']) && is_array($appointment['Bijlagen']) && count($appointment['Bijlagen']) > 0) {
             foreach($appointment['Bijlagen'] as $attachment) {
-                $result['attachments'][] = [
+                $formatted['attachments'][] = [
                     'id'        => $attachment['Id'],
                     'name'      => pathinfo($attachment['Naam'], PATHINFO_FILENAME),
                     'mime_type' => $attachment['ContentType'],
@@ -73,20 +89,31 @@
             }
         }
 
-        return $result;
+        return $formatted;
     }
 
-    function get_all($from, $to) {
-        return \Magistraal\Appointments\format_all(\Magister\Session::appointmentList($from, $to), $from, $to);
+    function unformat($formatted) {
+        // return json_decode('{"Id":0,"Links":null,"Start":"2022-04-14T06:00:00.000Z","Einde":"2022-04-14T06:30:00.000Z","DuurtHeleDag":false,"Omschrijving":"test","LesuurVan":null,"LesuurTotMet":null,"Type":1,"Inhoud":"eeeeeeeeee","InfoType":6,"Afgerond":false,"Aantekening":null,"Vakken":null,"Docenten":null,"Lokatie":"","Status":2,"Lokalen":null,"Groepen":null,"OpdrachtId":0,"HeeftBijlagen":false,"Bijlagen":null,"WeergaveType":1,"TaakAangemaaktOp":null,"TaakGewijzigdOp":null,"HerhaalStatus":0,"Herhaling":null,"IsOnlineDeelname":false,"Subtype":1}', true);
+        return [
+            'Id'           => $formatted['id'] ?? 0,
+            'Lokatie'      => $formatted ['facility'] ?? '',
+            'Start'        => \date_iso($formatted['date'] + $formatted['start'] ?? null),
+            'Einde'        => \date_iso($formatted['date'] + $formatted['end'] ?? null),
+            'Omschrijving' => $formatted['designation'] ?? '',
+            'Inhoud'       => $formatted['content'] ?? '',
+            'Type'         => 1,
+            'Status'       => 2,
+            'InfoType'     => 6
+        ];
     }
 
     function format_all($appointments, $from, $to) {
-        $result = [];
+        $formatted = [];
 
         if(isset($from) && isset($to)) {
             // Generate an array with keys of dates between from and to
             for ($unix=$from; $unix <= $to;) { 
-                $result[date('Y-m-d', $unix)] = ['unix' => $unix, 'appointments' => []];
+                $formatted[date('Y-m-d', $unix)] = ['unix' => $unix, 'appointments' => []];
                 $unix = strtotime('+1 day', $unix);
             }
         }
@@ -97,19 +124,14 @@
             $start_date = date('Y-m-d', $start);
 
             // Some appointments passed don't fit in the desired timespan, skip those
-            if(!isset($result[$start_date])) {
+            if(!isset($formatted[$start_date])) {
                 continue;
             }
 
-            $result[$start_date]['appointments'][] = \Magistraal\Appointments\format($appointment);
+            $formatted[$start_date]['appointments'][] = \Magistraal\Appointments\format($appointment);
         }
 
-        return $result;
-    }
-
-
-    function finish($id, $finished = true) {       
-        return \Magister\Session::appointmentFinish($id, $finished);
+        return $formatted;
     }
     
     function seperate_lesson_content($content) {
