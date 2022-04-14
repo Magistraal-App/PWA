@@ -166,13 +166,15 @@ sup {
 	top: -.5em
 }
 
-a {
+a,
+.anchor {
 	color: #007bff;
 	text-decoration: none;
 	background-color: transparent
 }
 
-a:hover {
+a:hover,
+.anchor:hover {
 	color: #0056b3;
 	text-decoration: underline
 }
@@ -407,12 +409,12 @@ h4 {
 .h5,
 h5 {
 	font-size: 1.3rem;
+	margin-bottom: 0.2rem;
 }
 
 .h6,
 h6 {
 	font-size: 1rem;
-	margin-bottom: .25rem
 }
 
 .lead {

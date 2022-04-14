@@ -295,8 +295,11 @@
             </div>
 
         <!-- SIDEBAR -->
-            <!-- Table cell -->
-            <div data-magistraal-template="sidebar-table-cell" class="sidebar-table-cell"></div>
+            <!-- Table key -->
+            <h5 data-magistraal-template="sidebar-table-key" class="sidebar-table-cell sidebar-table-key"></h5>
+            
+            <!-- Table value -->
+            <div data-magistraal-template="sidebar-table-value" class="sidebar-table-cell sidebar-table-value"></div>
 
         <!-- PAGE ICONS -->
             <!-- Loading -->

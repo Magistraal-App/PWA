@@ -79,7 +79,7 @@ const magistraal = {
 					url: `${magistraalStorage.get('api')}${api}/`,
 					data: data,
 					headers: {
-						'Accept': 'application/json',
+						'Accept': '*/*',
 						'X-Auth-Token': magistraalPersistentStorage.get('token')
 					},
 					success: function(response, textStatus, request) {
@@ -134,9 +134,7 @@ const magistraal = {
 	},
 
 	/* ============================ */
-
 	/*         Absences         */
-
 	/* ============================ */
 	absences: {
 		paintList: (absences, source) => {
@@ -179,9 +177,7 @@ const magistraal = {
 	},
 
 	/* ============================ */
-
 	/*         Appointments         */
-
 	/* ============================ */
 	appointments: {
 		paintList: (appointments, source) => {
@@ -212,7 +208,6 @@ const magistraal = {
 					let $appointment = magistraal.template.get('appointment');
 					let appointmentStart = new Date(appointment.start.unix * 1000);
 					let appointmentEnd = new Date(appointment.end.unix * 1000);
-					let attachmentsHTML = ''; // Set attributes
 
 					$appointment.attr({
 						'data-finished': appointment.finished,
@@ -273,13 +268,22 @@ const magistraal = {
 		},
 
 		viewCallback: (appointment, source) => {
+			let attachmentsHTML = '';
+
+			if(appointment.attachments.length > 0) {
+				$.each(appointment.attachments, function(i, attachment) {
+					attachment.icon = magistraal.mapping.icons('file_icons', attachment.mime_type);
+					attachmentsHTML += `<div class="anchor" onclick="magistraal.files.download('${attachment.location}');"><i class="${attachment.icon} mr-1"></i>${attachment.name}.${attachment.type}</div>`;
+				})
+			}
+
 			let updateFeedWith = {
 				'table': {
-					'appointment.attachments': '<a>eeeeee</a>'
+					'appointment.attachments': attachmentsHTML
 				}
 			};
 			
-			magistraal.sidebar.updateFeed(updateFeedWith, 'appointment.teachers');
+			magistraal.sidebar.updateFeed(updateFeedWith, 'appointment.end', 'after');
 
 			if (source == 'live') {
 				magistraal.console.success('console.success.appointment_attachments');
@@ -302,13 +306,27 @@ const magistraal = {
 				$(`.appointment[data-id="${id}"]`).attr('data-finished', !finished);
 			});
 		},
+
 		create: options => {}
 	},
 
 	/* ============================ */
+	/*            Files             */
+	/* ============================ */
+	files: {
+		download: (location) => {
+			magistraal.api.call('files/download', {location: location}, false).then((response) => {
+				if(response.data) {
+					window.open(response.data);
+				} else {
+					magistraal.console.error();
+				}
+			})
+		}
+	},
 
+	/* ============================ */
 	/*            Grades            */
-
 	/* ============================ */
 	grades: {
 		paintList: (grades, source) => {
@@ -355,9 +373,7 @@ const magistraal = {
 	},
 
 	/* ============================ */
-
 	/*           Messages           */
-
 	/* ============================ */
 	messages: {
 		paintList: (messages, source) => {
@@ -412,12 +428,23 @@ const magistraal = {
 		},
 
 		viewCallback: (message, source) => {
+			let attachmentsHTML = '';
+
+			if(message.attachments.length > 0) {
+				$.each(message.attachments, function(i, attachment) {
+					console.log(attachment);
+					attachment.icon = magistraal.mapping.icons('file_icons', attachment.mime_type);
+					attachmentsHTML += `<div class="anchor" onclick="magistraal.files.download('${attachment.location}');"><i class="${attachment.icon} mr-1"></i>${attachment.name}.${attachment.type}</div>`;
+				})
+			}
+
 			let updateFeedWith = {
 				'table': {
 					'message.to': message.recipients.to.names.join(', '),
 					'message.cc': message.recipients.cc.names.join(', '),
 					'message.bcc': message.recipients.bcc.names.join(', '),
-					'message.content': message.content,
+					'message.attachments': attachmentsHTML,
+					'message.content': message.content
 				}
 			};
 			
@@ -460,9 +487,7 @@ const magistraal = {
 	},
 
 	/* ============================ */
-
-	/*           SETTINGS           */
-
+	/*           Settings           */
 	/* ============================ */
 	settings: {
 		paintList: settings => {
@@ -734,6 +759,8 @@ const magistraal = {
 			if (page == 'login' || page == 'main') {
 				window.location.href = `../${page}/`;
 				return true;
+			} else if(page == 'logout') {
+				magistraal.logout.logout();
 			}
 
 			history.pushState(null, null, window.location.pathname + '#' + page + '/' + random(1000, 9999));
@@ -1015,8 +1042,10 @@ const magistraal = {
 	logout: {
 		logout: () => {
 			console.log('UITLOGGEN!!');
-			magistraalPersistentStorage.clear();
-			magistraal.page.load('login', {}, false);
+			magistraal.page.request('logout', {}).finally(() => {
+				magistraalPersistentStorage.clear();
+				magistraal.page.load('login');
+			});
 		}
 	},
 	sidebar: {
@@ -1057,10 +1086,10 @@ const magistraal = {
 					return true;
 				}
 
-				let $tableKey = magistraal.template.get('sidebar-table-cell').addClass('sidebar-table-key h5 font-heading');
+				let $tableKey = magistraal.template.get('sidebar-table-key');
 				$tableKey.attr('data-key', tableKey).text(magistraal.locale.translate(`sidebar.table.info.${tableKey}`));
 				$tableKey.appendTo($sidebarTable);
-				let $tableValue = magistraal.template.get('sidebar-table-cell').addClass('sidebar-table-value');
+				let $tableValue = magistraal.template.get('sidebar-table-value');
 				$tableValue.html(tableValue);
 				$tableValue.appendTo($sidebarTable);
 			});
@@ -1173,14 +1202,43 @@ const magistraal = {
 			$popup.find('[data-popup-action]').attr('disabled', 'disabled');
 		}
 	},
+
 	template: {
 		get: selector => {
 			return $(`[data-magistraal-template="${selector}"]`).first().clone().removeAttr('data-magistraal-template');
 		}
 	},
+
 	element: {
 		get: selector => {
 			return $(`[data-magistraal="${selector}"]`);
+		}
+	},
+	
+	mapping: {
+		icons(category, selector) {
+			switch(category) {
+				case 'file_icons':
+					if(selector == 'application/msword' || selector == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+						return 'fal fa-file-word';
+					} else if(selector == 'application/vnd.ms-powerpoint' || selector == 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+						return 'fal fa-file-powerpoint';
+					} else if(selector == 'application/pdf') {
+						return 'fal fa-file-pdf';
+					} else if(selector.includes('image/')) {
+						return 'fal fa-file-image';
+					} else if(selector.includes('video/')) {
+						return 'fal fa-file-video';
+					} else if(selector.includes('audio/')) {
+						return 'fal fa-file-audio';
+					} else if(selector.includes('text/')) {
+						return 'fal fa-file-alt';
+					} else {
+						return 'fal fa-file';
+					}
+			}
+
+			return 'fal fa-question';
 		}
 	}
 };

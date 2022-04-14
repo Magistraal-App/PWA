@@ -157,6 +157,7 @@
                     'refresh_token'        => $bearer['refresh_token']
                 ]);
             } else if(isset($token_data['access_token_expires']) && ($token_data['access_token_expires'] - 30) <= time()) {
+                // echo(($token_data['access_token_expires'] - 30).' '.time());
                 // echo('NEED TO REFRESH!');
                 // Refresh both access token and refresh token
                 $bearer = \Magister\Session::getBearer($token_data['refresh_token']);
@@ -226,7 +227,7 @@
                         'host'            => 'accounts.magister.net'
                     ],
                     'payload' => [
-                        'refresh_token' => \Magister\Session::$refreshToken,
+                        'refresh_token' => $refresh_token,
                         'client_id'     => 'M6LOAPP',
                         'grant_type'    => 'refresh_token'
                     ]
@@ -348,6 +349,17 @@
 
             return $response['body'];
         }
+        
+        /* ============================ */
+        /*            Files             */
+        /* ============================ */
+
+        public static function fileLocationGet($location) {
+            $location = \Magister\Session::$domain.$location.'?redirect_type=body';
+            $location = \Magistraal\Browser\Browser::request($location)['body']['location'] ?? null;
+            
+            return $location;
+        }
 
         /* ============================ */
         /*            Grades            */
@@ -394,9 +406,17 @@
         }
 
         public static function messageGet($id) {
-            $response = \Magistraal\Browser\Browser::request(\Magister\Session::$domain."/api/berichten/berichten/{$id}/");
+            $message = \Magistraal\Browser\Browser::request(\Magister\Session::$domain."/api/berichten/berichten/{$id}/")['body'];
 
-            return $response['body'];
+            // Add attachments
+            $location            = $message['links']['bijlagen']['href'] ?? null;
+            if(isset($location)) {
+                $message['bijlagen'] = \Magistraal\Browser\Browser::request(\Magister\Session::$domain.$location)['body']['items'];
+            } else {
+                $message['bijlagen'] = [];
+            }
+
+            return $message;
         }
 
         public static function messageSend($to = [], $cc = [], $bcc = [], $subject = '', $content = '', $priority = false) {          

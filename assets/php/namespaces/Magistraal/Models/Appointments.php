@@ -28,15 +28,10 @@
         // Remove non-UTF8 characters from content
         $content = utf8_encode($content);
 
-        return [
+        $result = [
             'all_day'          => $appointment['DuurtHeleDag'] ?? false,
-            'attachments'      => [
-                // [
-                //     'location' => 'google.com',
-                //     'icon' => "fab fa-google",
-                //     'filename' => 'Google website'
-                // ]
-            ],
+            'has_attachments'  => $appointment['HeeftBijlagen'] ?? false,
+            'attachments'      => [],
             'content_length'   => $content_length ?? 0,
             'content_text'     => strip_tags(str_replace('</p>', '</p> ', $content)) ?? '',
             'content'          => $content ?? '',
@@ -64,6 +59,21 @@
             'teachers'         => array_column($appointment['Docenten'] ?? [], 'Naam') ?? [],
             'type'             => \Magistraal\Appointments\remap_type($appointment['Type']) ?? 'unknown'
         ];
+
+        if(isset($appointment['Bijlagen']) && is_array($appointment['Bijlagen']) && count($appointment['Bijlagen']) > 0) {
+            foreach($appointment['Bijlagen'] as $attachment) {
+                $result['attachments'][] = [
+                    'id'        => $attachment['Id'],
+                    'name'      => pathinfo($attachment['Naam'], PATHINFO_FILENAME),
+                    'mime_type' => $attachment['ContentType'],
+                    'type'      => pathinfo($attachment['Naam'], PATHINFO_EXTENSION),
+                    'modified'  => strtotime($attachment['Datum']),
+                    'location'  => $attachment['Links'][0]['Href'] ?? null
+                ];
+            }
+        }
+
+        return $result;
     }
 
     function get_all($from, $to) {
@@ -101,7 +111,7 @@
     function finish($id, $finished = true) {       
         return \Magister\Session::appointmentFinish($id, $finished);
     }
-
+    
     function seperate_lesson_content($content) {
         $ms_teams_link = '';
 

@@ -15,6 +15,7 @@
             'folder_id'       => $message['mapId'],
             'forwarded_at'    => strtotime($message['doorgestuurdOp']),
             'has_attachments' => $message['heeftBijlagen'],
+            'attachments'     => [],
             'id'              => $message['id'],
             'priority'        => $message['heeftPrioriteit'] ? 1 : 0,
             'read'            => $message['isGelezen'],
@@ -60,6 +61,20 @@
             ];
 
             $result['recipients']['bcc']['names'][] = $recipient['weergavenaam'];
+        }
+
+        // Add attachments
+        if(isset($message['bijlagen']) && is_array($message['bijlagen']) && count($message['bijlagen']) > 0) {
+            foreach($message['bijlagen'] as $attachment) {
+                $result['attachments'][] = [
+                    'id'        => $attachment['id'],
+                    'name'      => pathinfo($attachment['naam'], PATHINFO_FILENAME),
+                    'mime_type' => $attachment['contentType'],
+                    'type'      => pathinfo($attachment['naam'], PATHINFO_EXTENSION),
+                    'modified'  => strtotime($attachment['gewijzigdOp']),
+                    'location'  => $attachment['links']['download']['href'] ?? null
+                ];
+            }
         }
 
         return $result;

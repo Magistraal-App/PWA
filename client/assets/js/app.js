@@ -13,11 +13,24 @@ function unique(array) {
     return [...new Set(array)];
 }
 
+$(document).on('input', 'input', function() {
+    console.log($(this).val());
+    console.log($(this).value());
+})
+
 $.fn.value = function() {
     if(this.hasClass('input-tags')) {
         let $wrapper = this.closest('.input-tags-wrapper');
         let tags   = Object.keys($wrapper.data('tags') || {});
         return tags;
+    } else if(this.attr('type') == 'date') {
+        return Math.round(new Date(this.val()) / 1000);
+    } else if(this.attr('type') == 'time') {
+        let [hours, minutes] = this.val().split(':');
+        hours = parseInt(hours);
+        minutes = parseInt(minutes);
+
+        return hours * 3600 + minutes * 60;
     } else {
         return this.val();
     }

@@ -20,12 +20,6 @@
         $(document).ready(function() {
             magistraal.load(); 
         })
-
-        $(document).on('magistraal.ready', function() {
-            if(typeof magistraalPersistentStorage.getItem('token') != 'undefined') {
-                magistraal.page.load('logout', {}, false)
-            }
-        })
     </script>
 </head>
 <body>
