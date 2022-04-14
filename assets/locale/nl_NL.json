@@ -79,6 +79,7 @@
     "console.loading.message_content": "Bericht laden...",
     "console.loading.refresh": "Bijwerken...",
     "console.loading.send_message": "Bericht versturen...",
+    "console.loading.download": "Downloaden...",
     "console.success.appointment_attachments": "Bijlage geladen!",
     "console.success.finish_appointment": "Afspraak afgerond!",
     "console.success.generic": "Geladen!",
@@ -86,6 +87,7 @@
     "console.success.message_content": "Bericht geladen!",
     "console.success.refresh": "Bijgewerkt!",
     "console.success.send_message": "Bericht verstuurd!",
+    "console.success.download": "Gedownload!",
 
     "grades.grade.info.weight": "Weging",
     "grades.grade.info.entered_at": "Ingevoerd op",

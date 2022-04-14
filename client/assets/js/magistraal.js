@@ -53,57 +53,59 @@ const magistraalPersistentStorage = {
 };
 const magistraal = {
 	api: {
-		call: (api, data = {}, cachable = false, callback = function() {}, pageScope = undefined) => {
+		call: (parameters = {}) => {
+			if(typeof parameters.callback  == 'undefined') { parameters.callback = function() {}; }
+			if(typeof parameters.source    == 'undefined') { parameters.source = 'both'; }
+			if(typeof parameters.scope     == 'undefined') { parameters.scope = undefined; }
+			if(typeof parameters.url       == 'undefined') { return false; }
+			if(typeof parameters.data      == 'undefined') { parameters.data = {}; }
+			if(typeof parameters.cachable  == 'undefined') { parameters.cachable = (parameters.source != 'server_only'); }
+			if(typeof parameters.xhrFields == 'undefined') { parameters.xhrFields = {}; }
+
 			return new Promise((resolve, reject) => {
 				/* Pre-load from cache, only if a callback has been supplied */
-				if (cachable) {
-					let cachedResponseData = magistraalPersistentStorage.get(`api_response.${api}.${JSON.stringify(data)}`);
-
+				if (parameters.cachable) {
+					let cachedResponseData = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`);
 					if (typeof cachedResponseData != 'undefined') {
-						if (pageScope === null) {
-							/* Don't make request if pageScope is null and response is already cached */
-							if (typeof callback == 'function') {
-								callback(cachedResponseData, 'live');
-							}
+						if (typeof parameters.callback == 'function') {
+							parameters.callback(cachedResponseData, 'server');
+						}
 
+						if (parameters.source == 'prefer_cache') {
+							/* Don't make request to server */
 							resolve(cachedResponseData);
 							return true;
-						} else {
-							callback(cachedResponseData, 'cache');
 						}
 					}
 				}
 
 				$.ajax({
 					method: 'POST',
-					url: `${magistraalStorage.get('api')}${api}/`,
-					data: data,
+					url: `${magistraalStorage.get('api')}${parameters.url}/`,
+					data: parameters.data,
 					headers: {
 						'Accept': '*/*',
 						'X-Auth-Token': magistraalPersistentStorage.get('token')
 					},
+					xhrFields: parameters.xhrFields,
 					success: function(response, textStatus, request) {
 						/* Save in cache if cachable */
-						if (cachable && typeof (response === null || response === void 0 ? void 0 : response.data) != 'undefined') {
-							magistraalPersistentStorage.set(`api_response.${api}.${JSON.stringify(data)}`, response === null || response === void 0 ? void 0 : response.data);
+						if (parameters.cachable && typeof (response === null || response === void 0 ? void 0 : response.data) != 'undefined') {
+							magistraalPersistentStorage.set(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`, response === null || response === void 0 ? void 0 : response.data);
 						}
 
-						if (typeof pageScope != 'undefined' && pageScope !== null && pageScope != magistraal.page.current()) {
+						if (typeof parameters.scope != 'undefined' && parameters.scope != magistraal.page.current()) {
 							return false;
 						}
 
-						response.request = request;
-						response.source = 'live';
-						resolve(response);
+						resolve(response?.data || response);
 
-						if (typeof callback == 'function') {
-							callback(response === null || response === void 0 ? void 0 : response.data, 'live');
+						if (typeof parameters.callback == 'function') {
+							parameters.callback(response?.data || response, 'server', request);
 						}
 					},
 					error: function(response) {
-						var _response$responseJSO;
-
-						if ((response === null || response === void 0 ? void 0 : (_response$responseJSO = response.responseJSON) === null || _response$responseJSO === void 0 ? void 0 : _response$responseJSO.info) == 'token_invalid') {
+						if (typeof response.responseJSON != 'undefined' && typeof response.responseJSON.info != 'undefined' && response.responseJSON.info == 'token_invalid') {
 							magistraalPersistentStorage.remove('token');
 							if(api == 'logout') {
 								magistraal.page.get('login');
@@ -114,7 +116,7 @@ const magistraal = {
 
 						magistraal.console.error();
 
-						if (typeof pageScope != 'undefined' && pageScope != magistraal.page.current()) {
+						if (typeof parameters.scope != 'undefined' && parameters.scope != magistraal.page.current()) {
 							return false;
 						}
 
@@ -122,7 +124,6 @@ const magistraal = {
 					},
 					complete: function(response, textStatus, request) {
 						let token = response.getResponseHeader('X-Auth-Token');
-						console.log(token);
 
 						if (token) {
 							magistraalPersistentStorage.set('token', token);
@@ -260,11 +261,13 @@ const magistraal = {
 			magistraal.page.setContent(pageContent);
 		},
 
-		view: id => {
+		view: (id) => {
 			magistraal.console.loading('console.loading.appointment_attachments');
-			magistraal.api.call('appointments/info', {
-				'id': id
-			}, true, magistraal.appointments.viewCallback);
+			magistraal.api.call({
+				url: 'appointments/info', 
+				data: {id: id},
+				callback: magistraal.appointments.viewCallback
+			});
 		},
 
 		viewCallback: (appointment, source) => {
@@ -285,7 +288,7 @@ const magistraal = {
 			
 			magistraal.sidebar.updateFeed(updateFeedWith, 'appointment.end', 'after');
 
-			if (source == 'live') {
+			if (source == 'server') {
 				magistraal.console.success('console.success.appointment_attachments');
 			}
 		},
@@ -296,10 +299,13 @@ const magistraal = {
 			}
 
 			$(`.appointment[data-id="${id}"]`).attr('data-finished', finished);
+
 			magistraal.console.loading('console.loading.finish_appointment');
-			magistraal.api.call('appointments/finish', {
-				'id': id,
-				'finished': finished
+
+			magistraal.api.call({
+				url: 'appointments/finish', 
+				data: {id: id, finished: finished},
+				source: 'both'
 			}).then(() => {
 				magistraal.console.success('console.success.finish_appointment');
 			}).catch(() => {
@@ -315,13 +321,25 @@ const magistraal = {
 	/* ============================ */
 	files: {
 		download: (location) => {
-			magistraal.api.call('files/download', {location: location}, false).then((response) => {
-				if(response.data) {
-					window.open(response.data);
-				} else {
-					magistraal.console.error();
-				}
-			})
+			magistraal.console.loading('console.loading.download');
+			magistraal.api.call({
+				url: 'files/download', 
+				data: {location: location},
+				source: 'server_only',
+				callback: magistraal.files.downloadCallback,
+				xhrFields: { responseType: 'arraybuffer'}
+			});
+		},
+
+		downloadCallback(arrayBuffer, source, request) {
+			let blob = new Blob([arrayBuffer], {type: request.getResponseHeader('Content-Type')});	
+			let link = document.createElement('a');
+			link.href = URL.createObjectURL(blob);
+			link.download = decodeURI((request.getResponseHeader('Content-Disposition') ?? 'filename=Bestand').split('filename=')[1]);
+			link.click();
+			link.remove();
+
+			magistraal.console.success('console.success.download');
 		}
 	},
 
@@ -329,7 +347,7 @@ const magistraal = {
 	/*            Grades            */
 	/* ============================ */
 	grades: {
-		paintList: (grades, source) => {
+		paintList: (grades, source, request) => {
 			let pageContent = '';
 			
 			$.each(grades, function (i, grade) {
@@ -378,9 +396,9 @@ const magistraal = {
 	messages: {
 		paintList: (messages, source) => {
 			/* Pre-load newest three messages while painting */
-			magistraal.api.call('messages/info', {'id': String(messages[0].id)}, true, () => {}, null);
-			magistraal.api.call('messages/info', {'id': String(messages[1].id)}, true, () => {}, null);
-			magistraal.api.call('messages/info', {'id': String(messages[2].id)}, true, () => {}, null);
+			magistraal.api.call({url: 'messages/info', data: {id: String(messages[0].id)}, source: 'prefer_cache'});
+			magistraal.api.call({url: 'messages/info', data: {id: String(messages[1].id)}, source: 'prefer_cache'});
+			magistraal.api.call({url: 'messages/info', data: {id: String(messages[2].id)}, source: 'prefer_cache'});
 
 			let pageContent = '';
 			$.each(messages, function (i, message) {
@@ -415,15 +433,18 @@ const magistraal = {
 
 		view: (id, read = true) => {
 			magistraal.console.loading('console.loading.message_content');
-			magistraal.api.call('messages/info', {
-				'id': id
-			}, true, magistraal.messages.viewCallback, null);
+			magistraal.api.call({
+				url: 'messages/info', 
+				data: {id: id},
+				callback: magistraal.messages.viewCallback,
+				source: 'prefer_cache'
+			});
 
-			if (!read) {
-				magistraal.api.call('messages/read', {
-					'id': id,
-					'read': !read
-				}).catch(() => {});
+			if (read != true) {
+				magistraal.api.call({
+					url: 'messages/info', 
+					data: {id: id, read: true}
+				});
 			}
 		},
 
@@ -432,7 +453,6 @@ const magistraal = {
 
 			if(message.attachments.length > 0) {
 				$.each(message.attachments, function(i, attachment) {
-					console.log(attachment);
 					attachment.icon = magistraal.mapping.icons('file_icons', attachment.mime_type);
 					attachmentsHTML += `<div class="anchor" onclick="magistraal.files.download('${attachment.location}');"><i class="${attachment.icon} mr-1"></i>${attachment.name}.${attachment.type}</div>`;
 				})
@@ -450,7 +470,7 @@ const magistraal = {
 			
 			magistraal.sidebar.updateFeed(updateFeedWith, undefined, 'after');
 
-			if (source == 'live') {
+			if (source == 'server') {
 				magistraal.console.success('console.success.message_content');
 			}
 		},
@@ -470,7 +490,11 @@ const magistraal = {
 			magistraal.console.loading('console.loading.send_message');
 
 			setTimeout(() => {
-				magistraal.api.call('messages/send', data, false).then(response => {
+				magistraal.api.call({
+					url: 'messages/send', 
+					data: data,
+					cachable: false
+				}).then(response => {
 					magistraal.console.success('console.success.send_message');
 				}).catch(err => {
 					console.error(err);
@@ -590,11 +614,11 @@ const magistraal = {
 
 		return new Promise((resolve, reject) => {
 			// Load absences, appointments, grades, messages, etc. for offline use
-			// magistraal.api.call('absences/list', {}, true);
-			// magistraal.api.call('appointments/list', {}, true);
-			// magistraal.api.call('grades/list', {}, true);
-			// magistraal.api.call('messages/list', {}, true);
-			// magistraal.api.call('settings/list', {}, true);
+			magistraal.api.call({url: 'absences/list', source: 'prefer_cache'});
+			magistraal.api.call({url: 'appointments/list', source: 'prefer_cache'});
+			magistraal.api.call({url: 'grades/list', source: 'prefer_cache'});
+			magistraal.api.call({url: 'messages/list', source: 'prefer_cache'});
+			magistraal.api.call({url: 'settings/list', source: 'prefer_cache'});
 
 			magistraal.locale.load('nl_NL').then(() => {
 				$(document).trigger('magistraal.ready');
@@ -607,9 +631,11 @@ const magistraal = {
 	locale: {
 		load: locale => {
 			return new Promise((resolve, reject) => {
-				magistraal.api.call('locale', {
-					'locale': locale
-				}, true, magistraal.locale.loadCallback).finally(() => {
+				magistraal.api.call({
+					url: 'locale', 
+					data: {locale: locale},
+					callback: magistraal.locale.loadCallback
+				}).finally(() => {
 					resolve();
 				}).catch(() => {});
 			});
@@ -753,7 +779,7 @@ const magistraal = {
 	},
 
 	page: {
-		load: (page, data = {}, cachable = true, cacheOnly = false) => {
+		load: (page, data = {}, cachable = true) => {
 			page = trim(page.replace(/[^a-zA-Z\/]/g, ''), '/');
 
 			if (page == 'login' || page == 'main') {
@@ -772,10 +798,11 @@ const magistraal = {
 			magistraal.page.get(page, data, cachable);
 		},
 
-		get: (page, data = {}, cachable = true, cacheOnly = false) => {
+		get: (page, data = {}, cachable = true) => {
 			magistraal.element.get('page-search').val('');
 			page = trim(page, '/');
-			let painters = {
+
+			let callbacks = {
 				'absences/list': magistraal.absences.paintList,
 				'appointments/list': magistraal.appointments.paintList,
 				'grades/list': magistraal.grades.paintList,
@@ -784,10 +811,9 @@ const magistraal = {
 				'settings/list': magistraal.settings.paintList
 			};
 
-			let painter = () => {};
-
-			if (typeof painters[page] != 'undefined' && !cacheOnly) {
-				painter = painters[page];
+			let callback = undefined
+			if (typeof callbacks[page] != 'undefined') {
+				callback = callbacks[page];
 			}
 
 			let $pageButtonsTemplate = magistraal.template.get(`page-buttons-${page}`);
@@ -804,7 +830,7 @@ const magistraal = {
 			magistraal.element.get('page-title').text(magistraal.locale.translate(`page.${page}.title`));
 			return new Promise((resolve, reject) => {
 				try {
-					magistraal.page.request(page, data, painter, cachable).then(response => {
+					magistraal.page.request(page, data, callback, cachable).then(response => {
 						resolve(response);
 					}).catch(() => {});
 				} catch {
@@ -813,10 +839,17 @@ const magistraal = {
 			});
 		},
 		
-		request: (page, data = {}, painter = null, cachable = true) => {
+		request: (page, data = {}, callback = null, cachable = true) => {
 			return new Promise((resolve, reject) => {
 				magistraal.console.loading('console.loading.refresh');
-				magistraal.api.call(page, data, cachable, painter, page).then(response => {
+				magistraal.api.call({
+					url: page, 
+					data: data, 
+					source: 'both',
+					cachable: cachable, 
+					callback: callback, 
+					scope: page
+				}).then(response => {
 					magistraal.console.success('console.success.refresh');
 					resolve(response);
 				}).catch(response => {
@@ -1041,7 +1074,6 @@ const magistraal = {
 	},
 	logout: {
 		logout: () => {
-			console.log('UITLOGGEN!!');
 			magistraal.page.request('logout', {}).finally(() => {
 				magistraalPersistentStorage.clear();
 				magistraal.page.load('login');

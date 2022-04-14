@@ -131,7 +131,7 @@
                 $token_id = $token_data['token_id'];
 
                 // Access token is about to expire
-                if(isset($token_data['access_token_expires']) && ($token_data['access_token_expires'] - 3595) <= time()) {
+                if(isset($token_data['access_token_expires']) && ($token_data['access_token_expires'] - 30) <= time()) {
                     $bearer = \Magister\Session::getBearer($token_data['refresh_token']);
 
                     $token_id = \Magistraal\Authentication\token_put([
@@ -337,7 +337,7 @@
         /*            Files             */
         /* ============================ */
 
-        public static function fileLocationGet($location) {
+        public static function fileGetLocation($location) {
             $location = \Magister\Session::$domain.$location.'?redirect_type=body';
             $location = \Magistraal\Browser\Browser::request($location)['body']['location'] ?? null;
             

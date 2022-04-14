@@ -13,11 +13,6 @@ function unique(array) {
     return [...new Set(array)];
 }
 
-$(document).on('input', 'input', function() {
-    console.log($(this).val());
-    console.log($(this).value());
-})
-
 $.fn.value = function() {
     if(this.hasClass('input-tags')) {
         let $wrapper = this.closest('.input-tags-wrapper');

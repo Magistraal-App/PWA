@@ -68,8 +68,9 @@
 
             $response    = curl_exec($ch);
             $info        = curl_getinfo($ch);
-            $headers_str = substr($response, 0, strpos($response, "\r\n\r\n"));
-            $body        = trim(str_split_pos($response, strpos($response, "\r\n\r\n"))[1]);
+            $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+            $headers_str = substr($response, 0, $header_size);
+            $body        = substr($response, $header_size);
             $headers     = \Magistraal\Browser\decode_headers($headers_str);
             
             if(isset($headers['content-type']) && strpos($headers['content-type'], 'application/json') !== false) {
