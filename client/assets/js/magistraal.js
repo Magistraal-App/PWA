@@ -1233,6 +1233,8 @@ const magistraal = {
 						return 'fal fa-file-audio';
 					} else if(selector.includes('text/')) {
 						return 'fal fa-file-alt';
+					} else if(selector == 'application/zip' || selector == 'application/x-zip-compressed' || selector == 'application/x-7z-compressed' || selector == 'application/vnd.rar' || selector == 'application/x-bzip' || selector == 'application/x-bzip2') {
+						return 'fal fa-file-archive';
 					} else {
 						return 'fal fa-file';
 					}
