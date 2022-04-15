@@ -63,22 +63,24 @@ const magistraal = {
 			if(typeof parameters.xhrFields == 'undefined') { parameters.xhrFields = {}; }
 
 			return new Promise((resolve, reject) => {
-				/* Pre-load from cache, only if a callback has been supplied */
+				// Response voorladen uit cache, alleen als er een callback is opgegeven
 				if(parameters.cachable) {
 					let cachedResponseData = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`);
 					if(typeof cachedResponseData != 'undefined') {
+						// Er is een response opgeslagen, voorladen
 						if(typeof parameters.callback == 'function') {
 							parameters.callback(cachedResponseData, 'server');
 						}
 
+						// Stuur geen request naar de server als source == prefer_cache
 						if(parameters.source == 'prefer_cache') {
-							/* Don't make request to server */
 							resolve(cachedResponseData);
 							return true;
 						}
 					}
 				}
 
+				// Stuur een request naar de server
 				$.ajax({
 					method: 'POST',
 					url: `${magistraalStorage.get('api')}${parameters.url}/`,
@@ -89,16 +91,21 @@ const magistraal = {
 					},
 					xhrFields: parameters.xhrFields,
 					success: function(response, textStatus, request) {
-						/* Save in cache if cachable */
-						if(parameters.cachable && typeof (response === null || response === void 0 ? void 0 : response.data) != 'undefined') {
-							magistraalPersistentStorage.set(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`, response === null || response === void 0 ? void 0 : response.data);
-						}
-
 						if(typeof parameters.scope != 'undefined' && parameters.scope != magistraal.page.current()) {
 							return false;
 						}
 
-						resolve(response?.data || response);
+						// Als de request gelukt is
+						if(response.success == true) {
+							resolve(response?.data || response);
+
+							// Sla op in cache
+							if(parameters.cachable && typeof response.data != 'undefined') {
+								magistraalPersistentStorage.set(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`, response === null || response === void 0 ? void 0 : response.data);
+							}
+						} else {
+							reject(response?.data || response);
+						}
 
 						if(typeof parameters.callback == 'function') {
 							parameters.callback(response?.data || response, 'server', request);
@@ -210,6 +217,8 @@ const magistraal = {
 					let appointmentStart = new Date(appointment.start.unix * 1000);
 					let appointmentEnd = new Date(appointment.end.unix * 1000);
 
+					appointment.editable = (appointment.type == 'personal' || appointment.type == 'planning');
+
 					$appointment.attr({
 						'data-finished': appointment.finished,
 						'data-finishable': true,
@@ -218,7 +227,7 @@ const magistraal = {
 						'data-search': `${appointment.subjects.join(', ')} ${appointment.designation} ${appointment.content_text}`.trim(),
 						'data-status': appointment.status,
 						'data-info-type': appointment.info_type,
-						'data-creator': appointment.creator
+						'data-editable': appointment.editable
 					}); // Set lesson number / icon
 
 					if(appointment['start']['lesson'] > 0) {
@@ -242,18 +251,35 @@ const magistraal = {
 					$appointment.find('.lesson-type').text(lessonType); // Format attachments as html
 
 					let sidebarFeed = {
-						'title': appointment['designation'],
-						'subtitle': `${addLeadingZero(appointmentStart.getHours())}:${addLeadingZero(appointmentStart.getMinutes())} - ${addLeadingZero(appointmentEnd.getHours())}:${addLeadingZero(appointmentEnd.getMinutes())}`,
-						'table': {
+						title: appointment['designation'],
+						subtitle: `${addLeadingZero(appointmentStart.getHours())}:${addLeadingZero(appointmentStart.getMinutes())} - ${addLeadingZero(appointmentEnd.getHours())}:${addLeadingZero(appointmentEnd.getMinutes())}`,
+						table: {
 							'appointment.facility': appointment.facility,
 							'appointment.start': capitalizeFirst(magistraal.locale.formatDate(appointment.start.unix, 'ldFYHi')),
 							'appointment.end': capitalizeFirst(magistraal.locale.formatDate(appointment.end.unix, 'ldFYHi')),
 							'appointment.school_subject': appointment.subjects.join(', '),
-						}
+						},
+						actions: {}
 					};
+
 					sidebarFeed.table[`appointment.info_type.${appointment.info_type}`] = appointment.content;
 					sidebarFeed.table['appointment.teachers'] = appointment.teachers.join(', ');
+
+					if(appointment.editable) {
+						sidebarFeed.actions = {
+							edit: {
+								handler: `magistraal.appointments.edit({id: '${appointment.id}', start: ${appointment.start.unix}, end: ${appointment.end.unix}, facility: '${escapeQuotes(appointment.facility)}', designation: '${escapeQuotes(appointment.designation)}', content: '${escapeQuotes(appointment.content)}'})`, 
+								icon: 'fal fa-edit'
+							},
+							remove: {
+								handler: `magistraal.appointments.remove('${appointment.id}')`, 
+								icon: 'fal fa-trash'
+							}
+						}
+					}
+
 					magistraal.sidebar.addFeed($appointment, sidebarFeed);
+
 					$appointment.appendTo($appointmentsGroup);
 				});
 				pageContent += $appointmentsGroup.prop('outerHTML');
@@ -276,17 +302,15 @@ const magistraal = {
 			if(appointment.attachments.length > 0) {
 				$.each(appointment.attachments, function(i, attachment) {
 					attachment.icon = magistraal.mapping.icons('file_icons', attachment.mime_type);
-					attachmentsHTML += `<div class="anchor" onclick="magistraal.files.download('${attachment.location}');"><i class="${attachment.icon} mr-1"></i>${attachment.name}.${attachment.type}</div>`;
+					attachmentsHTML += `<div class="anchor" onclick="magistraal.files.download('${attachment.location}');"><i class="${attachment.icon} icon-inline"></i>${attachment.name}.${attachment.type}</div>`;
 				})
 			}
-
-			let updateFeedWith = {
-				'table': {
+			
+			magistraal.sidebar.updateFeed({
+				table: {
 					'appointment.attachments': attachmentsHTML
 				}
-			};
-			
-			magistraal.sidebar.updateFeed(updateFeedWith, 'appointment.end', 'after');
+			}, 'appointment.end');
 
 			if(source == 'server') {
 				magistraal.console.success('console.success.appointment_attachments');
@@ -313,16 +337,42 @@ const magistraal = {
 			});
 		},
 
-		create: (appointment) => {
-			console.log(appointment);
+		create: (appointment, $form = null) => {
+			magistraal.console.loading('console.loading.create_appointment');
 
 			magistraal.api.call({
 				url: 'appointments/create',
 				data: appointment,
 				source: 'server_only'
-			}).then(() => {
+			}).then(response => {
+				magistraal.console.success('console.success.create_appointment');
 				magistraal.page.load('appointments/list');
-			})
+			}).catch(response => {
+				magistraal.popup.open('appointments-create-appointment');
+
+				if(response.responseJSON && response.responseJSON.info) {
+					magistraal.console.error(magistraal.locale.translate(`console.error.${response.responseJSON.info}`, 'console.error.generic'));
+					return false;
+				}
+			}).finally(() => {
+				if($form) {
+					$form.formReset();
+				}
+			});
+		},
+
+		edit: (appointment) => {
+			let popup = 'appointments-create-appointment';
+			let $form = magistraal.element.get('form-appointments-create-appointment');
+			
+			$form.find('[name="date"]').value(appointment.start * 1000);
+			$form.find('[name="start"]').value(appointment.start * 1000);
+			$form.find('[name="end"]').value(appointment.end * 1000);
+			$form.find('[name="facility"]').value(appointment.facility);
+			$form.find('[name="designation"]').value(appointment.designation);
+			$form.find('[name="content"]').value(appointment.content);
+			
+			magistraal.popup.open(popup);
 		}
 	},
 
@@ -478,39 +528,37 @@ const magistraal = {
 				}
 			};
 			
-			magistraal.sidebar.updateFeed(updateFeedWith, undefined, 'after');
+			magistraal.sidebar.updateFeed(updateFeedWith, undefined);
 
 			if(source == 'server') {
 				magistraal.console.success('console.success.message_content');
 			}
 		},
 
-		send: (message) => {
+		send: (message, $form = null) => {
 			magistraal.console.loading('console.loading.send_message');
 
-			setTimeout(() => {
-				magistraal.api.call({
-					url: 'messages/send', 
-					data: message,
-					cachable: false
-				}).then(response => {
-					magistraal.console.success('console.success.send_message');
-				}).catch(response => {
-					console.error(response);
+			magistraal.api.call({
+				url: 'messages/send', 
+				data: message,
+				source: 'server_only'
+			}).then(response => {
+				magistraal.console.success('console.success.send_message');
+			}).catch(response => {
+				magistraal.popup.open('messages-write-message');
 
-					if(response.responseJSON.info == 'parameter_to_missing') {
-						magistraal.console.error('console.error.send_message_field_to_empty');
-					} else {
-						magistraal.console.error('console.error.generic');
-					}
+				if(typeof response.responseJSON.info != 'undefined') {
+					magistraal.console.error(magistraal.locale.translate(`console.error.${response.responseJSON.info}`, 'console.error.generic'));
+					return false;
+				}
+					
+				magistraal.console.error('console.error.generic');
 
-					magistraal.popup.open('messages-write-message');
-				}).finally(() => {
-					// Reset form
-					$form.find('[name="to"], [name="cc"], [name="bcc"]').setTags({});
-					$form.find('[name="subject"], [name="content"]').val('');
-				});
-			}, 500);
+			}).finally(() => {
+				if($form) {
+					$form.formReset();
+				}
+			});
 		}
 	},
 
@@ -638,6 +686,7 @@ const magistraal = {
 				magistraal.api.call({
 					url: 'locale', 
 					data: {locale: locale},
+					source: 'both',
 					callback: magistraal.locale.loadCallback
 				}).finally(() => {
 					resolve();
@@ -956,18 +1005,20 @@ const magistraal = {
 		},
 		searchInput: class searchInput {
 			constructor($input) {
-				_defineProperty(this, "results", {
-					set: results => {
-						let html = '';
-						$.each(results, function (i, result) {
-							html += `<li class="input-search-result input-search-result-rich" value="${result.value}"><i class="input-search-result-icon ${result === null || result === void 0 ? void 0 : result.icon}"></i><span class="input-search-result-title">${result.title}</span><span class="input-search-result-description">${result.description}</span></li>`;
-						});
-						this.$results.html(html);
-					}
-				});
-
 				this.$input = $input;
 				this.setup();
+			}
+
+			results = {
+				set: (results) => {
+					let html = '';
+
+					$.each(results, function (i, result) {
+						html += `<li class="input-search-result input-search-result-rich" value="${result.value}"><i class="input-search-result-icon ${result === null || result === void 0 ? void 0 : result.icon}"></i><span class="input-search-result-title">${result.title}</span><span class="input-search-result-description">${result.description}</span></li>`;
+					});
+					
+					this.$results.html(html);
+				}
 			}
 
 			setup() {
@@ -1017,8 +1068,7 @@ const magistraal = {
 					magistraal.api.call({
 						url: `${api}/search`,
 						data: {query: query},
-						cachable: false,
-						source: 'server_only'
+						cachable: false
 					}).then(response => {
 						let results = magistraal.inputs.search.remap_api_response(api, response);
 						this.results.set(results);
@@ -1088,16 +1138,28 @@ const magistraal = {
 		}
 	},
 	sidebar: {
-		addFeed: ($elem, feed) => {
+		addFeed: ($elem = null, feed) => {
+			$elem = $elem || magistraal.element.get('sidebar');
 			$elem.attr('data-sidebar-feed', encodeURI(JSON.stringify(feed)));
 			return true;
+		},
+
+		tableValueEditable(tableKey, editable = true) {
+			let $tableKey   = magistraal.element.get('sidebar-table').find(`.sidebar-table-key[data-key="${tableKey}"]`);
+			let $tableValue = $tableKey.next('.sidebar-table-value');
+
+			$tableValue.attr({
+				'data-editable': editable, 
+				'contenteditable': editable
+			});
 		},
 
 		clearFeed: () => {
 			return magistraal.sidebar.selectFeed(null);
 		},
 
-		getFeed: $elem => {
+		getFeed: ($elem = null) => {
+			$elem = $elem || magistraal.element.get('sidebar');
 			return JSON.parse(decodeURI($elem.attr('data-sidebar-feed') || '{}'));
 		},
 
@@ -1111,15 +1173,18 @@ const magistraal = {
 			magistraal.sidebar.setFeed(magistraal.sidebar.getFeed($elem), openSidebar);
 		},
 
-		setFeed: (feed = {
-			'title': '',
-			'subtitle': '',
-			'table': []
-		}, openSidebar = true) => {
-			let $sidebarTable = magistraal.element.get('sidebar-table');
+		setFeed: (feed = {title: '', subtitle: '', table: {}, actions: {}}, openSidebar = true) => {
+			let $sidebarTable   = magistraal.element.get('sidebar-table');
+			let $sidebarActions = magistraal.element.get('sidebar-actions');
+
 			magistraal.element.get('sidebar-title').text(feed.title);
 			magistraal.element.get('sidebar-subtitle').text(feed.subtitle);
+
 			$sidebarTable.empty();
+			$sidebarActions.empty();
+
+			magistraal.sidebar.addFeed(undefined, feed);
+
 			$.each(feed.table, function (tableKey, tableValue) {
 				if(tableKey == '' || tableValue == '') {
 					return true;
@@ -1133,6 +1198,20 @@ const magistraal = {
 				$tableValue.appendTo($sidebarTable);
 			});
 
+			$.each(feed.actions, function(actionType, action) {
+				let $action     = magistraal.template.get('sidebar-action');
+				let actionColor = (actionType == 'remove' ? 'danger' : 'secondary');
+				$action.addClass(`btn-${actionColor}`);
+
+				$action.html(`
+					<i class="${action?.icon} action-icon"></i>
+					<span class="action-text">${magistraal.locale.translate(`generic.action.${actionType}`)}</span>
+				`);
+				
+				$action.attr({'data-action': actionType, 'onclick': action?.handler});
+				$action.appendTo($sidebarActions);
+			})
+
 			if(openSidebar) {
 				setTimeout(() => {
 					magistraal.sidebar.open();
@@ -1140,49 +1219,35 @@ const magistraal = {
 			}
 		},
 
-		updateFeed: (updateWithFeed, insertNearKey = undefined, position = 'before') => {
-			let newFeed                = {title: '', subtitle: '', table: {}};
-			let currentFeed            = magistraal.sidebar.getSelectedFeed();
+		updateFeed: (updateFeedWith, insertAfterKey = undefined) => {
+			let newFeed                = {title: '', subtitle: '', table: {}, actions: {}};
+			let currentFeed            = magistraal.sidebar.getFeed();
 			let currentFeedTableLength = Object.keys(currentFeed.table).length;
 			
-			newFeed.title = updateWithFeed?.title || currentFeed.title; 
-			newFeed.subtitle = updateWithFeed?.subtitle || currentFeed.subtitle; 
+			newFeed.title = updateFeedWith?.title || currentFeed.title; 
+			newFeed.subtitle = updateFeedWith?.subtitle || currentFeed.subtitle; 
 
 			let i = 1;
 			$.each(currentFeed.table, function(currentTableKey, currentTableValue) {
-				if(position != 'before') {
-					newFeed.table[currentTableKey] = currentTableValue;
-				}
+				newFeed.table[currentTableKey] = currentTableValue;
 
-			    if(currentTableKey == insertNearKey || i == currentFeedTableLength) {
-					$.each(updateWithFeed.table, function(updateTableKey, updateTableValue) {
+			    if(currentTableKey == insertAfterKey || i == currentFeedTableLength) {
+					$.each(updateFeedWith.table, function(updateTableKey, updateTableValue) {
 						newFeed.table[updateTableKey] = updateTableValue;
 					})
 				}
 
-				if(position == 'before') {
-					newFeed.table[currentTableKey] = currentTableValue;
-				}
 				i++;
 			})
 
-			magistraal.sidebar.setFeed(newFeed);
+			newFeed.actions = currentFeed.actions;
+
+			magistraal.sidebar.setFeed(newFeed, false);
 		},
 
-		getSelectedFeed() {
-			let selectedFeed = {
-				'title': magistraal.element.get('sidebar-title').text(),
-				'subtitle': magistraal.element.get('sidebar-subtitle').text(),
-				'table': {}
-			};
-
-			$('[data-magistraal="sidebar-table"]').find('.sidebar-table-key').each(function () {
-				let tableKey = $(this).attr('data-key');
-				let tableValue = $(this).next('.sidebar-table-value').first().text();
-				selectedFeed.table[tableKey] = tableValue;
-			});
-
-			return selectedFeed;
+		currentFeed() {
+			let $sidebar = magistraal.element.get('sidebar');
+			return JSON.parse(decodeURI($sidebar.attr('data-sidebar-feed') || '{}'));
 		},
 
 		open: () => {

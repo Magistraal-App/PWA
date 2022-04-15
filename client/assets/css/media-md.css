@@ -112,16 +112,7 @@
         width: 20rem;
         text-align: right;
     }
-
-    .appointment .lesson-time {
-        color: inherit;
-        display: inline-block;
-    }
-
-    .appointment .lesson-main .bullet {
-        visibility: visible;
-    }
-
+    
     .appointment .lesson-number {
         pointer-events: all !important;
     }

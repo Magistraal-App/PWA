@@ -20,15 +20,33 @@ $.fn.value = function(value = undefined) {
             let tags   = Object.keys($wrapper.data('tags') || {});
             return tags;
         } else if(this.attr('type') == 'date') {
-            return (Math.round(new Date(this.val()) / 1000) || 0);
+            let date = dateToUTC(new Date(this.val()));
+            return date.toISOString();
         } else if(this.attr('type') == 'time') {
             let [hours, minutes] = this.val().split(':');
-            hours = parseInt(hours);
-            minutes = parseInt(minutes);
-
-            return (hours * 3600 + minutes * 60) || 0;
+            let date             = dateToUTC(new Date((hours * 3600 + minutes * 60) * 1000));
+            return date.toISOString();
+        } else if(typeof this.attr('data-rich-editor') != 'undefined') {
+            return this.data('editor').html.get();
+        } else if(this.attr('contenteditable') == true) {
+            return this.text();
         } else {
             return this.val();
+        }
+    } else {
+        if(this.attr('type') == 'time') {
+            if(!isNumeric(value)) return false;
+            let date = dateToUTC(new Date(value));
+            return this.val(`${addLeadingZero(date.getHours())}:${addLeadingZero(date.getMinutes())}:${addLeadingZero(date.getSeconds())}`);
+        } else if(this.attr('type') == 'date') {
+            if(!isNumeric(value)) return false;
+            return this.get(0).valueAsDate = dateToUTC(new Date(value));
+        } else if(typeof this.attr('data-rich-editor') != 'undefined') {
+            return this.data('editor').html.set(value);
+        } else if(this.attr('contenteditable') == true) {
+            return this.text(value);
+        } else {
+            return this.val(value);
         }
     }
 }
@@ -54,6 +72,29 @@ $.fn.formSerialize = function() {
     })
 
     return output;
+}
+
+$.fn.formReset = function() {
+    let $form  = this;
+    let form   = this.get(0);
+    let output = {};
+
+    if(form.nodeName.toLowerCase() != 'form') {
+        return false;
+    }
+
+    $form.find('[name]').each(function() {
+        let $input = $(this);
+        if($input.hasClass('input-tags')) {
+            $input.setTags({});
+        } else if($input.attr('type') == 'time' && $input.attr('value')) {
+            $input.val($input.attr('value'));
+        } else if($input.attr('type') == 'date') {
+            $input.get(0).valueAsDate = dateToUTC(new Date());
+        } else {
+            $input.val('');
+        }
+    })
 }
 
 $(document).on('click', function(e) {
@@ -127,6 +168,47 @@ $(document).on('magistraal.ready', function() {
     $('.input-tags').each(function() {
         new magistraal.inputs.tagsInput($(this));
     });
+
+    FroalaEditor.ICON_DEFAULT_TEMPLATE = 'font_awesome';
+    FroalaEditor.ICON_TEMPLATES = {font_awesome: '<i class="fal fa-[NAME]" aria-hidden="true"></i>'}
+    FroalaEditor.DefineIcon('textColor', {NAME: 'paint-brush'});
+    FroalaEditor.DefineIcon('fontSize', {NAME: 'text-size'});
+
+    $('.rich-editor').each(function() {
+        let $el = $(this);
+
+        $el.attr('data-rich-editor', randomString(8));
+        let editor = new FroalaEditor(`[data-rich-editor="${$el.attr('data-rich-editor')}"]`, {
+            quickInsertTags: [''],
+            charCounterCount: false,
+            theme: 'magistraal',
+            attribution: false,
+            toolbarButtons: {
+                moreMisc: {
+                    buttons: [
+                        'bold',
+                        'italic',
+                        'underline',
+                        '|',
+                        'alignLeft',
+                        'alignCenter',
+                        'alignRight',
+                        '|',
+                        'textColor',
+                        'fontSize',
+                        'formatOLSimple'
+                        // 'insertLink'
+                    ],
+                    buttonsVisible: 12,
+                    align: 'left'
+                }
+            },
+            placeholderText: magistraal.locale.translate($el.attr('data-translation')),
+            fontSize: [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 28, 36]
+        });
+
+        $el.data('editor', editor);
+    })
 })
 
 $(document).on('input', '[data-magistraal-search-target]', function() {
@@ -201,9 +283,6 @@ $('input[type="date"]').each(function() {
     this.valueAsDate = new Date();
 });
 
-$('input[type="time"]').each(function() {
-    this.value = `${new Date().getHours()}:00`;
-});
 
 $(window).on('hashchange', function() {
     magistraal.page.load(window.location.hash.substring(1));
@@ -226,12 +305,44 @@ function random(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+function dateToUTC(date) {
+    let utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
+    // console.log('OLD', date);
+    // console.log('UTC', utc);
+    // console.log('--------------------');
+    // return utc;
+    return utc;
+}
+
+function randomString(length) {
+    let result           = '';
+    let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let charactersLength = characters.length;
+    
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    return result;
+}
+
 function addLeadingZero(n) {
   return (n < 10 ? '0' : '') + n;
 }
 
 function capitalizeFirst(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function isNumeric(str) {
+    if (typeof str == 'number') return true;
+    if (typeof str != 'string') return false;
+    return !isNaN(str) &&
+           !isNaN(parseFloat(str));
+}
+
+function escapeQuotes(str) {
+    return str.replace('\'', '\\x27').replace('\"', '\\x22');
 }
 
 function addToObject(obj, key, value, index) {

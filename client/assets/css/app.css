@@ -147,13 +147,17 @@ textarea {
     position: fixed;
     top: 0;
     left: 0;
+}
+
+[data-magistraal="tooltip"],
+.fr-sr-only {
     pointer-events: none !important;
-    background: var(--primary);
-    padding: 0.125rem 0.5rem;
-    border-radius: var(--border-radius);
-    z-index: 200;
-    border: 1px solid var(--primary-border);
-    max-width: max(15rem, 33%);
+    background: var(--primary) !important;
+    padding: 0.125rem 0.5rem !important;
+    border-radius: var(--border-radius) !important;
+    z-index: 200 !important;
+    border: 1px solid var(--primary-border) !important;
+    max-width: max(15rem, 33%) !important;
 }
 
 @media(hover: none) {
@@ -509,11 +513,8 @@ textarea {
     display: none;
 }
 
+.appointment .lesson-time,
 .appointment .lesson-main .bullet {
-    visibility: hidden;
-}
-
-.appointment .lesson-time {
     display: none;
 }
 
@@ -660,7 +661,7 @@ textarea {
     border-radius: var(--border-radius);
     padding: 0.75rem 1rem;
     transition: 250ms opacity;
-    min-width: min(90vw, 60rem);
+    width: min(90vw, 60rem);
     max-width: 90vw;
     display: flex;
     flex-direction: column;
@@ -703,10 +704,13 @@ textarea {
     align-items: center;
     width: 100%;
     position: relative;
+    max-width: 100%;
 }
 
 .popup-item-key {
     display: none; /* media-md: flex */
+    margin-bottom: 0;
+    max-height: 2.175rem;
 }
 
 .popup-divider {
@@ -791,6 +795,10 @@ textarea {
 .sidebar-table-cell.sidebar-table-value {
     padding-bottom: 0.5rem;
     color: var(--text-muted);
+}
+
+.sidebar-actions .sidebar-action .action-text {
+    display: none; /* media-sm: inline */
 }
 
 
@@ -954,6 +962,10 @@ footer {
 
 h1, h2, h3, h4, h5, h6, .btn, .font-heading {
     font-family: var(--font-heading);
+}
+
+.icon-inline {
+    margin-right: 0.25rem;
 }
 
 

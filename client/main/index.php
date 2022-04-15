@@ -101,6 +101,7 @@
         <h3 data-magistraal="sidebar-title" class="mb-1 text-ellipsis"></h3>
         <p data-magistraal="sidebar-subtitle" class="text-muted"></p>
         <div data-magistraal="sidebar-table" class="sidebar-table"></div>
+        <div data-magistraal="sidebar-actions" class="sidebar-actions d-flex flex-row"></div>
     </div>
     <footer class="bg-primary w-100 d-flex flex-row">
         <div data-magistraal="page-buttons-container" class="d-flex d-md-none mr-auto">
@@ -301,6 +302,9 @@
             <!-- Table value -->
             <div data-magistraal-template="sidebar-table-value" class="sidebar-table-cell sidebar-table-value"></div>
 
+              <!-- Action -->
+            <div data-magistraal-template="sidebar-action" class="sidebar-action btn"></div>
+
         <!-- PAGE ICONS -->
             <!-- Loading -->
             <i data-magistraal-template="page-loading-icon" class="fal fa-circle-notch fa-spin text-secondary" data-magistraal="page-loading-icon"></i>
@@ -312,7 +316,7 @@
             <!-- Appointments list -->
             <div data-magistraal-template="page-buttons-appointments/list">
                 <button class="btn btn-secondary"onclick="magistraal.popup.open('appointments-create-appointment');">Nieuw</button>
-                <button class="btn btn-secondary disabled">Vandaag</button>
+                <!-- <button class="btn btn-secondary disabled">Vandaag</button> -->
             </div>
 
             <!-- Grades list -->
@@ -337,35 +341,8 @@
           <!-- APPOINTMENTS -->
             <!-- Create appointment popup -->
             <div data-magistraal-popup="appointments-create-appointment" class="popup">
-                <form id="magistraal-create-appointment">
+                <form data-magistraal="form-appointments-create-appointment">
                     <h3 class="popup-title" data-translation="appointments.popup.create_appointment.title"></h3>
-                    <div class="popup-item">
-                        <h5 class="popup-item-key">
-                            <span data-translation="appointments.popup.create_appointment.item.variant.title"></span>
-                        </h4>
-                        <div class="popup-item-value">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="type" id="appointment-variant-1" value="personal" checked>
-                                <label class="form-check-label" for="appointment-variant-1" data-translation="appointments.popup.create_appointment.item.variant.personal.title"></label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="type" id="appointment-variant-2" value="planning">
-                                <label class="form-check-label" for="appointment-variant-2" data-translation="appointments.popup.create_appointment.item.variant.planning.title"></label>
-                            </div>
-                            <!-- <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="type" id="appointment-variant-3" value="3">
-                                <label class="form-check-label" for="appointment-variant-3" data-translation="appointments.popup.create_appointment.item.variant.3"></label>
-                            </div> -->
-                        </div>
-                    </div>
-                    <div class="popup-item">
-                        <h5 class="popup-item-key">
-                            <span data-translation="appointments.popup.create_appointment.item.facility.title"></span>
-                        </h5>
-                        <div class="popup-item-value">
-                            <input name="facility" data-translation="appointments.popup.create_appointment.item.facility.title" type="text" class="form-control">
-                        </div>
-                    </div>
                     <div class="popup-item">
                         <h5 class="popup-item-key">
                             <span data-translation="appointments.popup.create_appointment.item.date.title"></span>
@@ -380,13 +357,20 @@
                         </h5>
                         <div class="popup-item-value d-flex flex-row">
                             <div class="form-check form-check-inline mr-0">
-                                <label class="form-check-label mr-2 d-none d-md-inline" for="appointment-start-time" data-translation="appointments.popup.create_appointment.item.time_start.title"></label>
-                                <input name="start" type="time" id="appointment-start-time" class="form-control w-auto">
+                                <input name="start" type="time" id="appointment-start-time" class="form-control w-auto" step="60" value="08:00">
                             </div>
                             <div class="form-check form-check-inline mr-0">
                                 <label class="form-check-label mr-2" for="appointment-end-time" data-translation="appointments.popup.create_appointment.item.time_end.title"></label>
-                                <input name="end" type="time" id="appointment-end-time" class="form-control w-auto">
+                                <input name="end" type="time" id="appointment-end-time" class="form-control w-auto" step="60" value="09:00">
                             </div>
+                        </div>
+                    </div>
+                    <div class="popup-item">
+                        <h5 class="popup-item-key">
+                            <span data-translation="appointments.popup.create_appointment.item.facility.title"></span>
+                        </h5>
+                        <div class="popup-item-value">
+                            <input name="facility" data-translation="appointments.popup.create_appointment.item.facility.title" type="text" class="form-control">
                         </div>
                     </div>
                     <div class="w-100 border-bottom border-primary-accent my-3"></div>
@@ -400,16 +384,16 @@
                     </div>
                     <div class="popup-item">
                         <h5 class="popup-item-key">
-                            <span data-translation="messages.popup.write_message.item.content.title"></span>
+                            <span data-translation="appointments.popup.create_appointment.item.content.title"></span>
                         </h5>
                         <div class="popup-item-value">
-                            <textarea name="content" data-translation="messages.popup.write_message.item.content.title" class="form-control" rows="10"></textarea>
+                            <textarea name="content" data-translation="appointments.popup.create_appointment.item.content.title" class="rich-editor"></textarea>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-auto ml-auto">
-                            <button type="button" class="btn btn-danger" data-translation="generic.action.cancel" data-popup-action="confirm" onclick="let $form = $(this).parents('form'); $form.find(`[name='to'], [name='cc'], [name='bcc']`).setTags({}); $form.find(`[name='subject'], [name='subject']`).val('');"></button>
-                            <button type="button" class="btn btn-secondary"  data-translation="generic.action.save" data-popup-action="cancel" onclick="magistraal.appointments.create($(this).parents('form').formSerialize());"></button>
+                            <button type="button" class="btn btn-danger" data-translation="generic.action.cancel" data-popup-action="confirm" onclick="$(this).parents('form').formReset();"></button>
+                            <button type="button" class="btn btn-secondary"  data-translation="generic.action.save" data-popup-action="cancel" onclick="magistraal.appointments.create($(this).parents('form').formSerialize(), $(this).parents('form'));"></button>
                         </div>
                     </div>
                 </div>
@@ -458,7 +442,7 @@
                             <span data-translation="messages.popup.write_message.item.content.title"></span>
                         </h5>
                         <div class="popup-item-value">
-                            <textarea name="content" data-translation="messages.popup.write_message.item.content.title" class="form-control" rows="10"></textarea>
+                            <textarea name="content" data-translation="messages.popup.write_message.item.content.title" class="rich-editor"></textarea>
                         </div>
                     </div>
                     <div class="row">

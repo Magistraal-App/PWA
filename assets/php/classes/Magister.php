@@ -314,11 +314,11 @@
         }
 
         public static function appointmentCreate($appointment) {
-            return \Magistraal\Browser\Browser::request(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId.'/afspraken', [
+            $response = \Magistraal\Browser\Browser::request(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId.'/afspraken', [
                 'payload'   => $appointment,
-                'method'    => 'POST',
                 'redirects' => false
-            ])['body'];
+            ]);
+            return ['success' => ($response['headers']['http_code'] == 201), 'data' => $response['body']];
         }
         
         /* ============================ */
@@ -380,7 +380,7 @@
             $message = \Magistraal\Browser\Browser::request(\Magister\Session::$domain."/api/berichten/berichten/{$id}/")['body'];
 
             if(isset($message['heeftBijlagen']) && $message['heeftBijlagen'] == true) {
-                // Add attachments
+                // Voeg bijlage toe aan sidebar
                 $location            = $message['links']['bijlagen']['href'] ?? null;
                 if(isset($location)) {
                     $message['bijlagen'] = \Magistraal\Browser\Browser::request(\Magister\Session::$domain.$location)['body']['items'];

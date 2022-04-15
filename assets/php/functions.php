@@ -19,9 +19,11 @@
     function date_iso($unix) {
         $datetime = new DateTime();
         $datetime->setTimestamp($unix);
-        $datetime->setTimezone(new DateTimeZone('UTC'));
+        echo($datetime->format(DateTime::ATOM)."\n");
+        $datetime->setTimeZone(new DateTimeZone('UTC'));
+        echo($datetime->format(DateTime::ATOM)."\n");
 
-        return str_replace('+00:00', '.000Z', $datetime->format(DateTime::ATOM)); 
+        return $datetime->format(DateTime::ATOM); 
     }
 
     function strpos_all($haystack, $needle) {
