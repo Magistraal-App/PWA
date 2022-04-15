@@ -32,10 +32,7 @@
         if(in_array($appointment['Lokatie'], ['""', '\'\'', '-', null, 'null'])) {
             $appointment['Lokatie'] = '';
         }
-
-        // Remove non-UTF8 characters from content
-        $content = utf8_encode($content);
-
+        
         $formatted = [
             'all_day'          => $appointment['DuurtHeleDag'] ?? false,
             'has_attachments'  => $appointment['HeeftBijlagen'] ?? false,
