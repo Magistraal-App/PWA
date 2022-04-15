@@ -19,7 +19,7 @@
 
     // Print out javascript
     echo("const cacheName = '{$app_name}-{$version}';\n");
-    echo("const resources =".json_encode($assets, JSON_UNESCAPED_SLASHES).";\n");
+    echo("const resources = ".json_encode($assets, JSON_UNESCAPED_SLASHES).";\n");
 ?>
 
 <?php echo(file_get_contents('service-worker.js')); ?>

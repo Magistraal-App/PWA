@@ -111,7 +111,7 @@
 
         // Generate an array with dates between from and to as keys
         for ($unix=$unix_from; $unix <= $unix_to;) { 
-            $formatted[date('Y-m-d', $unix)] = ['time' => date_iso($unix), 'appointments' => []];
+            $formatted[date('Y-m-d', $unix)] = ['time' => date_iso($unix), 'unix' => $unix, 'appointments' => []];
             $unix = strtotime('+1 day', $unix);
         }
 

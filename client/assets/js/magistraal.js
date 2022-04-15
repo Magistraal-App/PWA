@@ -1,6 +1,5 @@
-function _defineProperty(obj, key, value) { if(key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 var _magistraalStorage = {};
+
 const magistraalStorage = {
 	get: key => {
 		return _magistraalStorage[key] || undefined;
@@ -9,6 +8,7 @@ const magistraalStorage = {
 		_magistraalStorage[key] = value;
 	}
 };
+
 const magistraalPersistentStorage = {
 	get: key => {
 		let value = localStorage.getItem(`magistraal.${key}`);
@@ -35,13 +35,27 @@ const magistraalPersistentStorage = {
 	remove: key => {
 		return magistraalPersistentStorage.set(key, undefined);
 	},
-	clear: () => {
+
+	clear: (soft = false) => {
 		let magistraalItems = [];
 
+		console.log((soft ? 'Soft-clearing' : 'Hard-clearing') + ' cache!');
+
 		for (let i = 0; i < localStorage.length; i++) {
-			if(localStorage.key(i).substring(0, 11) == 'magistraal.') {
-				magistraalItems.push(localStorage.key(i));
+			let key = localStorage.key(i);
+			if(key.substring(0, 10) != 'magistraal') {
+				continue;
 			}
+
+			if(soft == true && (key == 'magistraal.token' || key == 'magistraal.locale')) {
+				continue;
+			}
+
+			if(key == 'magistraal.version') {
+				continue;
+			}
+
+			magistraalItems.push(localStorage.key(i));
 		}
 
 		for (let i = 0; i < magistraalItems.length; i++) {
@@ -51,6 +65,7 @@ const magistraalPersistentStorage = {
 		return true;
 	}
 };
+
 const magistraal = {
 	api: {
 		call: (parameters = {}) => {
@@ -114,11 +129,14 @@ const magistraal = {
 					error: function(response) {
 						if(typeof response.responseJSON != 'undefined' && typeof response.responseJSON.info != 'undefined' && response.responseJSON.info == 'token_invalid') {
 							magistraalPersistentStorage.remove('token');
-							if(api == 'logout') {
-								magistraal.page.get('login');
-								return;
-							}
-							magistraal.page.load('login');
+							// if(parameters.url == 'logout') {
+							// 	magistraal.page.get('login');
+							// 	return;
+							// }
+							console.log(parameters.url);
+							// if(parameters.url != 'login') {
+							// 	magistraal.page.load('login');
+							// }
 						}
 
 						magistraal.console.error();
@@ -154,6 +172,7 @@ const magistraal = {
 
 				let $absencesGroup = magistraal.template.get('absences-group');
 				$absencesGroup.find('.absences-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'Fy')));
+				
 				$.each(data.absences, function (i, absence) {
 					let $absence = magistraal.template.get('absence-list-item');
 					$absence.find('.absence-list-item-title').html(absence.appointment.designation + '<span class="bullet"></span>' + magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'Hi'));
@@ -176,10 +195,13 @@ const magistraal = {
 							'absence.permitted': magistraal.locale.formatBoolean(absence.permitted)
 						}
 					});
+
 					$absence.appendTo($absencesGroup);
 				});
+
 				pageContent += $absencesGroup.prop('outerHTML');
 			});
+			
 			magistraal.page.setContent(pageContent);
 		}
 	},
@@ -690,22 +712,33 @@ const magistraal = {
 		}
 	},
 
-	load: () => {
+	load: (version = '') => {
 		magistraalStorage.set('api', '/magistraal/api/');
 
-		return new Promise((resolve, reject) => {
-			// Load absences, appointments, grades, messages, etc. for offline use
-			magistraal.api.call({url: 'absences/list', source: 'prefer_cache'});
-			magistraal.api.call({url: 'appointments/list', source: 'prefer_cache'});
-			magistraal.api.call({url: 'grades/list', source: 'prefer_cache'});
-			magistraal.api.call({url: 'messages/list', source: 'prefer_cache'});
-			magistraal.api.call({url: 'settings/list', source: 'prefer_cache'});
+		// If current version is not equal to new one, soft-clear cache
+		if(magistraalPersistentStorage.get('version') != version) {
+			console.log(`New version (${version}) was found!`);
+			magistraalPersistentStorage.clear(true);
+		}
 
+		magistraalStorage.set('version', version);
+		magistraalPersistentStorage.set('version', version);
+
+		return new Promise((resolve, reject) => {
 			magistraal.locale.load('nl_NL').then(() => {
 				$(document).trigger('magistraal.ready');
 				magistraal.console.success();
 				resolve();
 			}).catch(() => {});
+
+			if(typeof magistraalPersistentStorage.get('token') != false) {
+				// Load absences, appointments, grades, messages, etc. for offline use
+				magistraal.api.call({url: 'absences/list', source: 'prefer_cache'});
+				magistraal.api.call({url: 'appointments/list', source: 'prefer_cache'});
+				magistraal.api.call({url: 'grades/list', source: 'prefer_cache'});
+				magistraal.api.call({url: 'messages/list', source: 'prefer_cache'});
+				magistraal.api.call({url: 'settings/list', source: 'prefer_cache'});
+			}
 		});
 	},
 

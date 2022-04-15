@@ -18,7 +18,7 @@
 
     <script>
         $(document).ready(function() {
-            magistraal.load(); 
+            magistraal.load('<?php echo(VERSION); ?>');
         })
     </script>
 </head>

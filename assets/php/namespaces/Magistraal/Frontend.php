@@ -9,7 +9,7 @@
         $assets = array_merge($assets, $scripts, $stylesheets, $themes);
 
         array_walk($assets, function(&$asset) {
-            $asset = '.'.str_replace(ROOT, '', $asset);
+            $asset = WEBROOT.str_replace(ROOT, '', $asset);
         });
 
         return $assets;
@@ -50,9 +50,9 @@
             <script>
                 if(\'serviceWorker\' in navigator) {
                     navigator.serviceWorker.register(\'../../service-worker.js.php\').then(function(registration) {
-                        console.log(\'Registration successful, scope is:\', registration.scope);
+                        console.log(\'Service worker registered. Scope is:\', registration.scope);
                     }).catch(function(error) {
-                        console.log(\'Service worker registration failed, error:\', error);
+                        console.error(\'Service worker registration failed, error:\', error);
                     });
                 }
             </script>

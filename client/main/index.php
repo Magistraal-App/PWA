@@ -20,7 +20,7 @@
         }
 
         $(document).ready(function() {
-            magistraal.load();
+            magistraal.load('<?php echo(VERSION); ?>');
         })
 
         $(document).on('magistraal.ready', function() {

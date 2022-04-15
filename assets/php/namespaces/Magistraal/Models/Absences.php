@@ -13,7 +13,7 @@
 
         // Generate an array with months between from and to as keys
         for ($unix=$unix_from; $unix <= $unix_to;) { 
-            $formatted[date('Y-m', $unix)] = ['unix' => $unix, 'absences' => []];
+            $formatted[date('Y-m', $unix)] = ['time' => date_iso($unix), 'unix' => $unix, 'absences' => []];
             $unix = strtotime('+1 month', $unix);
         }
         
