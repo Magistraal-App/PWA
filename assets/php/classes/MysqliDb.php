@@ -4,12 +4,14 @@
         protected $debug;
     
         public function __construct($host, $username, $password, $database, $debug = false) {
-            $this->mysqli = new mysqli($host, $username, $password, $database);
-            $this->debug = (bool) $debug;
+            $this->mysqli = @new mysqli($host, $username, $password, $database);
+            $this->debug = $debug;
             if (mysqli_connect_errno()) {
                 if ($this->debug) {
                     echo mysqli_connect_error();
                     debug_print_backtrace();
+                } else {
+                    \Magistraal\Response\error('error_connecting_database');
                 }
                 return false;
             }

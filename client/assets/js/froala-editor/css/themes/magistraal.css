@@ -3113,6 +3113,20 @@
 	padding: 0.1875rem;
 }
 
+@media(hover: none) {
+	.magistraal-theme.fr-toolbar .fr-btn-grp {
+		display: flex;
+		flex-direction: row;
+		overflow-y: scroll;
+		flex-wrap: nowrap;
+		max-width: 100%;
+	}
+
+	.magistraal-theme.fr-toolbar .fr-btn-grp::-webkit-scrollbar {
+		display: none;
+	}
+}
+
 .magistraal-theme.fr-toolbar .fr-command.fr-btn.fr-open {
 	margin-top: 10px;
 	margin-bottom: -1px;

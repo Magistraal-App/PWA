@@ -129,14 +129,10 @@ const magistraal = {
 					error: function(response) {
 						if(typeof response.responseJSON != 'undefined' && typeof response.responseJSON.info != 'undefined' && response.responseJSON.info == 'token_invalid') {
 							magistraalPersistentStorage.remove('token');
-							// if(parameters.url == 'logout') {
-							// 	magistraal.page.get('login');
-							// 	return;
-							// }
-							console.log(parameters.url);
-							// if(parameters.url != 'login') {
-							// 	magistraal.page.load('login');
-							// }
+							if(parameters.url == 'logout') {
+								magistraal.page.get('login');
+								return;
+							}
 						}
 
 						magistraal.console.error();
@@ -727,7 +723,6 @@ const magistraal = {
 		return new Promise((resolve, reject) => {
 			magistraal.locale.load('nl_NL').then(() => {
 				$(document).trigger('magistraal.ready');
-				magistraal.console.success();
 				resolve();
 			}).catch(() => {});
 

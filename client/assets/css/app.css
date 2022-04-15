@@ -670,6 +670,10 @@ textarea {
     max-height: 90%;
 }
 
+.popup::-webkit-scrollbar {
+    display: none;
+}
+
 .popup-backdrop {
     position: fixed;
     top: 0;
@@ -1035,3 +1039,15 @@ h1, h2, h3, h4, h5, h6, .btn, .font-heading {
 .border-secondary { border-color: var(--secondary) !important; }
 .border-secondary-accent { border-color: var(--secondary-accent) !important; }
 .border-success { border-color: var(--success) !important; }
+
+/* ============================ */
+/*            Froala            */
+/* ============================ */
+
+.fr-box > .fr-wrapper[dir="auto"] > div[style] {
+    display: none !important;
+}
+
+.fr-box > .fr-wrapper[dir="auto"] > .fr-placeholder {
+    margin-top: 0px !important;
+}

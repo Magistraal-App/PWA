@@ -193,18 +193,17 @@ $(document).on('magistraal.ready', function() {
                         'alignCenter',
                         'alignRight',
                         '|',
-                        'textColor',
-                        'fontSize',
-                        'formatOLSimple'
+                        'formatOLSimple',
+                        'formatULSimple'
                         // 'insertLink'
                     ],
-                    buttonsVisible: 12,
+                    buttonsVisible: 10,
                     align: 'left'
                 }
             },
             placeholderText: magistraal.locale.translate($el.attr('data-translation')),
             fontSize: [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 28, 36]
-        });
+        })
 
         $el.data('editor', editor);
     })
