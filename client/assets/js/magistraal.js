@@ -216,14 +216,15 @@ const magistraal = {
 					appointment.editable = (appointment.type == 'personal' || appointment.type == 'planning');
 
 					$appointment.attr({
-						'data-finished': appointment.finished,
+						'data-editable': appointment.editable,
 						'data-finishable': true,
+						'data-finished': appointment.finished,
+						'data-has-attachments': appointment.has_attachments,
 						'data-has-meeting-link': appointment.has_meeting_link,
 						'data-id': appointment.id,
-						'data-search': `${appointment.subjects.join(', ')} ${appointment.designation} ${appointment.content_text}`.trim(),
-						'data-status': appointment.status,
 						'data-info-type': appointment.info_type,
-						'data-editable': appointment.editable
+						'data-search': `${appointment.subjects.join(', ')} ${appointment.designation} ${appointment.content_text}`.trim(),
+						'data-status': appointment.status
 					});
 
 					if(appointment.start.lesson > 0) {
@@ -281,6 +282,11 @@ const magistraal = {
 		},
 
 		view: (id) => {
+			if($(`.appointment[data-id="${id}"]`).attr('data-has-attachments') != 'true') {
+				// Don't try to load attachments if appointment doesn't have attachments
+				return false;
+			}
+
 			magistraal.console.loading('console.loading.appointment_attachments');
 			magistraal.api.call({
 				url: 'appointments/info', 
