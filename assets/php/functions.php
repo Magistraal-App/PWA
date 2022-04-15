@@ -56,15 +56,6 @@
         return [$str1, $str2];
     }
 
-    function str_between($start, $end, $str) {
-        $str = ' ' . $str;
-        $ini = strpos($str, $start);
-        if ($ini == 0) return '';
-        $ini += strlen($start);
-        $len = strpos($str, $end, $ini) - $ini;
-        return substr($str, $ini, $len);
-    }
-
     function strtobool($str) {
         return filter_var($str, FILTER_VALIDATE_BOOLEAN);
     }

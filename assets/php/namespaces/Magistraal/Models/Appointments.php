@@ -23,12 +23,7 @@
 
     function format($appointment) {
         // Seperate Microsoft Teams meeting link from content
-        list($content, $ms_teams_link) = \Magistraal\Appointments\seperate_lesson_content($appointment['Inhoud']);
-        
-        // Obtain link only
-        if(strpos($appointment['Inhoud'], '://teams.microsoft.com/l/meetup-join/') !== false) {
-            $ms_teams_link = 'https://teams.microsoft.com/l/meetup-join/'.str_between('://teams.microsoft.com/l/meetup-join/', '"', $appointment['Inhoud']);
-        }
+        list($content, $meeting_link) = \Magistraal\Appointments\seperate_lesson_content($appointment['Inhoud']);
 
         // Calculate content length
         $content_length = strlen(trim(strip_tags($content)));
@@ -46,7 +41,7 @@
             'has_attachments'  => $appointment['HeeftBijlagen'] ?? false,
             'attachments'      => [],
             'content_length'   => $content_length ?? 0,
-            'content_text'     => strip_tags(str_replace('</p>', '</p> ', $content)) ?? '',
+            'content_text'     => strip_tags(str_replace(['<br>', '</p>'], [' ', '</p> '], $content)) ?? '',
             'content'          => $content ?? '',
             'designation'      => $appointment['Omschrijving'] ?? '',
             'duration'         => [
@@ -59,10 +54,10 @@
             ],  
             'facility'         => $appointment['Lokatie'] ?? '',
             'finished'         => $appointment['Afgerond'] ?? false,
-            'has_meeting_link' => $ms_teams_link == '' ? false : true,
+            'has_meeting_link' => $meeting_link == '' ? false : true,
             'id'               => $appointment['Id'],
             'info_type'        => \Magistraal\Appointments\remap_info_type($appointment['InfoType']) ?? 'unknown',
-            'meeting_link'     => $ms_teams_link ?? '#',
+            'meeting_link'     => $meeting_link ?? '#',
             'start'            => [
                 'time'              => $appointment['Start'],
                 'lesson'            => $appointment['LesuurVan'] ?? 0
@@ -131,95 +126,17 @@
     }
     
     function seperate_lesson_content($content) {
-        // $ms_teams_link = '';
+        // Get meeting link from content
+        preg_match('/https:\/\/teams.microsoft.com\/l\/meetup-join\/.*?(?=")/', $content, $meeting_link);
+        $meeting_link = $meeting_link[0] ?? null;
 
-        // if(empty($content)) {
-        //     return ['', ''];
-        // }
+        // Remove all Microsoft Teams links from content
+        $content = preg_replace('/<a(?:(?!<a|<\/a>)[\s\S])*?(href="https:\/\/teams.microsoft.com|href="https:\/\/support.office.com)[\s\S]*?<\/a>/', '', $content);
 
-        // $content_dom = new \DOMDocument();
-        // $content_dom->encoding = 'utf-8';
-        // $content_dom->loadHTML(utf8_decode($content));
+        // Remove leftovers
+        $content = str_replace(['<hr>', '<span> | </span>', '<p></p>', '<p> </p>', '<p><br></p>'], '', $content);
 
-        // $content_nodes         = [];
-        // $remove_nodes          = [];
-        // $content_nodes['a']    = $content_dom->getElementsByTagName('a');
-        // $content_nodes['span'] = $content_dom->getElementsByTagName('span');
-        // $content_nodes['hr' ]  = $content_dom->getElementsByTagName('hr');
-        // $content_nodes['p' ]   = $content_dom->getElementsByTagName('p');
-
-        // foreach ($content_nodes as $nodes) {
-        //     for ($i=0; $i < count($nodes); $i++) { 
-        //         $node = $nodes->item($i);
-
-        //         // if($node->hasAttribute('style')) {
-        //         //     $node->removeAttribute('style');
-        //         // }
-
-        //         switch ($node->tagName) {
-        //             case 'a':
-        //                 if(!$node->hasAttribute('href')) {
-        //                     continue 2;
-        //                 }
-
-        //                 $href = $node->getAttribute('href');
-        //                 if(stripos($href, '//teams.microsoft.com/l/meetup-join/') !== false) {
-        //                     $ms_teams_link = $href;
-        //                     $remove_nodes[] = $node;
-        //                 } else if(
-        //                     stripos($href, '//teams.microsoft.com/meetingOptions/') !== false ||
-        //                     stripos($href, '//support.office.com/') !== false
-        //                 ) {
-        //                     $remove_nodes[] = $node;
-        //                 }
-        //                 break;
-                    
-        //             case 'span':
-        //                 if(trim($node->textContent) == '|') {
-        //                     $remove_nodes[] = $node;
-        //                 }
-        //                 break;
-
-        //             case 'hr':
-        //                 $remove_nodes[] = $node;
-        //                 break;
-
-        //             case 'p':
-        //                 if(trim($node->textContent) == '|') {
-        //                     $remove_nodes[] = $node;
-        //                 }
-        //                 break;
-
-        //             default:
-        //                 continue 2;
-        //         }
-        //     }
-        // }
-
-        // foreach ($remove_nodes as $node) {
-        //     $node->parentNode->removeChild($node);
-        // }
-
-        // $content_html = $content_dom->saveHTML($content_dom->documentElement);
-
-        // $content_html = preg_replace('!\s+!', ' ', $content_html);
-
-
-        // // Remove semi-empty tags and everything outside body
-        // $content_html = str_between(
-        //     '<body>', '</body>', str_replace([
-        //         '<p><br></p>',
-        //         '<p> </p>',
-        //         '<p> | </p>',
-        //         '<p>|</p>',
-        //         '<p></p>'
-        //     ], '', $content_html)
-        // );
-
-        echo($content);
-        return ['a', 'b'];
-
-        // return [$content_html, $ms_teams_link];
+        return [$content, $meeting_link];
     }
 
     function remap_info_type($int) {
