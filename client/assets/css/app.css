@@ -1044,8 +1044,14 @@ h1, h2, h3, h4, h5, h6, .btn, .font-heading {
 /*            Froala            */
 /* ============================ */
 
+.fr-box > .fr-wrapper[dir="auto"] > div[style] > a[href="https://www.froala.com/wysiwyg-editor?k=u"] {
+    height: 0px !important;
+    visibility: hidden !important;
+}
+
 .fr-box > .fr-wrapper[dir="auto"] > div[style] {
-    display: none !important;
+    height: 1px !important;
+    pointer-events: none !important;
 }
 
 .fr-box > .fr-wrapper[dir="auto"] > .fr-placeholder {

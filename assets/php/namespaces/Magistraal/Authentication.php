@@ -51,7 +51,7 @@
                                 WHERE token_id='{$token_id}'");
         } else {
             $token_id      = \Magistraal\Authentication\random_token_id();
-            $token_expires = time() + 900000; // Token will expire in 15 minutes
+            $token_expires = time() + 900; // Token will expire in 15 minutes
 
             $response = $db->q("INSERT INTO magistraal_tokens 
                 (token_id,      token_expires,      tenant,              access_token,      access_token_expires,              refresh_token,      ip_address) VALUES 

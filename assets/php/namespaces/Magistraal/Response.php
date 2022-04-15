@@ -6,7 +6,7 @@
         if(!headers_sent()) {
             header('content-type: application/json');
         }
-        exit(json_encode(['success' => false, 'info' => $info]));
+        exit(json_encode(['success' => false, 'info' => $info, 'took' => microtime(true) - REQUEST_START_US]));
     }
 
     function success($data = [], $http_code = 200) {
@@ -14,6 +14,6 @@
         if(!headers_sent()) {
             header('content-type: application/json');
         }
-        exit(json_encode(['success' => true, 'data' => $data]));
+        exit(json_encode(['success' => true, 'data' => $data, 'took' => microtime(true) - REQUEST_START_US]));
     }
 ?>

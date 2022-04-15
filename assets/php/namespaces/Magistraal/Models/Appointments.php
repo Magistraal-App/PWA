@@ -25,7 +25,7 @@
         // Seperate Microsoft Teams meeting link from content
         list($content, $ms_teams_link) = \Magistraal\Appointments\seperate_lesson_content($appointment['Inhoud']);
         
-        // Obtain solely link
+        // Obtain link only
         if(strpos($appointment['Inhoud'], '://teams.microsoft.com/l/meetup-join/') !== false) {
             $ms_teams_link = 'https://teams.microsoft.com/l/meetup-join/'.str_between('://teams.microsoft.com/l/meetup-join/', '"', $appointment['Inhoud']);
         }
@@ -131,92 +131,95 @@
     }
     
     function seperate_lesson_content($content) {
-        $ms_teams_link = '';
+        // $ms_teams_link = '';
 
-        if(empty($content)) {
-            return ['', ''];
-        }
+        // if(empty($content)) {
+        //     return ['', ''];
+        // }
 
-        $content_dom = new \DOMDocument();
-        $content_dom->encoding = 'utf-8';
-        $content_dom->loadHTML(utf8_decode($content));
+        // $content_dom = new \DOMDocument();
+        // $content_dom->encoding = 'utf-8';
+        // $content_dom->loadHTML(utf8_decode($content));
 
-        $content_nodes         = [];
-        $remove_nodes          = [];
-        $content_nodes['a']    = $content_dom->getElementsByTagName('a');
-        $content_nodes['span'] = $content_dom->getElementsByTagName('span');
-        $content_nodes['hr' ]  = $content_dom->getElementsByTagName('hr');
-        $content_nodes['p' ]   = $content_dom->getElementsByTagName('p');
+        // $content_nodes         = [];
+        // $remove_nodes          = [];
+        // $content_nodes['a']    = $content_dom->getElementsByTagName('a');
+        // $content_nodes['span'] = $content_dom->getElementsByTagName('span');
+        // $content_nodes['hr' ]  = $content_dom->getElementsByTagName('hr');
+        // $content_nodes['p' ]   = $content_dom->getElementsByTagName('p');
 
-        foreach ($content_nodes as $nodes) {
-            for ($i=0; $i < count($nodes); $i++) { 
-                $node = $nodes->item($i);
+        // foreach ($content_nodes as $nodes) {
+        //     for ($i=0; $i < count($nodes); $i++) { 
+        //         $node = $nodes->item($i);
 
-                // if($node->hasAttribute('style')) {
-                //     $node->removeAttribute('style');
-                // }
+        //         // if($node->hasAttribute('style')) {
+        //         //     $node->removeAttribute('style');
+        //         // }
 
-                switch ($node->tagName) {
-                    case 'a':
-                        if(!$node->hasAttribute('href')) {
-                            continue 2;
-                        }
+        //         switch ($node->tagName) {
+        //             case 'a':
+        //                 if(!$node->hasAttribute('href')) {
+        //                     continue 2;
+        //                 }
 
-                        $href = $node->getAttribute('href');
-                        if(stripos($href, '//teams.microsoft.com/l/meetup-join/') !== false) {
-                            $ms_teams_link = $href;
-                            $remove_nodes[] = $node;
-                        } else if(
-                            stripos($href, '//teams.microsoft.com/meetingOptions/') !== false ||
-                            stripos($href, '//support.office.com/') !== false
-                        ) {
-                            $remove_nodes[] = $node;
-                        }
-                        break;
+        //                 $href = $node->getAttribute('href');
+        //                 if(stripos($href, '//teams.microsoft.com/l/meetup-join/') !== false) {
+        //                     $ms_teams_link = $href;
+        //                     $remove_nodes[] = $node;
+        //                 } else if(
+        //                     stripos($href, '//teams.microsoft.com/meetingOptions/') !== false ||
+        //                     stripos($href, '//support.office.com/') !== false
+        //                 ) {
+        //                     $remove_nodes[] = $node;
+        //                 }
+        //                 break;
                     
-                    case 'span':
-                        if(trim($node->textContent) == '|') {
-                            $remove_nodes[] = $node;
-                        }
-                        break;
+        //             case 'span':
+        //                 if(trim($node->textContent) == '|') {
+        //                     $remove_nodes[] = $node;
+        //                 }
+        //                 break;
 
-                    case 'hr':
-                        $remove_nodes[] = $node;
-                        break;
+        //             case 'hr':
+        //                 $remove_nodes[] = $node;
+        //                 break;
 
-                    case 'p':
-                        if(trim($node->textContent) == '|') {
-                            $remove_nodes[] = $node;
-                        }
-                        break;
+        //             case 'p':
+        //                 if(trim($node->textContent) == '|') {
+        //                     $remove_nodes[] = $node;
+        //                 }
+        //                 break;
 
-                    default:
-                        continue 2;
-                }
-            }
-        }
+        //             default:
+        //                 continue 2;
+        //         }
+        //     }
+        // }
 
-        foreach ($remove_nodes as $node) {
-            $node->parentNode->removeChild($node);
-        }
+        // foreach ($remove_nodes as $node) {
+        //     $node->parentNode->removeChild($node);
+        // }
 
-        $content_html = $content_dom->saveHTML($content_dom->documentElement);
+        // $content_html = $content_dom->saveHTML($content_dom->documentElement);
 
-        $content_html = preg_replace('!\s+!', ' ', $content_html);
+        // $content_html = preg_replace('!\s+!', ' ', $content_html);
 
 
-        // Remove semi-empty tags and everything outside body
-        $content_html = str_between(
-            '<body>', '</body>', str_replace([
-                '<p><br></p>',
-                '<p> </p>',
-                '<p> | </p>',
-                '<p>|</p>',
-                '<p></p>'
-            ], '', $content_html)
-        );
+        // // Remove semi-empty tags and everything outside body
+        // $content_html = str_between(
+        //     '<body>', '</body>', str_replace([
+        //         '<p><br></p>',
+        //         '<p> </p>',
+        //         '<p> | </p>',
+        //         '<p>|</p>',
+        //         '<p></p>'
+        //     ], '', $content_html)
+        // );
 
-        return [$content_html, $ms_teams_link];
+        echo($content);
+        return ['a', 'b'];
+
+        // return [$content_html, $ms_teams_link];
     }
 
     function remap_info_type($int) {
