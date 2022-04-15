@@ -13,7 +13,7 @@
         $formatted = [
             'content'         => $message['inhoud'] ?? '',
             'folder_id'       => $message['mapId'],
-            'forwarded_at'    => strtotime($message['doorgestuurdOp']),
+            'forwarded_at'    => $message['doorgestuurdOp'],
             'has_attachments' => $message['heeftBijlagen'],
             'attachments'     => [],
             'id'              => $message['id'],
@@ -24,12 +24,12 @@
                 'cc'              => ['names' => [], 'list' => []],
                 'to'              => ['names' => [], 'list' => []]
             ],
-            'replied_at'      => strtotime($message['beantwoordOp']),
+            'replied_at'      => $message['beantwoordOp'],
             'sender'          => [
                 'id'              => $message['afzender']['id'],
                 'name'            => $message['afzender']['naam']
             ],
-            'sent_at'         => strtotime($message['verzondenOp']),
+            'sent_at'         => $message['verzondenOp'],
             'subject'         => $message['onderwerp']
         ];
         
@@ -71,7 +71,7 @@
                     'name'      => pathinfo($attachment['naam'], PATHINFO_FILENAME),
                     'mime_type' => $attachment['contentType'],
                     'type'      => pathinfo($attachment['naam'], PATHINFO_EXTENSION),
-                    'modified'  => strtotime($attachment['gewijzigdOp']),
+                    'modified'  => $attachment['gewijzigdOp'],
                     'location'  => $attachment['links']['download']['href'] ?? null
                 ];
             }

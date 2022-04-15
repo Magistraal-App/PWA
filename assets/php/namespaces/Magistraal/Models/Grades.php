@@ -20,9 +20,8 @@
             'column_id'   => $grade['kolomId'],
             'counts'      => $grade['teltMee'],
             'description' => $grade['omschrijving'],
-            'entered_at'  => \strtotime($grade['behaaldOp'] ?? $grade['ingevoerdOp'] ?? null),
+            'entered_at'  => $grade['ingevoerdOp'] ?? null,
             'exemption'   => $grade['heeftVrijstelling'],
-            'got_at'      => \strtotime($grade['behaaldOp'] ?? $grade['ingevoerdOp'] ?? null),
             'make_up'     => $grade['moetInhalen'],
             'passed'      => $grade['isVoldoende'],
             'subject'     => [

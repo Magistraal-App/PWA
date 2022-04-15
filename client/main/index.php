@@ -303,7 +303,7 @@
             <div data-magistraal-template="sidebar-table-value" class="sidebar-table-cell sidebar-table-value"></div>
 
               <!-- Action -->
-            <div data-magistraal-template="sidebar-action" class="sidebar-action btn"></div>
+            <div data-magistraal-template="sidebar-action" class="sidebar-action btn btn-icon"></div>
 
         <!-- PAGE ICONS -->
             <!-- Loading -->
@@ -342,6 +342,7 @@
             <!-- Create appointment popup -->
             <div data-magistraal-popup="appointments-create-appointment" class="popup">
                 <form data-magistraal="form-appointments-create-appointment">
+                    <input type="hidden" name="id">
                     <h3 class="popup-title" data-translation="appointments.popup.create_appointment.title"></h3>
                     <div class="popup-item">
                         <h5 class="popup-item-key">

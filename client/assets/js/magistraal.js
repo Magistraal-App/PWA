@@ -153,10 +153,10 @@ const magistraal = {
 				}
 
 				let $absencesGroup = magistraal.template.get('absences-group');
-				$absencesGroup.find('.absences-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.unix, 'Fy')));
+				$absencesGroup.find('.absences-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'Fy')));
 				$.each(data.absences, function (i, absence) {
 					let $absence = magistraal.template.get('absence-list-item');
-					$absence.find('.absence-list-item-title').html(absence.appointment.designation + '<span class="bullet"></span>' + magistraal.locale.formatDate(absence.appointment.start.unix, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.unix, 'Hi'));
+					$absence.find('.absence-list-item-title').html(absence.appointment.designation + '<span class="bullet"></span>' + magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'Hi'));
 					$absence.find('.absence-list-item-icon').text(absence.lesson || absence.abbr);
 					$absence.find('.absence-list-item-content').text(absence.designation);
 					$absence.attr({
@@ -170,8 +170,8 @@ const magistraal = {
 						'title': absence.appointment.designation,
 						'subtitle': absence.designation,
 						'table': {
-							'absence.date': capitalizeFirst(magistraal.locale.formatDate(absence.appointment.start.unix, 'ldFY')),
-							'absence.time': magistraal.locale.formatDate(absence.appointment.start.unix, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.unix, 'Hi'),
+							'absence.date': capitalizeFirst(magistraal.locale.formatDate(absence.appointment.start.time, 'ldFY')),
+							'absence.time': magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'Hi'),
 							'absence.lesson': absence.lesson,
 							'absence.permitted': magistraal.locale.formatBoolean(absence.permitted)
 						}
@@ -191,12 +191,10 @@ const magistraal = {
 		paintList: (appointments, source) => {
 			let pageContent = '';
 			$.each(appointments, function (day, data) {
-				var _data$appointments;
-
 				let $appointmentsGroup = magistraal.template.get('appointments-group');
-				$appointmentsGroup.find('.appointments-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.unix, 'ldF')));
+				$appointmentsGroup.find('.appointments-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'ldF')));
 
-				if((data === null || data === void 0 ? void 0 : (_data$appointments = data.appointments) === null || _data$appointments === void 0 ? void 0 : _data$appointments.length) == 0) {
+				if(data.appointments.length == 0) {
 					// No appointments on this day
 					let $appointment = magistraal.template.get('appointment');
 					$appointment.find('.lesson-number').html('<i class="fal fa-check"></i>');
@@ -214,8 +212,6 @@ const magistraal = {
 
 				$.each(data.appointments, function (i, appointment) {
 					let $appointment = magistraal.template.get('appointment');
-					let appointmentStart = new Date(appointment.start.unix * 1000);
-					let appointmentEnd = new Date(appointment.end.unix * 1000);
 
 					appointment.editable = (appointment.type == 'personal' || appointment.type == 'planning');
 
@@ -228,23 +224,20 @@ const magistraal = {
 						'data-status': appointment.status,
 						'data-info-type': appointment.info_type,
 						'data-editable': appointment.editable
-					}); // Set lesson number / icon
+					});
 
-					if(appointment['start']['lesson'] > 0) {
-						$appointment.find('.lesson-number').text(appointment['duration']['lessons'] <= 1 ? appointment['start']['lesson'] : `${appointment['start']['lesson']}-${appointment['end']['lesson']}`);
+					if(appointment.start.lesson > 0) {
+						$appointment.find('.lesson-number').text(appointment.duration.lessons <= 1 ? appointment.start.lesson: `${appointment.start.lesson}-${appointment.end.lesson}`);
 					} else {
 						$appointment.find('.lesson-number').html(appointment.status == 'schedule' ? '<i class="fal fa-info"></i>' : '');
 					}
 
 					if(appointment['has_meeting_link']) {
 						$appointment.find('.lesson-join-ms-teams').attr('href', appointment['meeting_link']);
-					} // Set lesson times
+					}
 
-
-					$appointment.find('.lesson-time').text(magistraal.locale.formatDate(appointmentStart, 'Hi') + ' - ' + magistraal.locale.formatDate(appointmentEnd, 'Hi')); // Set designation
-
-					$appointment.find('.lesson-designation').text(appointment['facility'] == '' ? appointment['designation'] : `${appointment['designation']} (${appointment['facility']})`); // Set content
-
+					$appointment.find('.lesson-time').text(magistraal.locale.formatDate(appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(appointment.end.time, 'Hi')); // Set designation
+					$appointment.find('.lesson-designation').text(appointment.facility == '' ? appointment.designation : `${appointment.designation} (${appointment.facility})`); // Set content
 					$appointment.find('.lesson-content').html(appointment['content_text']); // Set type
 
 					let lessonType = magistraal.locale.translate(`appointments.appointment.info_type.${appointment.info_type}`);
@@ -252,11 +245,11 @@ const magistraal = {
 
 					let sidebarFeed = {
 						title: appointment['designation'],
-						subtitle: `${addLeadingZero(appointmentStart.getHours())}:${addLeadingZero(appointmentStart.getMinutes())} - ${addLeadingZero(appointmentEnd.getHours())}:${addLeadingZero(appointmentEnd.getMinutes())}`,
+						subtitle: `${magistraal.locale.formatDate(appointment.start.time, 'Hi')} - ${magistraal.locale.formatDate(appointment.end.time, 'Hi')}`,
 						table: {
 							'appointment.facility': appointment.facility,
-							'appointment.start': capitalizeFirst(magistraal.locale.formatDate(appointment.start.unix, 'ldFYHi')),
-							'appointment.end': capitalizeFirst(magistraal.locale.formatDate(appointment.end.unix, 'ldFYHi')),
+							'appointment.start': capitalizeFirst(magistraal.locale.formatDate(appointment.start.time, 'ldFYHi')),
+							'appointment.end': capitalizeFirst(magistraal.locale.formatDate(appointment.end.time, 'ldFYHi')),
 							'appointment.school_subject': appointment.subjects.join(', '),
 						},
 						actions: {}
@@ -268,11 +261,11 @@ const magistraal = {
 					if(appointment.editable) {
 						sidebarFeed.actions = {
 							edit: {
-								handler: `magistraal.appointments.edit({id: '${appointment.id}', start: ${appointment.start.unix}, end: ${appointment.end.unix}, facility: '${escapeQuotes(appointment.facility)}', designation: '${escapeQuotes(appointment.designation)}', content: '${escapeQuotes(appointment.content)}'})`, 
-								icon: 'fal fa-edit'
+								handler: `magistraal.appointments.edit({id: '${appointment.id}', start: '${appointment.start.time}', end: '${appointment.end.time}', facility: '${escapeQuotes(appointment.facility)}', designation: '${escapeQuotes(appointment.designation)}', content: '${escapeQuotes(appointment.content)}'})`, 
+								icon: 'fal fa-pencil'
 							},
-							remove: {
-								handler: `magistraal.appointments.remove('${appointment.id}')`, 
+							delete: {
+								handler: `magistraal.appointments.delete('${appointment.id}')`, 
 								icon: 'fal fa-trash'
 							}
 						}
@@ -340,6 +333,16 @@ const magistraal = {
 		create: (appointment, $form = null) => {
 			magistraal.console.loading('console.loading.create_appointment');
 
+			console.log(appointment);
+
+			let start = new Date(appointment.date);
+			start.setHours(appointment.start.hours, appointment.start.minutes);
+			appointment.start = start.toISOString();
+
+			let end = new Date(appointment.date);
+			end.setHours(appointment.end.hours, appointment.end.minutes);
+			appointment.end = end.toISOString();
+
 			magistraal.api.call({
 				url: 'appointments/create',
 				data: appointment,
@@ -347,6 +350,10 @@ const magistraal = {
 			}).then(response => {
 				magistraal.console.success('console.success.create_appointment');
 				magistraal.page.load('appointments/list');
+
+				if($form) {
+					$form.formReset();
+				}
 			}).catch(response => {
 				magistraal.popup.open('appointments-create-appointment');
 
@@ -354,25 +361,40 @@ const magistraal = {
 					magistraal.console.error(magistraal.locale.translate(`console.error.${response.responseJSON.info}`, 'console.error.generic'));
 					return false;
 				}
-			}).finally(() => {
-				if($form) {
-					$form.formReset();
-				}
-			});
+			})
 		},
 
 		edit: (appointment) => {
 			let popup = 'appointments-create-appointment';
 			let $form = magistraal.element.get('form-appointments-create-appointment');
-			
-			$form.find('[name="date"]').value(appointment.start * 1000);
-			$form.find('[name="start"]').value(appointment.start * 1000);
-			$form.find('[name="end"]').value(appointment.end * 1000);
+						
+			$form.find('[name="id"]').value(appointment.id);
+			$form.find('[name="date"]').value(appointment.start);
+			$form.find('[name="start"]').value(appointment.start);
+			$form.find('[name="end"]').value(appointment.end);
 			$form.find('[name="facility"]').value(appointment.facility);
 			$form.find('[name="designation"]').value(appointment.designation);
 			$form.find('[name="content"]').value(appointment.content);
 			
 			magistraal.popup.open(popup);
+		},
+
+		delete: (id) => {
+			magistraal.console.loading('console.loading.delete_appointment');
+
+			magistraal.api.call({
+				url: 'appointments/delete',
+				data: {id: id},
+				source: 'server_only'
+			}).then(response => {
+				magistraal.console.success('console.success.delete_appointment');
+				magistraal.page.load('appointments/list');
+			}).catch(response => {
+				if(response.responseJSON && response.responseJSON.info) {
+					magistraal.console.error(magistraal.locale.translate(`console.error.${response.responseJSON.info}`, 'console.error.generic'));
+					return false;
+				}
+			})
 		}
 	},
 
@@ -544,6 +566,11 @@ const magistraal = {
 				source: 'server_only'
 			}).then(response => {
 				magistraal.console.success('console.success.send_message');
+				magistraal.page.load('messages/list');
+
+				if($form) {
+					$form.formReset();
+				}
 			}).catch(response => {
 				magistraal.popup.open('messages-write-message');
 
@@ -554,11 +581,7 @@ const magistraal = {
 					
 				magistraal.console.error('console.error.generic');
 
-			}).finally(() => {
-				if($form) {
-					$form.formReset();
-				}
-			});
+			})
 		}
 	},
 
@@ -729,10 +752,18 @@ const magistraal = {
 		},
 
 		formatDate: (date, format) => {
-			if(typeof date != 'object') {
+			if(typeof date == 'number') {
 				// Convert unix to date object
 				date = new Date(date * 1000);
+			} else if(typeof date == 'string') {
+				// Convert ISO to date object
+				date = new Date(date);
 			}
+
+			if(typeof date != 'object') {
+				return false;
+			}
+
 
 			let output = '';
 
@@ -1200,7 +1231,7 @@ const magistraal = {
 
 			$.each(feed.actions, function(actionType, action) {
 				let $action     = magistraal.template.get('sidebar-action');
-				let actionColor = (actionType == 'remove' ? 'danger' : 'secondary');
+				let actionColor = (actionType == 'delete' ? 'danger' : 'secondary');
 				$action.addClass(`btn-${actionColor}`);
 
 				$action.html(`

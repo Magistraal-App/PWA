@@ -5,13 +5,13 @@
         public static $cookies = [];
 
         public static function request($url, $options = []) {
-            if(!isset($options['payload']) || empty($options['payload']) && !isset($options['method'])) {
-                $options['method'] = 'GET';
+            if((!isset($options['payload']) || empty($options['payload'])) && !isset($options['method'])) {
+                $options['method'] = 'get';
             }
 
             $options = array_replace([
                 'payload'   => [],
-                'method'    => 'POST',
+                'method'    => 'post',
                 'cookie'    => \Magistraal\Browser\encode_cookie_header(\Magistraal\Browser\Browser::$cookies),
                 'anonymous' => false,
                 'redirects' => true
@@ -27,8 +27,6 @@
                 'content-type'   => 'application/json',
                 'cache-control'  => 'no-cache'
             ], $options['headers'] ?? []);
-
-            if(isset($options['headers']))
 
             // Set cookie header
             if(!empty(\Magistraal\Browser\Browser::$cookies)) {

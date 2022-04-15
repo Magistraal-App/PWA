@@ -91,7 +91,7 @@
                 'username'  => $username
             ]);
 
-            return $response['headers']['http_code'] == 200;
+            return $response['info']['success'];
         }
 
         public static function loginPassword($password) {
@@ -102,7 +102,7 @@
                 'password'  => $password
             ]);
 
-            return $response['headers']['http_code'] == 200;
+            return $response['info']['success'];
         }
 
         public static function obtainTokenData($token_id = null) {
@@ -260,11 +260,11 @@
         /*           Absences           */
         /* ============================ */
 
-        public static function absencesList($from, $to) {
-            $from_date    = date('Y-m-d', $from);
-            $to_date      = date('Y-m-d', $to); 
+        public static function absencesList($iso_from, $iso_to) {
+            $date_from    = date('Y-m-d', strtotime($iso_from));
+            $date_to      = date('Y-m-d', strtotime($iso_to)); 
 
-            $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/absenties/?van={$from_date}&tot={$to_date}");
+            $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/absenties/?van={$date_from}&tot={$date_to}");
 
             return $response['body']['Items'] ?? [];
         }
@@ -274,10 +274,10 @@
         /* ============================ */
 
         public static function coursesList() {
-            $from_date = '2012-01-01';
-            $to_date   = date('Y-m-d', strtotime('+2 years'));
+            $date_from = '2012-01-01';
+            $date_to   = date('Y-m-d', strtotime('+2 years'));
 
-            $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId."/aanmeldingen/?begin={$from_date}&tot={$to_date}");
+            $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId."/aanmeldingen/?begin={$date_from}&tot={$date_to}");
 
             return $response['body']['items'] ?? [];
         }
@@ -286,11 +286,11 @@
         /*         Appointments         */
         /* ============================ */
 
-        public static function appointmentList($from, $to) {
-            $from_date    = date('Y-m-d', $from);
-            $to_date      = date('Y-m-d', $to); 
+        public static function appointmentList($iso_from, $iso_to) {
+            $date_from    = date('Y-m-d', strtotime($iso_from));
+            $date_to      = date('Y-m-d', strtotime($iso_to)); 
 
-            $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/afspraken/?van={$from_date}&tot={$to_date}");
+            $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/afspraken/?van={$date_from}&tot={$date_to}");
 
             return $response['body']['Items'] ?? [];
         }
@@ -314,11 +314,29 @@
         }
 
         public static function appointmentCreate($appointment) {
-            $response = \Magistraal\Browser\Browser::request(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId.'/afspraken', [
-                'payload'   => $appointment,
+            if(!isset($appointment['Id']) || $appointment['Id'] == 0) {
+                // Nieuwe afspraak maken
+                $response = \Magistraal\Browser\Browser::request(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId.'/afspraken', [
+                    'payload'   => $appointment,
+                    'redirects' => false
+                ]);
+            } else {
+                // Bestaande afspraak bewerken
+                $response = \Magistraal\Browser\Browser::request(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/afspraken/{$appointment['Id']}", [
+                    'payload'   => $appointment,
+                    'method'    => 'put',
+                    'redirects' => false
+                ]);
+            }
+            return ['success' => $response['info']['success'], 'data' => $response['body']];
+        }
+
+        public static function appointmentDelete($id) {
+            $response = \Magistraal\Browser\Browser::request(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/afspraken/{$id}", [
+                'method'    => 'delete',
                 'redirects' => false
             ]);
-            return ['success' => ($response['headers']['http_code'] == 201), 'data' => $response['body']];
+            return ['success' => $response['info']['success'], 'data' => $response['body']];
         }
         
         /* ============================ */
@@ -419,7 +437,7 @@
             $query  = urlencode($query);
             $response = \Magistraal\Api\call(\Magister\Session::$domain."/api/contacten/personen/?q={$query}&top=250&type=alle");
 
-            if($response['info']['http_code'] != 200) {
+            if(!$response['info']['success']) {
                 return [];
             }
 

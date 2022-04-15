@@ -29,7 +29,7 @@
                 <div class="col-12">
                     <h4 data-translation="login.hint.tenant"></h4>
                     <div class="input-search-wrapper">
-                        <input type="text" data-magistraal-search-target="tenants-list" data-translation="login.placeholder.tenant" name="tenant" id="tenant" class="form-control" data-error="login_incorrect_tenant field_empty_tenant">
+                        <input type="text" data-magistraal-search-target="tenants-list" data-translation="login.placeholder.tenant" name="tenant" id="tenant" class="form-control" data-error="login_incorrect_tenant field_empty.tenant">
                         <div data-magistraal="tenants-list" class="input-search-results"></div>
                     </div>
                 </div>
@@ -37,14 +37,14 @@
             <div class="row mb-3">
                 <div class="col-12 col-md-6 mb-3 mb-md-0">
                     <h4 data-translation="login.hint.username"></h4>
-                    <input type="text" data-translation="login.placeholder.username" name="username" id="username" class="form-control" data-error="login_incorrect_username field_empty_username">
+                    <input type="text" data-translation="login.placeholder.username" name="username" id="username" class="form-control" data-error="login_incorrect_username field_empty.username">
                 </div>
                 <div class="col-12 col-md-6">
                     <h4 data-translation="login.hint.password"></h4>
-                    <input type="password" data-translation="login.placeholder.password" name="password" id="password" class="form-control" data-error="login_incorrect_passsword field_empty_password">
+                    <input type="password" data-translation="login.placeholder.password" name="password" id="password" class="form-control" data-error="login_incorrect_passsword field_empty.password">
                 </div>
             </div>
-            <button data-translation="login.hint.submit" role="submit" class="btn btn-secondary" data-error="login_incorrect_passsword field_empty_password"></button>
+            <button data-translation="login.hint.submit" role="submit" class="btn btn-secondary" data-error="login_incorrect_passsword field_empty.password"></button>
         </form>
         <div id="login-footer">
             <p class="text-muted mb-2 pt-4 pb-3">

@@ -3,19 +3,19 @@
     
     // Get tenant
     if(!isset($_POST['tenant']) || empty($_POST['tenant'])) {
-        \Magistraal\Response\error('login_field_empty_tenant');
+        \Magistraal\Response\error('login_field_empty.tenant');
     }
     $tenant = trim($_POST['tenant']);
 
     // Get username
     if(!isset($_POST['username']) || empty($_POST['username'])) {
-        \Magistraal\Response\error('login_field_empty_username');
+        \Magistraal\Response\error('login_field_empty.username');
     }
     $username = trim($_POST['username']);
     
     // Get password
     if(!isset($_POST['password']) || empty($_POST['password'])) {
-        \Magistraal\Response\error('login_field_empty_password');
+        \Magistraal\Response\error('login_field_empty.password');
     }
     $password = trim($_POST['password']);
 

@@ -5,16 +5,16 @@
         return \Magistraal\Appointments\format(\Magister\Session::appointmentGet($id));
     }
 
-    function get_all($from, $to) {
-        return \Magistraal\Appointments\format_all(\Magister\Session::appointmentList($from, $to), $from, $to);
+    function get_all($iso_from, $iso_to) {
+        return \Magistraal\Appointments\format_all(\Magister\Session::appointmentList($iso_from, $iso_to), $iso_from, $iso_to);
     }
 
     function create($formatted) {
         return \Magister\Session::appointmentCreate(\Magistraal\Appointments\unformat($formatted));
     }
 
-    function remove($id) {
-        // return \Magister\Session::appointmentCreate(\Magistraal\Appointments\unformat($formatted));
+    function delete($id) {
+        return \Magister\Session::appointmentDelete($id);
     }
 
     function finish($id, $finished = true) {       
@@ -22,9 +22,6 @@
     }
 
     function format($appointment) {
-        $start      = strtotime($appointment['Start']);
-        $end        = strtotime($appointment['Einde']);
-
         // Seperate Microsoft Teams meeting link from content
         list($content, $ms_teams_link) = \Magistraal\Appointments\seperate_lesson_content($appointment['Inhoud']);
         
@@ -53,11 +50,11 @@
             'content'          => $content ?? '',
             'designation'      => $appointment['Omschrijving'] ?? '',
             'duration'         => [
-                'seconds'           => ($end - $start),
+                'seconds'           => (strtotime($appointment['Einde']) - strtotime($appointment['Start'])),
                 'lessons'           => ($appointment['LesuurTotMet']+1 ?? 0) - ($appointment['LesuurVan'] ?? 0) 
             ],
             'end'              => [
-                'unix'              => $end,
+                'time'              => $appointment['Einde'],
                 'lesson'            => $appointment['LesuurTotMet'] ?? 0
             ],  
             'facility'         => $appointment['Lokatie'] ?? '',
@@ -67,7 +64,7 @@
             'info_type'        => \Magistraal\Appointments\remap_info_type($appointment['InfoType']) ?? 'unknown',
             'meeting_link'     => $ms_teams_link ?? '#',
             'start'            => [
-                'unix'              => $start,
+                'time'              => $appointment['Start'],
                 'lesson'            => $appointment['LesuurVan'] ?? 0
             ],  
             'status'           => \Magistraal\Appointments\remap_status($appointment['Status']) ?? 'unknown',
@@ -83,7 +80,7 @@
                     'name'      => pathinfo($attachment['Naam'], PATHINFO_FILENAME),
                     'mime_type' => $attachment['ContentType'],
                     'type'      => pathinfo($attachment['Naam'], PATHINFO_EXTENSION),
-                    'modified'  => strtotime($attachment['Datum']),
+                    'modified'  => $attachment['Datum'],
                     'location'  => $attachment['Links'][0]['Href'] ?? null
                 ];
             }
@@ -93,12 +90,11 @@
     }
 
     function unformat($formatted) {
-        // return json_decode('{"Id":0,"Links":null,"Start":"2022-04-14T06:00:00.000Z","Einde":"2022-04-14T06:30:00.000Z","DuurtHeleDag":false,"Omschrijving":"test","LesuurVan":null,"LesuurTotMet":null,"Type":1,"Inhoud":"eeeeeeeeee","InfoType":6,"Afgerond":false,"Aantekening":null,"Vakken":null,"Docenten":null,"Lokatie":"","Status":2,"Lokalen":null,"Groepen":null,"OpdrachtId":0,"HeeftBijlagen":false,"Bijlagen":null,"WeergaveType":1,"TaakAangemaaktOp":null,"TaakGewijzigdOp":null,"HerhaalStatus":0,"Herhaling":null,"IsOnlineDeelname":false,"Subtype":1}', true);
         return [
             'Id'           => $formatted['id'] ?? 0,
-            'Lokatie'      => $formatted ['facility'] ?? '',
-            'Start'        => \date_iso($formatted['date'] + $formatted['start'] ?? null),
-            'Einde'        => \date_iso($formatted['date'] + $formatted['end'] ?? null),
+            'Lokatie'      => $formatted['facility'] ?? '',
+            'Start'        => $formatted['start'] ?? null,
+            'Einde'        => $formatted['end'] ?? null,
             'Omschrijving' => $formatted['designation'] ?? '',
             'Inhoud'       => $formatted['content'] ?? '',
             'Type'         => 1,
@@ -107,21 +103,21 @@
         ];
     }
 
-    function format_all($appointments, $from, $to) {
+    function format_all($appointments, $iso_from, $iso_to) {
+        $unix_from = strtotime($iso_from);
+        $unix_to   = strtotime($iso_to);
+
         $formatted = [];
 
-        if(isset($from) && isset($to)) {
-            // Generate an array with keys of dates between from and to
-            for ($unix=$from; $unix <= $to;) { 
-                $formatted[date('Y-m-d', $unix)] = ['unix' => $unix, 'appointments' => []];
-                $unix = strtotime('+1 day', $unix);
-            }
+        // Generate an array with dates between from and to as keys
+        for ($unix=$unix_from; $unix <= $unix_to;) { 
+            $formatted[date('Y-m-d', $unix)] = ['time' => date_iso($unix), 'appointments' => []];
+            $unix = strtotime('+1 day', $unix);
         }
 
 
         foreach ($appointments as $appointment) {
-            $start      = strtotime($appointment['Start']);
-            $start_date = date('Y-m-d', $start);
+            $start_date = date('Y-m-d', strtotime($appointment['Start']));
 
             // Some appointments passed don't fit in the desired timespan, skip those
             if(!isset($formatted[$start_date])) {
@@ -156,9 +152,9 @@
             for ($i=0; $i < count($nodes); $i++) { 
                 $node = $nodes->item($i);
 
-                if($node->hasAttribute('style')) {
-                    $node->removeAttribute('style');
-                }
+                // if($node->hasAttribute('style')) {
+                //     $node->removeAttribute('style');
+                // }
 
                 switch ($node->tagName) {
                     case 'a':

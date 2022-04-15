@@ -22,7 +22,6 @@
         $_POST['content'] ?? null,
         $_POST['priority'] ?? null
     )) {
-        sleep(1); // Sleep one second
         \Magistraal\Response\success();
     }
 

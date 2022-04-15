@@ -1,15 +1,18 @@
 <?php 
     namespace Magistraal\Absences;
 
-    function get_all($from, $to) {
-        return \Magistraal\Absences\format_all(\Magister\Session::absencesList($from, $to), $from, $to);
+    function get_all($iso_from, $iso_to) {
+        return \Magistraal\Absences\format_all(\Magister\Session::absencesList($iso_from, $iso_to), $iso_from, $iso_to);
     }
 
-    function format_all($absences, $from, $to) {
+    function format_all($absences, $iso_from, $iso_to) {
+        $unix_from = strtotime($iso_from);
+        $unix_to   = strtotime($iso_to);
+
         $formatted = [];
 
-        // Generate an array with keys of months between from and to
-        for ($unix=$from; $unix <= $to;) { 
+        // Generate an array with months between from and to as keys
+        for ($unix=$unix_from; $unix <= $unix_to;) { 
             $formatted[date('Y-m', $unix)] = ['unix' => $unix, 'absences' => []];
             $unix = strtotime('+1 month', $unix);
         }

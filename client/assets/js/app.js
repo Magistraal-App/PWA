@@ -15,32 +15,29 @@ function unique(array) {
 
 $.fn.value = function(value = undefined) {
     if(typeof value == 'undefined') {
-        if(this.hasClass('input-tags')) {
-            let $wrapper = this.closest('.input-tags-wrapper');
-            let tags   = Object.keys($wrapper.data('tags') || {});
-            return tags;
-        } else if(this.attr('type') == 'date') {
-            let date = dateToUTC(new Date(this.val()));
-            return date.toISOString();
+        if(this.attr('type') == 'date') {
+            return new Date(this.val()).toISOString();
         } else if(this.attr('type') == 'time') {
             let [hours, minutes] = this.val().split(':');
-            let date             = dateToUTC(new Date((hours * 3600 + minutes * 60) * 1000));
-            return date.toISOString();
+            return {hours: hours,minutes: minutes};
         } else if(typeof this.attr('data-rich-editor') != 'undefined') {
             return this.data('editor').html.get();
         } else if(this.attr('contenteditable') == true) {
             return this.text();
+        } else if(this.hasClass('input-tags')) {
+            let $wrapper = this.closest('.input-tags-wrapper');
+            let tags   = Object.keys($wrapper.data('tags') || {});
+            return tags;
         } else {
             return this.val();
         }
     } else {
-        if(this.attr('type') == 'time') {
-            if(!isNumeric(value)) return false;
-            let date = dateToUTC(new Date(value));
+        if(this.attr('type') == 'date') {
+            console.log(value);
+            return this.get(0).valueAsDate = new Date(value);
+        } else if(this.attr('type') == 'time') {
+            let date = new Date(value);
             return this.val(`${addLeadingZero(date.getHours())}:${addLeadingZero(date.getMinutes())}:${addLeadingZero(date.getSeconds())}`);
-        } else if(this.attr('type') == 'date') {
-            if(!isNumeric(value)) return false;
-            return this.get(0).valueAsDate = dateToUTC(new Date(value));
         } else if(typeof this.attr('data-rich-editor') != 'undefined') {
             return this.data('editor').html.set(value);
         } else if(this.attr('contenteditable') == true) {
@@ -84,15 +81,17 @@ $.fn.formReset = function() {
     }
 
     $form.find('[name]').each(function() {
-        let $input = $(this);
-        if($input.hasClass('input-tags')) {
-            $input.setTags({});
-        } else if($input.attr('type') == 'time' && $input.attr('value')) {
-            $input.val($input.attr('value'));
-        } else if($input.attr('type') == 'date') {
-            $input.get(0).valueAsDate = dateToUTC(new Date());
+        let $el = $(this);
+        if($el.hasClass('input-tags')) {
+            $el.setTags({});
+        } else if($el.attr('type') == 'time' && $el.attr('value')) {
+            $el.val($el.attr('value'));
+        } else if($el.attr('type') == 'date') {
+            $el.get(0).valueAsDate = new Date();
+        } else if(typeof $el.attr('data-rich-editor') != 'undefined') {
+            $el.data('editor').html.set('');
         } else {
-            $input.val('');
+            $el.val('');
         }
     })
 }
@@ -303,15 +302,6 @@ function trim(str, char = ' ') {
 
 function random(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-function dateToUTC(date) {
-    let utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
-    // console.log('OLD', date);
-    // console.log('UTC', utc);
-    // console.log('--------------------');
-    // return utc;
-    return utc;
 }
 
 function randomString(length) {

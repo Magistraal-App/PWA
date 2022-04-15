@@ -3,12 +3,4 @@
     .appointment .lesson-main .bullet {
         display: inline-block;
     }
-
-    .sidebar-actions .sidebar-action .action-icon {
-        display: none;
-    }
-
-    .sidebar-actions .sidebar-action .action-text {
-        display: inline;
-    }
 }
