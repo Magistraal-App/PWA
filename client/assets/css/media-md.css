@@ -15,7 +15,7 @@
     header {
         padding-left: var(--main-padding);
         background: var(--primary-accent);
-        border-bottom: 1px solid var(--primary-border);
+        border-bottom: var(--border-width) solid var(--primary-border);
     }
 
     .popup-item {
@@ -98,7 +98,7 @@
             'go-side        go-main';
         overflow: auto;
         background: var(--primary);
-        border: 1px solid var(--primary-border);
+        border: var(--border-width) solid var(--primary-border);
         border-radius: var(--border-radius);
     }
 
@@ -122,11 +122,11 @@
         align-items: center;
         padding: 0.125rem 0.5rem;
         white-space: nowrap;
-        border-bottom: 1px solid var(--primary-border);
+        border-bottom: var(--border-width) solid var(--primary-border);
     }
 
     .grades-overview-side-item:first-child {
-        border-top: 1px solid var(--primary-border);
+        border-top: var(--border-width) solid var(--primary-border);
     }
 
     .grades-overview-main {
@@ -140,7 +140,7 @@
     }
 
     .grades-overview-main-row:first-child .grades-overview-main-cell {
-        border-top: 1px solid var(--primary-border);
+        border-top: var(--border-width) solid var(--primary-border);
     }
 
     .grades-overview-main-row:last-child .grades-overview-main-cell {
@@ -153,8 +153,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border-left: 1px solid var(--primary-border);
-        border-bottom: 1px solid var(--primary-border);
+        border-left: var(--border-width) solid var(--primary-border);
+        border-bottom: var(--border-width) solid var(--primary-border);
     }
 
     .grades-overview-main-cell[data-type="averages"] {

@@ -7,6 +7,8 @@
     --spacing-md: 0.3rem;
     --spacing-lg: calc(var(--spacing-sm) + var(--spacing-md));
     --spacing-xl: calc(var(--spacing-lg) * 1.5);
+    
+    --border-width: 1px;
 
     --btn-md-height: 2rem;
     --btn-lg-height: 3rem;
@@ -112,7 +114,7 @@ main {
     overflow-x: hidden !important;
     overflow-y: scroll !important;
     padding: var(--spacing-lg) var(--main-padding);
-    border-bottom: 1px solid var(--primary-border);
+    border-bottom: var(--border-width) solid var(--primary-border);
 }
 
 textarea {
@@ -147,7 +149,7 @@ textarea {
     padding: 0.125rem 0.5rem !important;
     border-radius: var(--border-radius) !important;
     z-index: 200 !important;
-    border: 1px solid var(--primary-border) !important;
+    border: var(--border-width) solid var(--primary-border) !important;
     max-width: max(15rem, 33%) !important;
 }
 
@@ -170,7 +172,7 @@ textarea {
 .tile {
     padding: 0.25rem 0.5rem;
     border-radius: var(--border-radius);
-    border: 1px solid var(--primary-border);
+    border: var(--border-width) solid var(--primary-border);
     background: var(--primary);
     margin-bottom: 0.5rem;
 }
@@ -343,7 +345,7 @@ textarea {
         'list-item-icon list-item-content list-item-actions';
     padding: var(--spacing-md);
     border-radius: var(--border-radius);
-    border: 1px solid var(--list-item-border-color);
+    border: var(--border-width) solid var(--list-item-border-color);
     background-color: var(--list-item-background);
     margin-bottom: var(--spacing-lg);
 }
@@ -411,12 +413,12 @@ textarea {
     border-radius: var(--border-radius);
     cursor: pointer;
     padding: 0.125rem 0.5rem;
-    border: 1px solid var(--list-item-action-border-color);
+    border: var(--border-width) solid var(--list-item-action-border-color);
 }
 
 .list-item-action-primary {
     background-color: var(--list-item-action-primary-background);
-    border: 1px solid var(--list-item-action-primary-border-color);
+    border: var(--border-width) solid var(--list-item-action-primary-border-color);
 }
 
 .list-item .list-item-action-square {
@@ -491,7 +493,7 @@ textarea {
 
 .appointment {
     background-color: var(--list-item-background);
-    border: 1px solid var(--list-item-border-color);
+    border: var(--border-width) solid var(--list-item-border-color);
     cursor: pointer;
 }
 
@@ -681,7 +683,7 @@ textarea {
     margin: 0 calc(-1 * var(--spacing-lg)) calc(-1 * var(--spacing-lg)) calc(-1 * var(--spacing-lg));
     z-index: 10;
     background: var(--primary-accent);
-    border-top: 1px solid var(--primary-border);
+    border-top: var(--border-width) solid var(--primary-border);
 }
 
 .popup-backdrop {
@@ -729,7 +731,7 @@ textarea {
 
 .popup-divider {
     width: 100%;
-    border-bottom: 1px solid var(--primary-border);
+    border-bottom: var(--border-width) solid var(--primary-border);
     margin: 0.75rem 0;
     display: none; /* media-md: block */
 }
@@ -755,7 +757,7 @@ textarea {
     z-index: 25;
     overflow: visible;
     background: var(--background);
-    border-bottom: 1px solid var(--primary-border);
+    border-bottom: var(--border-width) solid var(--primary-border);
     padding: var(--spacing-lg) 0 0 var(--spacing-lg);
 }
 
@@ -818,7 +820,7 @@ textarea {
 }
 
 .sidebar-table-cell.sidebar-table-key:not(:first-child) {
-    border-top: 1px solid var(--primary-border);
+    border-top: var(--border-width) solid var(--primary-border);
 }
 
 .sidebar-table-cell.sidebar-table-value {
@@ -962,11 +964,13 @@ footer {
     border-color: var(--primary-border);
     height: var(--btn-md-height);
     padding: 0 var(--spacing-lg);
+    line-height: calc(var(--btn-md-height) - var(--border-width) * 2);
+    vertical-align: middle;
 }
 
 .form-control:focus,
 .form-control.focus {
-    border: 1px solid var(--secondary);
+    border: var(--border-width) solid var(--secondary);
     box-shadow: 0 0 0 1px var(--secondary);
 }
 
