@@ -107,7 +107,7 @@
     "grades.to_overview": "Naar cijferoverzicht",
     "grades.to_grade_calculator": "Welk cijfer moet ik halen?",
     
-    "login.placeholder.tenant": "school.magister.net",
+    "login.placeholder.tenant": "School.magister.net",
     "login.placeholder.username": "Gebruikersnaam",
     "login.placeholder.password": "Wachtwoord",
     "login.hint.tenant": "Schooldomein",

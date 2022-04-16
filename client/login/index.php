@@ -13,12 +13,13 @@
     <link rel="icon" type="image/ico" href="/magistraal/client/favicon.ico">
    
     <?php echo(\Magistraal\Frontend\assetsHTML()); ?>
-
+   
+    <link rel="stylesheet" href="/magistraal/client/assets/js/login.min.js">
     <link rel="stylesheet" href="/magistraal/client/assets/css/login.min.css">
 
     <script>
         $(document).ready(function() {
-            magistraal.load('<?php echo(VERSION); ?>');
+            magistraal.load('<?php echo(VERSION); ?>', false);
         })
     </script>
 </head>

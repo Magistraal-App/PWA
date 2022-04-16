@@ -111,7 +111,7 @@ const magistraal = {
 						}
 
 						// Als de request gelukt is
-						if(response.success == true) {
+						if(response?.success === true) {
 							resolve(response?.data || response);
 
 							// Sla op in cache
@@ -127,7 +127,7 @@ const magistraal = {
 						}
 					},
 					error: function(response) {
-						if(typeof response.responseJSON != 'undefined' && typeof response.responseJSON.info != 'undefined' && response.responseJSON.info == 'token_invalid') {
+						if(typeof response?.responseJSON?.info != 'undefined' && response?.responseJSON?.info == 'token_invalid') {
 							magistraalPersistentStorage.remove('token');
 							if(parameters.url == 'logout') {
 								magistraal.page.get('login');
@@ -135,12 +135,11 @@ const magistraal = {
 							}
 						}
 
-						magistraal.console.error();
-
 						if(typeof parameters.scope != 'undefined' && parameters.scope != magistraal.page.current()) {
 							return false;
 						}
 
+						magistraal.console.error();
 						reject(response);
 					},
 					complete: function(response, textStatus, request) {
@@ -384,7 +383,7 @@ const magistraal = {
 				magistraal.popup.open('appointments-create-appointment');
 
 				if(response.responseJSON && response.responseJSON.info) {
-					magistraal.console.error(magistraal.locale.translate(`console.error.${response.responseJSON.info}`, 'console.error.generic'));
+					magistraal.console.error(`console.error.${response.responseJSON.info}`);
 					return false;
 				}
 			})
@@ -417,7 +416,7 @@ const magistraal = {
 				magistraal.page.load('appointments/list');
 			}).catch(response => {
 				if(response.responseJSON && response.responseJSON.info) {
-					magistraal.console.error(magistraal.locale.translate(`console.error.${response.responseJSON.info}`, 'console.error.generic'));
+					magistraal.console.error(`console.error.${response.responseJSON.info}`);
 					return false;
 				}
 			})
@@ -602,13 +601,7 @@ const magistraal = {
 			}).catch(response => {
 				magistraal.popup.open('messages-write-message');
 
-				if(typeof response.responseJSON.info != 'undefined') {
-					magistraal.console.error(magistraal.locale.translate(`console.error.${response.responseJSON.info}`, 'console.error.generic'));
-					return false;
-				}
-					
-				magistraal.console.error('console.error.generic');
-
+				magistraal.console.error(`console.error.${response?.responseJSON?.info}`);
 			})
 		}
 	},
@@ -665,7 +658,7 @@ const magistraal = {
 		},
 
 		send: (message, type = 'success', duration = 1500) => {
-			message = magistraal.locale.translate(message, message);
+			message = magistraal.locale.translate(message, magistraal.locale.translate(`console.${type}.generic`, message));
 			let messageId = Date.now();
 			console.log(`${type}: ${message}`);
 			let styles = {
@@ -712,7 +705,7 @@ const magistraal = {
 		}
 	},
 
-	load: (version = '') => {
+	load: (version = '', doPopulateCache = true) => {
 		magistraalStorage.set('api', '/magistraal/api/');
 
 		// If current version is not equal to new one, soft-clear cache
@@ -730,7 +723,7 @@ const magistraal = {
 				resolve();
 			}).catch(() => {});
 
-			if(typeof magistraalPersistentStorage.get('token') != false) {
+			if(doPopulateCache) {
 				// Load absences, appointments, grades, messages, etc. for offline use
 				magistraal.api.call({url: 'absences/list', source: 'prefer_cache'});
 				magistraal.api.call({url: 'appointments/list', source: 'prefer_cache'});
@@ -1000,24 +993,19 @@ const magistraal = {
 		}
 	},
 	login: {
-		login: $form => {
+		login: ($form) => {
 			let action = $form.attr('action');
+
 			magistraal.console.loading('console.loading.login');
-			magistraal.api.call(action, $form.serialize()).then(response => {
-				let token = response.request.getResponseHeader('X-Auth-Token');
 
-				if(!token) {
-					magistraal.console.error(`console.error.${response === null || response === void 0 ? void 0 : response.info}`);
-					return false;
-				}
-
-				magistraalStorage.set('token', token);
-				magistraal.console.success('console.success.login');
+			magistraal.api.call({
+				url: action, 
+				data: $form.serialize(),
+				source: 'server_only',
+			}).then(response => {
 				window.location.href = '../main/';
 			}).catch(response => {
-				var _response$responseJSO2;
-
-				magistraal.console.error(`console.error.${response === null || response === void 0 ? void 0 : (_response$responseJSO2 = response.responseJSON) === null || _response$responseJSO2 === void 0 ? void 0 : _response$responseJSO2.info}`);
+				magistraal.console.error(`console.error.${response?.responseJSON?.info}`);
 			});
 		}
 	},
