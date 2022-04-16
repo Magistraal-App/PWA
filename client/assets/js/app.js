@@ -26,7 +26,7 @@ $.fn.value = function(value = undefined) {
             // Verwijder Froala watermerk
             $html.find('[data-f-id="pbf"]').remove();
             return $html.html();
-        } else if(this.attr('contenteditable') == true) {
+        } else if(this.attr('contenteditable') == 'true') {
             return this.text();
         } else if(this.hasClass('input-tags')) {
             let $wrapper = this.closest('.input-tags-wrapper');
@@ -37,14 +37,13 @@ $.fn.value = function(value = undefined) {
         }
     } else {
         if(this.attr('type') == 'date') {
-            console.log(value);
             return this.get(0).valueAsDate = new Date(value);
         } else if(this.attr('type') == 'time') {
             let date = new Date(value);
             return this.val(`${addLeadingZero(date.getHours())}:${addLeadingZero(date.getMinutes())}:${addLeadingZero(date.getSeconds())}`);
         } else if(typeof this.attr('data-rich-editor') != 'undefined') {
             return this.data('editor').html.set(value);
-        } else if(this.attr('contenteditable') == true) {
+        } else if(this.attr('contenteditable') == 'true') {
             return this.text(value);
         } else {
             return this.val(value);

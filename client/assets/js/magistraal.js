@@ -357,8 +357,6 @@ const magistraal = {
 		create: (appointment, $form = null) => {
 			magistraal.console.loading('console.loading.create_appointment');
 
-			console.log(appointment);
-
 			let start = new Date(appointment.date);
 			start.setHours(appointment.start.hours, appointment.start.minutes);
 			appointment.start = start.toISOString();

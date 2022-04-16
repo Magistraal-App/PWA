@@ -6,7 +6,3 @@ $(document).on('magistraal.ready', function() {
         })
     });
 })
-
-$('li').on('click', function() {
-    console.log($(this).text());
-})

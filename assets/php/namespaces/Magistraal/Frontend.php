@@ -17,35 +17,37 @@
 
     function assetsHTML() {
         $version = str_replace('.', '-', \Magistraal\Config\get('version'));
+        $infix  = (\Magistraal\Config\get('production') === false ? '' : '.min');
+
         return '
             <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/bootstrap.min.css?v='.$version.'">
-            <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/app.css?v='.$version.'">
+            <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/app'.$infix.'.css?v='.$version.'">
 
             <link rel="preload" type="text/css" href="/magistraal/client/assets/css/fontawesome.min.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
-            <link rel="preload" type="text/css" href="/magistraal/client/assets/css/media-sm.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
-            <link rel="preload" type="text/css" href="/magistraal/client/assets/css/themes/dark.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
-            <link rel="preload" type="text/css" href="/magistraal/client/assets/css/media-md.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
-            <link rel="preload" type="text/css" href="/magistraal/client/assets/css/media-lg.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
-            <link rel="preload" type="text/css" href="/magistraal/client/assets/css/media-xl.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
-            <link rel="preload" type="text/css" href="/magistraal/client/assets/js/froala-editor/css/themes/magistraal.min.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
+            <link rel="preload" type="text/css" href="/magistraal/client/assets/css/media-sm'.$infix.'.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
+            <link rel="preload" type="text/css" href="/magistraal/client/assets/css/themes/dark'.$infix.'.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
+            <link rel="preload" type="text/css" href="/magistraal/client/assets/css/media-md'.$infix.'.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
+            <link rel="preload" type="text/css" href="/magistraal/client/assets/css/media-lg'.$infix.'.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
+            <link rel="preload" type="text/css" href="/magistraal/client/assets/css/media-xl'.$infix.'.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
+            <link rel="preload" type="text/css" href="/magistraal/client/assets/js/froala-editor/css/themes/magistraal'.$infix.'.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
             <link rel="preload" type="text/css" href="/magistraal/client/assets/js/froala-editor/css/froala_editor.pkgd.min.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
             
             <noscript>
                 <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/bootstrap.min.css?v='.$version.'">
                 <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/fontawesome.min.css?v='.$version.'">
-                <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/themes/dark.css?v='.$version.'">
-                <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/app.css?v='.$version.'">
-                <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/media-sm.css?v='.$version.'">
-                <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/media-md.css?v='.$version.'">
-                <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/media-lg.css?v='.$version.'">
-                <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/media-xl.css?v='.$version.'">
+                <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/themes/dark'.$infix.'.css?v='.$version.'">
+                <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/app'.$infix.'.css?v='.$version.'">
+                <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/media-sm'.$infix.'.css?v='.$version.'">
+                <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/media-md'.$infix.'.css?v='.$version.'">
+                <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/media-lg'.$infix.'.css?v='.$version.'">
+                <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/media-xl'.$infix.'.css?v='.$version.'">
             </noscript>
            
-            <script type="text/javascript" src="/magistraal/client/assets/js/froala-editor/js/froala_editor.pkgd.min.js?v='.$version.'"></script>
-            <script type="text/javascript" src="/magistraal/client/assets/js/froala-editor/js/languages/nl_NL.js?v='.$version.'"></script>
+            <script type="text/javascript" src="/magistraal/client/assets/js/froala-editor/js/froala_editor.pkgd.min.js?v='.$version.'" defer></script>
+            <script type="text/javascript" src="/magistraal/client/assets/js/froala-editor/js/languages/nl_NL.js?v='.$version.'" defer></script>
             <script type="text/javascript" src="/magistraal/client/assets/js/jquery.min.js?v='.$version.'"></script>
-            <script type="text/javascript" src="/magistraal/client/assets/js/app.js?v='.$version.'" defer></script>
-            <script type="text/javascript" src="/magistraal/client/assets/js/magistraal.js?v='.$version.'"></script>
+            <script type="text/javascript" src="/magistraal/client/assets/js/app'.$infix.'.js?v='.$version.'" defer></script>
+            <script type="text/javascript" src="/magistraal/client/assets/js/magistraal'.$infix.'.js?v='.$version.'"></script>
             
             <script>
                 if(\'serviceWorker\' in navigator) {
