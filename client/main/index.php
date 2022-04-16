@@ -79,21 +79,19 @@
             </li>
         </ul>
     </nav>
-    <header class="">
-        <div class="d-flex flex-row flex-nowrap align-items-center h-100 w-100">
-            <button class="btn btn-square btn-lg btn-secondary d-md-none " data-magistraal="nav-toggler" onclick="magistraal.nav.open();">
-                <i class="fal fa-bars"></i>
-            </button>
-            <button class="btn btn-square btn-lg btn-secondary d-md-none" data-magistraal="sidebar-toggler" onclick="magistraal.sidebar.close();">
-                <i class="fal fa-arrow-left"></i>
-            </button>
-            <h2 data-magistraal="page-title" class="px-1"></h2>
-            <div class="ml-auto d-flex flex-row col-auto col-md-7 col-lg-6" data-magistraal="header-items">
-                <div class="page-search-wrapper w-100 flex-1">
-                    <input type="text" name="page-search" data-translation="generic.action.search" data-magistraal="page-search" data-magistraal-search-target="main" class="form-control">
-                </div>
-                <div data-magistraal="page-buttons-container" class="d-none d-md-flex flex-row-reverse"></div>
+    <header class="d-flex flex-row flex-nowrap align-items-center">
+        <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="nav-toggler" onclick="magistraal.nav.open();">
+            <i class="fal fa-bars"></i>
+        </button>
+        <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="sidebar-toggler" onclick="magistraal.sidebar.close();">
+            <i class="fal fa-arrow-left"></i>
+        </button>
+        <h2 data-magistraal="page-title" class="col px-1"></h2>
+        <div class="ml-auto d-flex flex-row col col-md-6 col-lg-8 col-xl-6 px-0" data-magistraal="header-items">
+            <div class="page-search-wrapper w-100">
+                <input type="text" name="page-search" data-translation="generic.action.search" data-magistraal="page-search" data-magistraal-search-target="main" class="form-control">
             </div>
+            <div data-magistraal="page-buttons-container" class="d-none d-md-flex flex-row-reverse"></div>
         </div>
     </header>
     <main data-magistraal="main"></main>
