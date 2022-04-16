@@ -155,6 +155,10 @@ textarea {
     [data-magistraal="tooltip"] {
         display: none !important;
     }
+
+    ::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 
