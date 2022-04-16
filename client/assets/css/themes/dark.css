@@ -1,25 +1,25 @@
-:root {
-    --danger: #dc3545;
-    --danger-border: #5e181f;
-    --danger-dark: #461217;
-    --success: #28a745;
-    --primary: #2d2e33;
-    --primary-accent: #33343b;
-    --primary-border: #44474c;
-    --secondary: #0058db;
-    --secondary-accent: #4b86d8;
-    --secondary-border: #3679d8;
-    --text: #ffffff;
-    --text-muted: #aaaaaa;
-    --text-contrary: #ffffff;
-    --text-contrary-muted: #aaaaaa;
+[data-settings*="appearance.theme=dark"] {
     --background: #202124;
     --border-radius: 0.5rem;
-    --selection-color: rgba(255, 255, 255, 0.1);
+    --danger-accent: #461217;
+    --danger-border: #5e181f;
+    --danger: #dc3545;
     --heavy-shadow: 0 0 2.5rem 0 var(--background);
     --light-shadow: 0 0 0.3rem 0 rgba(0, 0, 0, 0.4);
+    --primary-accent: #33343b;
+    --primary-border: #44474c;
+    --primary: #2d2e33;
+    --secondary-accent: #4b86d8;
+    --secondary-border: #3679d8;
+    --secondary: #0058db;
+    --selection-color: rgba(255, 255, 255, 0.1);
+    --success: #28a745;
+    --text-inverse: #ffffff;
+    --text-muted-inverse: #aaaaaa;
+    --text-muted: #aaaaaa;
+    --text: #ffffff;
 }
 
-input {
+[data-settings*="appearance.theme=dark"] input {
     color-scheme: dark;
 }

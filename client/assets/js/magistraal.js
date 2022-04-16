@@ -126,13 +126,12 @@ const magistraal = {
 							parameters.callback(response?.data || response, 'server', request);
 						}
 					},
+
 					error: function(response) {
 						if(typeof response?.responseJSON?.info != 'undefined' && response?.responseJSON?.info == 'token_invalid') {
 							magistraalPersistentStorage.remove('token');
-							if(parameters.url == 'logout') {
-								magistraal.page.get('login');
-								return;
-							}
+							magistraal.page.get('login');
+							return;
 						}
 
 						if(typeof parameters.scope != 'undefined' && parameters.scope != magistraal.page.current()) {
@@ -142,10 +141,11 @@ const magistraal = {
 						magistraal.console.error();
 						reject(response);
 					},
+
 					complete: function(response, textStatus, request) {
 						let token = response.getResponseHeader('X-Auth-Token');
 
-						if(token) {
+						if(typeof token != 'undefined' && token != null && token.length > 0) {
 							magistraalPersistentStorage.set('token', token);
 						}
 					}
@@ -159,7 +159,8 @@ const magistraal = {
 	/* ============================ */
 	absences: {
 		paintList: (absences, source) => {
-			let pageContent = '';
+			let $html = $('<div></div>');
+
 			$.each(absences, function (month, data) {
 				if(data.absences.length == 0) {
 					return true;
@@ -195,10 +196,10 @@ const magistraal = {
 					$absence.appendTo($absencesGroup);
 				});
 
-				pageContent += $absencesGroup.prop('outerHTML');
+				$absencesGroup.appendTo($html);
 			});
 			
-			magistraal.page.setContent(pageContent);
+			magistraal.page.setContent($html);
 		}
 	},
 
@@ -206,8 +207,9 @@ const magistraal = {
 	/*         Appointments         */
 	/* ============================ */
 	appointments: {
-		paintList: (appointments, source) => {
-			let pageContent = '';
+		paintList: (appointments) => {
+			let $html = $('<div></div>');
+			
 			$.each(appointments, function (day, data) {
 				let $appointmentsGroup = magistraal.template.get('appointments-group');
 				$appointmentsGroup.find('.appointments-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'ldF')));
@@ -297,9 +299,11 @@ const magistraal = {
 
 					$appointment.appendTo($appointmentsGroup);
 				});
-				pageContent += $appointmentsGroup.prop('outerHTML');
+
+				$appointmentsGroup.appendTo($html);
 			});
-			magistraal.page.setContent(pageContent);
+
+			magistraal.page.setContent($html);
 		},
 
 		view: (id) => {
@@ -455,7 +459,7 @@ const magistraal = {
 	/* ============================ */
 	grades: {
 		paintList: (grades, source, request) => {
-			let pageContent = '';
+			let $html = $('<div></div>');
 			
 			$.each(grades, function (i, grade) {
 				let $grade    = magistraal.template.get('grade-list-item');
@@ -491,10 +495,10 @@ const magistraal = {
 
 				magistraal.sidebar.addFeed($grade, sidebarFeed);
 
-				pageContent += $grade.prop('outerHTML');
+				$grade.appendTo($html);
 			});
 
-			magistraal.page.setContent(pageContent);
+			magistraal.page.setContent($html);
 		}
 	},
 
@@ -508,7 +512,8 @@ const magistraal = {
 			magistraal.api.call({url: 'messages/info', data: {id: String(messages[1].id)}, source: 'prefer_cache'});
 			magistraal.api.call({url: 'messages/info', data: {id: String(messages[2].id)}, source: 'prefer_cache'});
 
-			let pageContent = '';
+			let $html = $('<div></div>');
+
 			$.each(messages, function (i, message) {
 				let $message = magistraal.template.get('message-list-item');
 				message.subject = message.subject || magistraal.locale.translate('messages.subject.no_subject');
@@ -535,9 +540,10 @@ const magistraal = {
 					}
 				});
 
-				pageContent += $message.prop('outerHTML');
+				$message.appendTo($html);
 			});
-			magistraal.page.setContent(pageContent);
+
+			magistraal.page.setContent($html);
 		},
 
 		view: (id, read = true) => {
@@ -611,13 +617,16 @@ const magistraal = {
 	/* ============================ */
 	settings: {
 		paintList: settings => {
-			let pageContent = '';
+			let $html = $('<div></div>');
+
 			$.each(settings.items, function (itemNamespace, item) {
+				let $item = $('<div></div>');
+
 				if(typeof item.items != 'undefined') {
 					// Item is a category
-					let $settingCategory = magistraal.template.get('setting-category');
-					$settingCategory.find('.setting-category-title').text(magistraal.locale.translate(`settings.category.${settings.category}.${itemNamespace}.title`));
-					$settingCategory.find('.setting-category-icon').html(`<i class="${(item === null || item === void 0 ? void 0 : item.icon) || 'cog'}"></i>`); // Create content description which consists of the children's names of this items
+					$item = magistraal.template.get('setting-category');
+					$item.find('.setting-category-title').text(magistraal.locale.translate(`settings.category.${settings.category}.${itemNamespace}.title`));
+					$item.find('.setting-category-icon').html(`<i class="${(item === null || item === void 0 ? void 0 : item.icon) || 'cog'}"></i>`); // Create content description which consists of the children's names of this items
 
 					let content = '';
 					$.each(item.items, function (childItemNamespace, childItem) {
@@ -630,13 +639,91 @@ const magistraal = {
 					});
 					content = content.slice(0, -2); // Remove last ', ' from string
 
-					$settingCategory.find('.setting-category-content').text(content);
-					$settingCategory.attr('onclick', `magistraal.page.load('settings/list', {'category': '${itemNamespace}'});`);
-					pageContent += $settingCategory.prop('outerHTML');
-				} else {// Item is a setting
+					$item.find('.setting-category-content').text(content);
+					$item.attr('onclick', `magistraal.page.load('settings/list', {'category': '${itemNamespace}'});`);
+				} else {
+					// Item is a setting
+					if(typeof item.values != 'undefined') {
+						$item        = magistraal.template.get('setting');
+						let $input   = $('<input class="form-control input-search">')
+						$input.appendTo($item);
+						
+						// Remap dark_auto and light_auto theme to auto
+						if(typeof item.value != 'undefined' && (item.value == 'dark_auto' || item.value == 'light_auto')) {
+							item.value = 'auto';
+						}
+
+						let inputObj = new magistraal.inputs.searchInput($input);
+						let values   = [];
+
+						$input.val(magistraal.locale.translate(`settings.setting.${settings.category}.${itemNamespace}.value.${item?.value || item?.default}.title`));
+						$input.value(item?.value || item?.default);
+
+						$.each(item.values, function(value, info) {
+							let title = magistraal.locale.translate(`settings.setting.${settings.category}.${itemNamespace}.value.${info?.title}.title`);
+							
+							values.push({
+								title: title,
+								value: value,
+								icon: info?.icon,
+								description: info?.description || title
+							});
+						})
+
+						inputObj.results.set(values);
+					}
+
+					$item.attr({
+						'data-setting': `${settings.category}.${itemNamespace}`,
+						'data-reload': item?.options?.reload || false
+					})
+					$item.find('.setting-title').text(magistraal.locale.translate(`settings.setting.${settings.category}.${itemNamespace}.title`));
 				}
+
+				$item.appendTo($html);
 			});
-			magistraal.page.setContent(pageContent);
+
+			magistraal.page.setContent($html);
+		},
+
+		refresh: (settings) => {
+			if(typeof settings['appearance.theme'] != 'undefined' && settings['appearance.theme'].includes('auto')){
+				if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+					settings['appearance.theme'] = 'dark_auto';
+				} else {
+					settings['appearance.theme'] = 'light_auto';
+				}
+			}
+
+			magistraalPersistentStorage.set('settings', settings);
+
+			let settingsString = '';
+			$.each(settings, function(key, value) {
+				settingsString += `${key}=${value},`
+			})
+
+			$('body').attr('data-settings', trim(settingsString, ','));
+		},
+
+		set: (setting, value) => {
+			magistraal.console.loading('console.loading.save');
+
+			return new Promise((resolve, reject) => {
+				magistraal.api.call({
+					url: 'user/settings/set',
+					data: {setting: setting, value: value},
+					source: 'server_only'
+				}).then(data => {
+					magistraal.settings.refresh(data);
+
+					magistraal.console.success('console.success.save');
+
+					resolve();
+				}).catch(response => {
+					magistraal.console.error();
+					reject();
+				})
+			})
 		}
 	},
 
@@ -705,17 +792,21 @@ const magistraal = {
 		}
 	},
 
-	load: (version = '', doPopulateCache = true) => {
+	load: (parameters = {}) => {
 		magistraalStorage.set('api', '/magistraal/api/');
 
+		if(typeof parameters.version == 'undefined') {
+			return false;
+		}
+
 		// If current version is not equal to new one, soft-clear cache
-		if(magistraalPersistentStorage.get('version') != version) {
-			console.log(`New version (${version}) was found!`);
+		if(magistraalPersistentStorage.get('version') != parameters?.version) {
+			console.log(`New version (${parameters?.version}) was found!`);
 			magistraalPersistentStorage.clear(true);
 		}
 
-		magistraalStorage.set('version', version);
-		magistraalPersistentStorage.set('version', version);
+		magistraalStorage.set('version', parameters?.version);
+		magistraalPersistentStorage.set('version', parameters?.version);
 
 		return new Promise((resolve, reject) => {
 			magistraal.locale.load('nl_NL').then(() => {
@@ -723,8 +814,8 @@ const magistraal = {
 				resolve();
 			}).catch(() => {});
 
-			if(doPopulateCache) {
-				// Load absences, appointments, grades, messages, etc. for offline use
+			if(parameters?.doPreCache != 'false') {
+				// Pre-load absences, appointments, grades, messages, etc. for offline use
 				magistraal.api.call({url: 'absences/list', source: 'prefer_cache'});
 				magistraal.api.call({url: 'appointments/list', source: 'prefer_cache'});
 				magistraal.api.call({url: 'grades/list', source: 'prefer_cache'});
@@ -987,8 +1078,8 @@ const magistraal = {
 			return trim(window.location.hash.substring(1).replace(/[^a-zA-Z\/]/g, ''), '/');
 		},
 		
-		setContent: (html = '') => {
-			$('main').html(html);
+		setContent: ($html) => {
+			$('main').empty().append($html.children());
 		}
 	},
 	login: {
@@ -1035,12 +1126,15 @@ const magistraal = {
 				this.$input.on('click', e => {
 					this.eventFocus(e);
 				});
+
 				this.$wrapper.on('focusout', e => {
 					this.eventFocusOut(e);
 				});
+
 				this.$input.on('magistraal.change', e => {
 					this.eventChange(e);
 				});
+
 				this.$input.on('keyup', e => {
 					this.eventKeyup(e);
 				});
@@ -1077,22 +1171,12 @@ const magistraal = {
 				this.setup();
 			}
 
-			results = {
-				set: (results) => {
-					let html = '';
-
-					$.each(results, function (i, result) {
-						html += `<li class="input-search-result input-search-result-rich" value="${result.value}"><i class="input-search-result-icon ${result === null || result === void 0 ? void 0 : result.icon}"></i><span class="input-search-result-title">${result.title}</span><span class="input-search-result-description">${result.description}</span></li>`;
-					});
-					
-					this.$results.html(html);
-				}
-			}
-
 			setup() {
 				if(this.$input.closest('.input-wrapper').length == 0) {
 					this.$input.wrap('<div class="input-wrapper"></div>');
 				}
+
+				this.$input.data('input', this);
 
 				this.$wrapper = this.$input.closest('.input-wrapper');
 				this.$wrapper.addClass('input-search-wrapper');
@@ -1101,18 +1185,26 @@ const magistraal = {
 				if(!this.$input.attr('placeholder')) {
 					this.$input.attr('placeholder', magistraal.locale.translate('generic.action.search'));
 				}
+
 				this.$input.on('click', e => {
 					this.eventFocus(e);
 				});
+
 				this.$input.on('focusout', e => {
 					this.eventFocusOut(e);
 				});
-				this.$input.on('input', debounce(e => {
-					this.eventInputDebounced(e);
-				}, 250));
-				this.$input.on('magistraal.change', e => {
-					this.eventChange(e);
-				});
+				
+				if(typeof this.$input.attr('data-magistraal-search-api') == 'undefined') {
+					this.$input.on('input', e => {
+						this.eventInput(e);
+					});
+					this.$input.attr('data-magistraal-search-target', 'magistraal-input-results')
+				} else {
+					this.$input.on('input', debounce(e => {
+						this.eventInput(e);
+					}, 250));
+				}
+
 				this.$results.on('click', '.input-search-result', e => {
 					this.eventResultClick(e);
 				});
@@ -1128,7 +1220,7 @@ const magistraal = {
 				}, 50);
 			}
 
-			eventInputDebounced(e) {
+			eventInput(e) {
 				if(typeof this.$input.attr('data-magistraal-search-api') != 'undefined') {
 					// Fetch data from api
 					let api = this.$input.attr('data-magistraal-search-api');
@@ -1147,11 +1239,9 @@ const magistraal = {
 			}
 
 			eventResultClick(e) {
-				var _$result$find;
-
 				let $result = $(e.target).closest('.input-search-result');
 				let value = $result.attr('value');
-				let text = ((_$result$find = $result.find('.input-search-result-title')) === null || _$result$find === void 0 ? void 0 : _$result$find.text()) || $result.text();
+				let text = $result.find('.input-search-result-title').text() || $result.text();
 				this.$input.val('');
 
 				if(this.$wrapper.hasClass('input-tags-wrapper')) {
@@ -1165,16 +1255,30 @@ const magistraal = {
 					});
 					this.$input.focus();
 					setTimeout(() => {
-						var _this$$wrapper$find;
-
 						this.$wrapper.addClass('active');
-						(_this$$wrapper$find = this.$wrapper.find('.input-ghost')) === null || _this$$wrapper$find === void 0 ? void 0 : _this$$wrapper$find.addClass('focus');
+						this.$wrapper.find('.input-ghost')?.addClass('focus');
 					}, 50);
+				} else {
+					this.$input.val(text).attr('data-value', value);
+					this.$input.trigger('magistraal.change');
 				}
 			}
+			
+			results = {
+				set: (results) => {
+					let html = '';
 
-			eventChange(e) {}
-
+					$.each(results, function (i, result) {
+						if(typeof result.icon == 'undefined' || typeof result.description == 'undefined') {
+							html += `<li class="input-search-result" value="${result?.value}"><span class="input-search-result-title">${result?.title}</span></li>`;
+						} else {
+							html += `<li class="input-search-result input-search-result-rich" value="${result?.value}"><i class="input-search-result-icon ${result?.icon}"></i><span class="input-search-result-title">${result?.title}</span><span class="input-search-result-description">${result?.description}</span></li>`;
+						}
+					});
+					
+					this.$results.html(html);
+				}
+			}
 		},
 		search: {
 			remap_api_response: (api, data) => {

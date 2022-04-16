@@ -19,7 +19,10 @@
 
     <script>
         $(document).ready(function() {
-            magistraal.load('<?php echo(VERSION); ?>', false);
+            magistraal.load({
+                version: '<?php echo(VERSION); ?>',
+                doPreCache: false
+            });
             magistraal.element.get('version').text('v<?php echo(VERSION); ?>');
         })
     </script>

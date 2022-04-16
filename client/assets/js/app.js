@@ -32,6 +32,8 @@ $.fn.value = function(value = undefined) {
             let $wrapper = this.closest('.input-tags-wrapper');
             let tags   = Object.keys($wrapper.data('tags') || {});
             return tags;
+         } else if(this.hasClass('input-search')) {
+            return this.attr('data-value') || this.val();
         } else {
             return this.val();
         }
@@ -46,6 +48,8 @@ $.fn.value = function(value = undefined) {
             return this.data('editor').html.set(value);
         } else if(this.attr('contenteditable') == 'true') {
             return this.text(value);
+        } else if(this.hasClass('input-search')) {
+            return this.attr('data-value', value);
         } else {
             return this.val(value);
         }
@@ -106,7 +110,37 @@ $(document).on('click', function(e) {
     }
 })
 
+/* ============================ */
+/*           Settings           */
+/* ============================ */
 
+$(document).on('magistraal.change', '.setting input', function(e) {
+    let $input   = $(this);
+    let value    = $input.value();
+    let $setting = $input.closest('.setting');
+    let setting  = $setting.attr('data-setting');
+
+    // Add system os theme to auto theme to prevent flash when app starts
+    if(setting == 'appearance.theme' && value == 'auto') {
+        value = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark_auto' : 'light_auto');
+    }
+
+    magistraal.settings.set(setting, value);
+})
+
+// If OS theme changes
+if(window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        let settings = magistraalPersistentStorage.get('settings');
+        
+        if(!settings['appearance.theme'].includes('auto')) {
+            return false;
+        }
+        
+        let newTheme = e.matches ? 'dark_auto' : 'light_auto';
+        magistraal.settings.set('appearance.theme', newTheme);
+    })
+}
 
 /* ============================ */
 /*          Input tags          */

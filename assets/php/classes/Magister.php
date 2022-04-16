@@ -13,6 +13,7 @@
         public static $tenantSubdomain;
         public static $tokenId;
         public static $userId;
+        public static $userUuid;
         public static $codeChallenge;
         public static $codeVerifier;
 
@@ -23,7 +24,11 @@
                 \Magistraal\Response\error('token_invalid');
             }
             
-            return \Magister\Session::loginToken($_REQUESTHEADERS['x-auth-token']);
+            if(!isset(\Magister\Session::$tokenId)) {
+                return \Magister\Session::loginToken($_REQUESTHEADERS['x-auth-token']);
+            } else {
+                return ['success' => true, 'token_id' => \Magister\Session::$tokenId];
+            }
         }
 
         public static function setupEnvironment() {
@@ -245,7 +250,10 @@
         public static function obtainUserId() {
             $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/account?noCache=0');
             
-            \Magister\Session::$userId = $response['body']['Persoon']['Id'] ?? \Magistraal\Response\error('failed_to_obtain_user_id');
+            \Magister\Session::$userId   = $response['body']['Persoon']['Id'] ?? \Magistraal\Response\error('failed_to_obtain_user_id');
+            \Magister\Session::$userUuid = \Magister\Session::$tenant.'-'.($response['body']['UuId'] ?? \Magistraal\Response\error('failed_to_obtain_user_uuid'));
+
+            setcookie('magistraal-user_uuid', \Magister\Session::$userUuid, time()+365*24*60*60, '/');
 
             return \Magister\Session::$userId;
         }

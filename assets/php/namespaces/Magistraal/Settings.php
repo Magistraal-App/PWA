@@ -2,16 +2,30 @@
     namespace Magistraal\Settings;
 
     function get_all($category = null) {
-        $settings = @json_decode(@file_get_contents(ROOT.'/config/settings.json'), true);
+        $category      = $category ?? 'root';
+        $content       = @json_decode(@file_get_contents(ROOT.'/config/settings.json'), true);
+        $user_settings = \Magistraal\User\Settings\get_all();
 
-        if(is_null($category)) {
-            return ['category' => 'root', 'items' => $settings];
+        if($category == 'root') {
+            $items = $content['settings'];
+        } else {
+            $items = array_search_key($content['settings'], $category)['items'] ?? [];
+        }
+        
+        foreach ($items as $item_key => &$item) {
+            if(!isset($item['values'])) {
+                continue;
+            }
+
+            $item['default'] = $content['default']["{$category}.{$item_key}"] ?? null;
+            $item['value']   = $user_settings["{$category}.{$item_key}"] ?? null;
         }
 
-        $category_info = array_search_key($settings, $category);
+        $result = [
+            'category' => $category,
+            'items'    => $items
+        ];
 
-        $category_info['category'] = $category;
-
-        return $category_info;
+        return $result;
     }
 ?>

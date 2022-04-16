@@ -1,22 +1,27 @@
-:root {
-    --red: #dc3545;
-    --red-border: #db5360;
-    --red-dark: #ea8891;
-    --green: #28a745;
-    --primary: #1568d6;
-    --primary-accent: #eeeeee;
-    --primary-border: #cccccc;
-    --text: #202124;
-    --text-contrary: #ffffff;
-    --text-contrary-muted: #aaaaaa;
-    --text-muted: #444444;
+[data-settings*="appearance.theme=light"],
+[data-settings*="appearance.theme=auto"] {
     --background: #ffffff;
     --border-radius: 0.5rem;
-    --selection-color: rgba(0, 0, 0, 0.1);
+    --danger-accent: #d26872;
+    --danger-border: #b02f3c;
+    --danger: #c32c3b;
     --heavy-shadow: 0 0 3rem 0 rgba(0, 0, 0, 0.25);
     --light-shadow: 0 0 0.3rem 0 rgba(0, 0, 0, 0.4);
+    --primary-accent: #dddddd;
+    --primary-border: #bbbbbb;
+    --primary: #eeeeee;
+    --secondary-accent: #4b86d8;
+    --secondary-border: #3679d8;
+    --secondary: #2f69c1;
+    --selection-color: rgba(0, 0, 0, 0.1);
+    --success: #28a745;
+    --text-inverse: #ffffff;
+    --text-muted-inverse: #dddddd;
+    --text-muted: #555555;
+    --text: #202124;
 }
 
-input {
+[data-settings*="appearance.theme=light"] input,
+[data-settings*="appearance.theme=auto"] input {
     color-scheme: light;
 }

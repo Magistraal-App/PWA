@@ -193,7 +193,6 @@ textarea {
     right: 0;
     z-index: 100;
     top: calc(100% + var(--spacing-md));
-    padding: 0 var(--spacing-md);
     background: var(--primary);
     max-height: 0px;
     border: 2px solid var(--secondary);
@@ -201,14 +200,28 @@ textarea {
     transition: 250ms max-height, 250ms padding, 250ms border-width;
     overflow: hidden;
     margin: 0;
+    padding: 0;
     border-radius: var(--border-radius);
 }
 
+.input-search-wrapper.active .input-search-results:not(:empty) {
+    overflow-y: auto;
+    max-height: min(10rem, 50vh);
+    border-width: 2px;
+}
+
 .input-search-result {
-    display: block;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     list-style: none;
-    padding-top: 2px;
+    height: var(--btn-md-height);
+    padding: 0 var(--spacing-lg);
     cursor: pointer;
+}
+
+.input-search-result:hover {
+    background: var(--primary-accent);
 }
 
 .input-search-result.input-search-result-rich {
@@ -219,6 +232,8 @@ textarea {
     grid-template-areas: 
         'result-icon result-title'
         'result-icon result-description';
+    height: auto;
+    padding: var(--spacing-sm) var(--spacing-md);
 }
 
 .input-search-result.input-search-result-rich:not(:last-of-type) {
@@ -233,6 +248,7 @@ textarea {
     line-height: 2.7em;
     text-align: center;
     margin-left: -0.25em;
+    z-index: 1;
 }
 
 .input-search-result-rich .input-search-result-icon::after {
@@ -242,7 +258,7 @@ textarea {
     width: 2.25em;
     top: 0.25em;
     left: 0.25em;
-    background: var(--secondary);
+    background-color: var(--secondary);
     border-radius: 50%;
     z-index: -1;
 }
@@ -254,14 +270,6 @@ textarea {
 .input-search-result-rich .input-search-result-description {
     grid-area: result-description;
     color: var(--text-muted);
-}
-
-.input-search-wrapper.active .input-search-results:not(:empty) {
-    overflow-y: auto;
-    max-height: min(10rem, 50vh);
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
-    border-width: 2px;
 }
 
 .input-search-value-item {
@@ -329,7 +337,7 @@ textarea {
 
 .list-item {
     --list-item-icon-background: var(--secondary);
-    --list-item-icon-color: var(--text-contrary);
+    --list-item-icon-color: var(--text-inverse);
     --list-item-border-color: var(--primary-border);
     --list-item-background: var(--primary);
     --list-item-action-background: var(--primary-border);
@@ -497,11 +505,6 @@ textarea {
     cursor: pointer;
 }
 
-.appointment .lesson-number {
-    background-color: var(--list-item-icon-background);
-    color: var(--list-item-icon);
-}
-
 [data-sidebar-active="true"] .appointment:not([data-selected="true"]) .lesson-number {
     pointer-events: none;
 }
@@ -524,7 +527,7 @@ textarea {
 }
 
 .appointment[data-status="canceled"] {
-    --list-item-background: var(--danger-dark);
+    --list-item-background: var(--danger-accent);
     --list-item-icon-background: var(--danger);
     --list-item-border-color: var(--danger-border);
     --list-item-action-border-color: var(--danger);
@@ -560,7 +563,7 @@ textarea {
 }
 
 .grade-list-item[data-exemption="true"] {
-    --list-item-icon-color: var(--text-contrary-muted);
+    --list-item-icon-color: var(--text-muted-inverse);
 }
 
 .grades-overview {
@@ -594,7 +597,7 @@ textarea {
 }
 
 .grades-overview-grade[data-exemption="true"] {
-    color: var(--text-contrary-muted);
+    color: var(--text-muted-inverse);
 }
 
 .grades-overview-grade[data-counts="false"] {
@@ -1038,27 +1041,27 @@ h1, h2, h3, h4, h5, h6, .btn, .font-heading {
 
 .btn.btn-secondary {
     background-color: var(--secondary) !important;
-    color: var(--text-contrary);
+    color: var(--text-inverse);
     border-color: var(--secondary) !important;
 }
 
 .btn.btn-success {
     background-color: var(--success) !important;
-    color: var(--text-contrary);
+    color: var(--text-inverse);
     border-color: var(--success) !important;
 }
 
-.text-contrary { color: var(--text-contrary); }
 .text-danger { color: var(--danger) !important; }
 .text-default { color: var(--text); }
+.text-inverse { color: var(--text-inverse); }
 .text-muted { color: var(--text-muted) !important; }
+.text-muted-inverse { color: var(--text-muted-inverse); }
 .text-primary { color: var(--primary) !important; }
 .text-secondary { color: var(--secondary) !important; }
 .text-success {color: var(--success) !important; }
 
 .bg-background { background-color: var(--background) !important; }
 .bg-danger { background-color: var(--danger) !important; }
-.bg-muted { background-color: var(--text-muted) !important; }
 .bg-primary { background-color: var(--primary) !important; }
 .bg-primary-accent { background-color: var(--primary-accent) !important; }
 .bg-secondary { background-color: var(--secondary) !important; }
@@ -1067,7 +1070,6 @@ h1, h2, h3, h4, h5, h6, .btn, .font-heading {
 
 .border-background { border-color: var(--background) !important; }
 .border-danger { border-color: var(--danger) !important; }
-.border-muted { border-color: var(--border-muted) !important; }
 .border-primary { border-color: var(--primary) !important; }
 .border-primary-accent { border-color: var(--primary-accent) !important; }
 .border-secondary { border-color: var(--secondary) !important; }

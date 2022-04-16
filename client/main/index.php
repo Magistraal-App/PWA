@@ -15,12 +15,14 @@
     <?php echo(\Magistraal\Frontend\assetsHTML()); ?>
 
     <script>
+        magistraal.settings.refresh(<?php echo(json_encode(\Magistraal\User\Settings\get_all())); ?>);
+
         if(typeof magistraalPersistentStorage.get('token') == 'undefined') {
             window.location.href = '../login/';
         }
 
         $(document).ready(function() {
-            magistraal.load('<?php echo(VERSION); ?>');
+            magistraal.load({version: '<?php echo(VERSION); ?>'});
         })
 
         $(document).on('magistraal.ready', function() {
@@ -28,52 +30,52 @@
         })
     </script>
 </head>
-<body data-nav-active="false" data-sidebar-active="false" data-page-buttons="0">
+<body data-nav-active="false" data-sidebar-active="false" data-page-buttons="0" data-settings="<?php echo(http_build_query(\Magistraal\User\Settings\get_all(), '', ',')); ?>">
      <nav onmouseenter="magistraal.nav.open()" onmouseleave="magistraal.nav.close();" class="scrollbar-hidden">
         <ul class="nav-items">
-            <li tabindex="0" class="nav-item text-contrary text-muted" #onclick="magistraal.page.load('home');" data-magistraal="nav-item-home">
+            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('home');" data-magistraal="nav-item-home">
                 <i class="fal fa-home"></i>
                 <span data-translation="page.home.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-contrary" onclick="magistraal.page.load('appointments/list');" data-magistraal="nav-item-appointments/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('appointments/list');" data-magistraal="nav-item-appointments/list">
                 <i class="fal fa-calendar-alt"></i>
                 <span data-translation="page.appointments/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-contrary" onclick="magistraal.page.load('grades/list');" data-magistraal="nav-item-grades/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('grades/list');" data-magistraal="nav-item-grades/list">
                 <i class="fal fa-award"></i>
                 <span data-translation="page.grades/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-contrary" onclick="magistraal.page.load('absences/list');" data-magistraal="nav-item-absences/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('absences/list');" data-magistraal="nav-item-absences/list">
                 <i class="fal fa-calendar-times"></i>
                 <span data-translation="page.absences/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-contrary text-muted" #onclick="magistraal.page.load('sources');" data-magistraal="nav-item-sources/list">
+            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('sources');" data-magistraal="nav-item-sources/list">
                 <i class="fal fa-folder"></i>
                 <span data-translation="page.sources/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-contrary text-muted" #onclick="magistraal.page.load('studyguides');" data-magistraal="nav-item-studyguides/list">
+            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('studyguides');" data-magistraal="nav-item-studyguides/list">
                 <i class="fal fa-map-signs"></i>
                 <span data-translation="page.studyguides/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-contrary text-muted" #onclick="magistraal.page.load('tasks');" data-magistraal="nav-item-tasks/list">
+            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('tasks');" data-magistraal="nav-item-tasks/list">
                 <i class="fal fa-pen"></i>
                 <span data-translation="page.tasks/list.title"></span>
             </li>
         </ul>
         <ul class="nav-items mt-auto">
-            <li tabindex="0" class="nav-item text-contrary" onclick="magistraal.page.load('messages/list');" data-magistraal="nav-item-messages/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('messages/list');" data-magistraal="nav-item-messages/list">
                 <i class="fal fa-envelope"></i>
                 <span data-translation="page.messages/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-contrary text-muted" #onclick="magistraal.page.load('account');" data-magistraal="nav-item-account/list">
+            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('account');" data-magistraal="nav-item-account/list">
                 <i class="fal fa-user"></i>
                 <span data-translation="page.account/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item" onclick="magistraal.page.load('settings/list');" data-magistraal="nav-item-settings/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('settings/list');" data-magistraal="nav-item-settings/list">
                 <i class="fal fa-cog"></i>
                 <span data-translation="page.settings/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-contrary" onclick="magistraal.page.load('logout', {}, false);" data-magistraal="nav-item-logout">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('logout', {}, false);" data-magistraal="nav-item-logout">
                 <i class="fal fa-sign-out"></i>
                 <span data-translation="page.logout.title"></span>
             </li>
@@ -281,9 +283,9 @@
                 <p class="list-item-content setting-category-content text-muted"></p>
             </div>
 
-            <!-- Setting sub-category -->
-            <div data-magistraal-template="setting-sub-category" tabindex="0" class="setting-sub-category ml-md-3">
-                <h4 class="setting-sub-category-title text-muted"></h4>
+            <!-- Setting -->
+            <div data-magistraal-template="setting" tabindex="0" class="setting">
+                <h4 class="setting-title"></h4>
             </div>
 
             <!-- List item -->
