@@ -710,7 +710,7 @@ textarea {
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
-    margin-bottom: 0.75rem;
+    margin-bottom: var(--spacing-lg);
 }
 
 .popup-item-key,
@@ -727,13 +727,6 @@ textarea {
     display: none; /* media-md: flex */
     margin-bottom: 0;
     max-height: 2.175rem;
-}
-
-.popup-divider {
-    width: 100%;
-    border-bottom: var(--border-width) solid var(--primary-border);
-    margin: 0.75rem 0;
-    display: none; /* media-md: block */
 }
 
 

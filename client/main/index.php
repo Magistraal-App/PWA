@@ -378,7 +378,6 @@
                                 <input name="facility" data-translation="appointments.popup.create_appointment.item.facility.title" type="text" class="form-control">
                             </div>
                         </div>
-                        <div class="w-100 border-bottom border-primary-accent my-3"></div>
                         <div class="popup-item">
                             <h5 class="popup-item-key">
                                 <span data-translation="appointments.popup.create_appointment.item.designation.title"></span>
@@ -439,7 +438,6 @@
                                 <input name="bcc" data-magistraal-search-api="people" data-translation="messages.popup.write_message.item.bcc.title" type="text" class="form-control input-search input-tags" data-magistraal-search-api="people">
                             </div>
                         </div>
-                        <div class="popup-divider"></div>
                         <div class="popup-item">
                             <h5 class="popup-item-key">
                                 <span data-translation="messages.popup.write_message.item.subject.title"></span>
