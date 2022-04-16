@@ -795,7 +795,6 @@ const magistraal = {
 				return false;
 			}
 
-
 			let output = '';
 
 			switch (format) {

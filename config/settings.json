@@ -1,34 +1,30 @@
 {
-    "appointments": {
-        "icon": "fal fa-calendar-alt",
-        "items": {
-            "google_calendar": {
-                "icon": "fab fa-google",
-                "items": {
-                    "synchronize": {
-                        "options": [true, false],
-                        "default": true
-                    },
-                    "connect": {
-                        "options": [],
-                        "default": "<a href=\"//google.com\"></a>"
-                    }
-                }
-            },
-            "smart_detect_canceled": {
-                "icon": "fal fa-calendar-times",
-                "options": [true, false],
-                "default": true
-            }
-        }
-    },
-    "grades": {
-        "icon": "fal fa-award",
-        "items": {
-            "color_coding": {
-                "options": [true, false],
-                "default": true
-            }
-        }
-    }
+   "appearance": {
+       "icon": "fal fa-paint-brush",
+       "items": {
+           "theme": {
+               "icon": "fal fa-moon",
+               "options": {
+                   "dark": "dark",
+                   "light": "light",
+                   "auto": "auto"
+               }
+           }
+       }
+   },
+   "info": {
+       "icon": "fal fa-info-circle",
+       "items": {
+           "version": {
+               "icon": "fal fa-code-branch",
+               "options": {
+                   "dark": "dark",
+                   "light": "light",
+                   "auto": "auto"
+               },
+               "selected": "0.0",
+               "editable": false
+           }
+       }
+   }
 }

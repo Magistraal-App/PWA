@@ -3214,17 +3214,13 @@
 	background-clip: padding-box;
 }
 
-@media(max-width: 767.98px) {
-    button#fontSize-1,
-    div#dropdown-menu-fontSize-1 {
-        display: none;
-    }
-}
-
 @media(max-width: 575.98px) {
     button#alignLeft-1,
+	button#alignLeft-1 + .fr-separator.fr-vs,
     button#alignCenter-1,
-    button#alignRight-1 {
+	button#alignCenter-1 + .fr-separator.fr-vs,
+    button#alignRight-1,
+	button#alignRight-1 + .fr-separator.fr-vs {
         display: none;
     }
 }

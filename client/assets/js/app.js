@@ -37,7 +37,8 @@ $.fn.value = function(value = undefined) {
         }
     } else {
         if(this.attr('type') == 'date') {
-            return this.get(0).valueAsDate = new Date(value);
+            let date = new Date(value);
+            return this.get(0).value = `${date.getFullYear()}-${addLeadingZero(date.getMonth()+1)}-${addLeadingZero(date.getDate())}`;
         } else if(this.attr('type') == 'time') {
             let date = new Date(value);
             return this.val(`${addLeadingZero(date.getHours())}:${addLeadingZero(date.getMinutes())}:${addLeadingZero(date.getSeconds())}`);
