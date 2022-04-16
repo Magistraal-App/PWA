@@ -37,15 +37,15 @@
             \Magister\Session::setupEnvironment();
 
             if(!\Magister\Session::loginTenant($tenant)) {
-                return ['success' => false, 'info' => 'invalid_tenant'];
+                return ['success' => false, 'info' => 'login_field_incorrect.tenant'];
             }
 
             if(!\Magister\Session::loginUsername($username)) {
-                return ['success' => false, 'info' => 'invalid_username'];
+                return ['success' => false, 'info' => 'login_field_incorrect.username'];
             }
 
             if(!\Magister\Session::loginPassword($password)) {
-                return ['success' => false, 'info' => 'invalid_password'];
+                return ['success' => false, 'info' => 'login_field_incorrect.password'];
             }
             
             \Magister\Session::obtainTokenData();
