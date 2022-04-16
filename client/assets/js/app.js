@@ -9,10 +9,6 @@ function debounce(callback, delay = 500) {
     }
 }
 
-setInterval(() => {
-    $(document).find('#magister-write-message .rich-editor').value();
-}, 2000);
-
 function unique(array) {
     return [...new Set(array)];
 }
@@ -25,11 +21,11 @@ $.fn.value = function(value = undefined) {
             let [hours, minutes] = this.val().split(':');
             return {hours: hours,minutes: minutes};
         } else if(typeof this.attr('data-rich-editor') != 'undefined') {
-            let html  = this.data('editor').html.get();
+            let html  = '<div>'+this.data('editor').html.get()+'</div>';
             let $html = $($.parseHTML(html));
-            // Remove Froala watermark
+            // Verwijder Froala watermerk
             $html.find('[data-f-id="pbf"]').remove();
-            return $html.prop('outerHTML');
+            return $html.html();
         } else if(this.attr('contenteditable') == true) {
             return this.text();
         } else if(this.hasClass('input-tags')) {

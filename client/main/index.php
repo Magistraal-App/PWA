@@ -403,7 +403,7 @@
         <!-- MESSAGES -->
             <!-- Write message popup -->
             <div data-magistraal-popup="messages-write-message" class="popup">
-                <form id="magister-write-message" method="POST" action="messages/send">
+                <form data-magistraal="form-messages-write-message">
                     <h3 class="popup-title" data-translation="messages.popup.write_message.title"></h3>
                     <div class="popup-item">
                         <h5 class="popup-item-key">
