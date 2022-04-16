@@ -5,7 +5,7 @@
         \Magistraal\Response\error('parameter_locale_missing');
     }
 
-    $file = ROOT."/assets/locale/{$_POST['locale']}.json";
+    $file = ROOT."/assets/locale/{$_POST['locale']}.min.json";
     if(!file_exists($file)) {
         \Magistraal\Response\error('error_finding_file');
     }
