@@ -904,16 +904,20 @@ footer {
 }
 
 [data-magistraal="console"] {
-    max-height: 1.5rem;
-    height: 1.5rem;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
 .console-message {
-    height: 1.5rem;
+    display: flex;
+    flex-direction: row;
+}
+
+.console-message-content {
+    overflow: hidden;
     white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 

@@ -20,6 +20,7 @@
     <script>
         $(document).ready(function() {
             magistraal.load('<?php echo(VERSION); ?>', false);
+            magistraal.element.get('version').text('v<?php echo(VERSION); ?>');
         })
     </script>
 </head>
@@ -57,8 +58,11 @@
             </p>
         </div>
     </main>
-    <footer>
-        <div class="ml-auto text-right d-flex flex-row h-100 align-items-center">
+    <footer class="row flex-nowrap mx-0">
+        <div class="col-auto mr-auto d-flex align-items-center text-muted">
+            <span data-magistraal="version"></span>
+        </div>
+        <div class="col ml-auto d-flex align-items-center justify-content-end" style="width: 0px;">
             <span data-magistraal="console"></span>
         </div>
     </footer>
