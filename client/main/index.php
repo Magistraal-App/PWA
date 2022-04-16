@@ -104,7 +104,7 @@
     <footer>
         <div data-magistraal="page-buttons-container" class="flex-row d-md-none mr-auto"></div>
         <div data-magistraal="sidebar-actions" class="flex-row d-md-none mr-auto"></div>
-        <div class="col ml-auto d-flex align-items-center justify-content-end" style="width: 0px;">
+        <div class="col px-0 ml-auto d-flex align-items-center justify-content-end" style="width: 0px;">
             <span data-magistraal="console"></span>
         </div>
     </footer>
