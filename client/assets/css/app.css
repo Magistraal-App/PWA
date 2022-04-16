@@ -758,7 +758,7 @@ textarea {
     overflow: visible;
     background: var(--background);
     border-bottom: var(--border-width) solid var(--primary-border);
-    padding: var(--spacing-lg) 0 0 var(--spacing-lg);
+    padding: var(--spacing-lg) var(--spacing-lg) 0 var(--spacing-lg);
 }
 
 [data-magistraal="sidebar-title"],
