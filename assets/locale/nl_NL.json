@@ -128,7 +128,7 @@
     "page.settings/list.title": "Instellingen",
     "page.logout.title": "Uitloggen",
 
-    "messages.create_message": "Nieuw",
+    "messages.write_message": "Nieuw",
     "messages.subject.no_subject": "(Geen onderwerp)",
     "messages.popup.write_message.title": "Nieuw bericht",
     "messages.popup.write_message.item.to.title": "Aan",

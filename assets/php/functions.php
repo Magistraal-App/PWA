@@ -19,7 +19,7 @@
     function date_iso($unix) {
         $datetime = new DateTime();
         $datetime->setTimestamp($unix);
-        return str_replace('+00:00', '.000Z', $datetime->format(DateTime::ATOM)); 
+        return $datetime->format(DateTime::ATOM); 
     }
 
     function strpos_all($haystack, $needle) {

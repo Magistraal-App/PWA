@@ -22,13 +22,13 @@
     }
 
     function format($appointment) {
-        // Seperate Microsoft Teams meeting link from content
+        // Scheid de meeting link van de inhoud
         list($content, $meeting_link) = \Magistraal\Appointments\seperate_lesson_content($appointment['Inhoud']);
 
-        // Calculate content length
+        // Bereken content length
         $content_length = strlen(trim(strip_tags($content)));
 
-        // Clear facility when it's just a dash or quotes
+        // Maak lokatie leeg als het aanhalingstekens of streepjes zijn
         if(in_array($appointment['Lokatie'], ['""', '\'\'', '-', null, 'null'])) {
             $appointment['Lokatie'] = '';
         }
@@ -101,17 +101,16 @@
 
         $formatted = [];
 
-        // Generate an array with dates between from and to as keys
+        // Maak een lijst met alle dagen tussen $iso_from en $iso_to als keys
         for ($unix=$unix_from; $unix <= $unix_to;) { 
             $formatted[date('Y-m-d', $unix)] = ['time' => date_iso($unix), 'unix' => $unix, 'appointments' => []];
             $unix = strtotime('+1 day', $unix);
         }
 
-
         foreach ($appointments as $appointment) {
             $start_date = date('Y-m-d', strtotime($appointment['Start']));
 
-            // Some appointments passed don't fit in the desired timespan, skip those
+            // Sommige afspraken vallen buiten het gekozen tijdsbestek
             if(!isset($formatted[$start_date])) {
                 continue;
             }
@@ -123,14 +122,14 @@
     }
     
     function seperate_lesson_content($content) {
-        // Get meeting link from content
+        // Haal meeting link uit inhoud
         preg_match('/https:\/\/teams.microsoft.com\/l\/meetup-join\/.*?(?=")/', $content, $meeting_link);
         $meeting_link = $meeting_link[0] ?? null;
 
-        // Remove all Microsoft Teams links from content
+        // Verwijder alle MS Teams links uit de inhoud
         $content = preg_replace('/<a(?:(?!<a|<\/a>)[\s\S])*?(href="https:\/\/teams.microsoft.com|href="https:\/\/support.office.com)[\s\S]*?<\/a>/', '', $content);
 
-        // Remove leftovers
+        // Verwijder resten
         $content = str_replace(['<hr>', '<span> | </span>', '<p></p>', '<p> </p>', '<p><br></p>'], '', $content);
 
         return [$content, $meeting_link];

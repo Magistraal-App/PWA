@@ -3,7 +3,7 @@
     \Magister\Session::start();
 
     if(!isset($_POST['to']) || empty($_POST['to'])) {
-        \Magistraal\Response\error('parameter_to_missing');
+        \Magistraal\Response\error('message_field_empty.to');
     }
 
     if(!isset($_POST['cc']) || $_POST['cc'] == '') {

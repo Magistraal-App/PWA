@@ -175,9 +175,10 @@ const magistraal = {
 					$absence.find('.absence-list-item-icon').text(absence.lesson || absence.abbr);
 					$absence.find('.absence-list-item-content').text(absence.designation);
 					$absence.attr({
-						'data-type': absence.type,
+						'data-interesting': true,
 						'data-permitted': absence.permitted,
-						'data-search': absence.designation
+						'data-search': absence.designation,
+						'data-type': absence.type
 					}); // let icon = (message.read == true ? 'envelope-open' : 'envelope');
 					// $message.find('.message-list-item-icon').html(`<i class="fal fa-${icon}"></i>`);
 
@@ -220,7 +221,8 @@ const magistraal = {
 						'data-type': 'none',
 						'data-status': 'none',
 						'data-search': '',
-						'data-finishable': false
+						'data-finishable': false,
+						'data-interesting': false,
 					}).removeAttr('onclick');
 					$appointment.find('.lesson-designation').text(magistraal.locale.translate('appointments.none_this_day'));
 					$appointment.find('.bullet').remove();
@@ -241,8 +243,10 @@ const magistraal = {
 						'data-has-meeting-link': appointment.has_meeting_link,
 						'data-id': appointment.id,
 						'data-info-type': appointment.info_type,
+						'data-interesting': (appointment.status != 'canceled'),
 						'data-search': `${appointment.subjects.join(', ')} ${appointment.designation} ${appointment.content_text}`.trim(),
-						'data-status': appointment.status
+						'data-status': appointment.status,
+						'data-type': appointment.type
 					});
 
 					if(appointment.start.lesson > 0) {
@@ -358,11 +362,11 @@ const magistraal = {
 			magistraal.console.loading('console.loading.create_appointment');
 
 			let start = new Date(appointment.date);
-			start.setHours(appointment.start.hours, appointment.start.minutes);
+			start.setHours(appointment.start.hours, appointment.start.minutes, 0);
 			appointment.start = start.toISOString();
 
 			let end = new Date(appointment.date);
-			end.setHours(appointment.end.hours, appointment.end.minutes);
+			end.setHours(appointment.end.hours, appointment.end.minutes, 1);
 			appointment.end = end.toISOString();
 
 			magistraal.api.call({
@@ -461,6 +465,7 @@ const magistraal = {
 				$grade.attr({
 					'data-counts': grade['counts'],
 					'data-exemption': grade['exemption'],
+					'data-interesting': true,
 					'data-passed': grade['passed'],
 					'data-search': `${grade['value_str']} ${grade['subject']['description']} ${grade['description']} ${enteredAt}`,
 					'data-value': grade['value'],
@@ -513,6 +518,7 @@ const magistraal = {
 				$message.find('.message-list-item-content').text(message.sender.name);
 				$message.attr({
 					'data-id': message.id,
+					'data-interesting': true,
 					'data-priority': message.priority,
 					'data-read': message.read,
 					'data-search': message.subject + message.sender.name
@@ -906,11 +912,13 @@ const magistraal = {
 			}
 
 			history.pushState(null, null, window.location.pathname + '#' + page + '/' + random(1000, 9999));
+			
 			magistraal.sidebar.clearFeed();
 			magistraal.sidebar.close();
 			magistraal.element.get('main').scrollTop(0);
 			$('.nav-item').removeClass('active');
 			magistraal.element.get(`nav-item-${page}`).addClass('active');
+			
 			magistraal.page.get(page, data, cachable);
 		},
 
@@ -963,16 +971,26 @@ const magistraal = {
 					data: data, 
 					source: 'both',
 					cachable: cachable, 
-					callback: callback, 
+					callback: function(data, source, request){callback(data, source, request);magistraal.page.requestCallback(data, source, request);}, 
 					scope: page
 				}).then(response => {
-					magistraal.console.success('console.success.refresh');
 					resolve(response);
 				}).catch(response => {
 					reject(response);
 				});
 			});
 		},
+
+		requestCallback: (data, source, request) => {
+			// Selecteer eerste item
+			let $li_first = magistraal.element.get('main').find('.list-item[data-interesting="true"]').first();
+			magistraal.sidebar.selectFeed($li_first, false);
+
+			if(source == 'server') {
+				magistraal.console.success('console.success.refresh');
+			}
+		},
+
 		current: () => {
 			return trim(window.location.hash.substring(1).replace(/[^a-zA-Z\/]/g, ''), '/');
 		},
@@ -1207,16 +1225,6 @@ const magistraal = {
 			return true;
 		},
 
-		tableValueEditable(tableKey, editable = true) {
-			let $tableKey   = magistraal.element.get('sidebar-table').find(`.sidebar-table-key[data-key="${tableKey}"]`);
-			let $tableValue = $tableKey.next('.sidebar-table-value');
-
-			$tableValue.attr({
-				'data-editable': editable, 
-				'contenteditable': editable
-			});
-		},
-
 		clearFeed: () => {
 			return magistraal.sidebar.selectFeed(null);
 		},
@@ -1267,8 +1275,8 @@ const magistraal = {
 				$action.addClass(`btn-${actionColor}`);
 
 				$action.html(`
-					<i class="${action?.icon} action-icon"></i>
-					<span class="action-text">${magistraal.locale.translate(`generic.action.${actionType}`)}</span>
+					<i class="${action?.icon} btn-icon"></i>
+					<span class="btn-text">${magistraal.locale.translate(`generic.action.${actionType}`)}</span>
 				`);
 				
 				$action.attr({'data-action': actionType, 'onclick': action?.handler});

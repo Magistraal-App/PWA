@@ -77,7 +77,6 @@ $.fn.formSerialize = function() {
 $.fn.formReset = function() {
     let $form  = this;
     let form   = this.get(0);
-    let output = {};
 
     if(form.nodeName.toLowerCase() != 'form') {
         return false;

@@ -56,7 +56,7 @@
             </p>
         </div>
     </main>
-    <footer class="bg-primary w-100 d-flex flex-row">
+    <footer>
         <div class="ml-auto text-right d-flex flex-row h-100 align-items-center">
             <span data-magistraal="console"></span>
         </div>

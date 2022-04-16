@@ -291,7 +291,7 @@
             $date_to      = date('Y-m-d', strtotime($iso_to)); 
 
             $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/afspraken/?van={$date_from}&tot={$date_to}");
-
+            
             return $response['body']['Items'] ?? [];
         }
 
