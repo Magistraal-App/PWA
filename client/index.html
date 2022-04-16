@@ -12,7 +12,7 @@
 </head>
 <body>
     <script>
-        if(typeof magistraalPersistentStorage.get('token') == 'undefined') {
+        if(magistraalPersistentStorage.get('token') == null) {
             window.location.href = './login/';
         } else {
             window.location.href = './main/';

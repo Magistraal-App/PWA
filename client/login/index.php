@@ -27,7 +27,7 @@
         })
     </script>
 </head>
-<body>
+<body data-settings="<?php echo(http_build_query(\Magistraal\User\Settings\get_all(), '', ',')); ?>">
     <main>
         <form data-magistraal="login-form" action="login" onsubmit="magistraal.login.login($(this)); return false;" class="pt-5 container justify-content-center">
             <div class="row mb-3">

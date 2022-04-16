@@ -1,4 +1,7 @@
-<?php include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php"); header('Content-Type: text/html;'); ?>
+<?php 
+    include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
+    header('Content-Type: text/html;'); 
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,14 +18,17 @@
     <?php echo(\Magistraal\Frontend\assetsHTML()); ?>
 
     <script>
-        magistraal.settings.refresh(<?php echo(json_encode(\Magistraal\User\Settings\get_all())); ?>);
+        magistraal.settings.refresh(<?php echo(json_encode(\Magistraal\User\Settings\get_all($_COOKIE['magistraal-user-uuid'] ?? null))); ?>);
 
-        if(typeof magistraalPersistentStorage.get('token') == 'undefined') {
+        if(magistraalPersistentStorage.get('token') == null) {
             window.location.href = '../login/';
         }
 
         $(document).ready(function() {
             magistraal.load({version: '<?php echo(VERSION); ?>'});
+            magistraal.settings.get_all().then(settings => {
+                magistraal.settings.refresh(settings);
+            })
         })
 
         $(document).on('magistraal.ready', function() {
@@ -30,7 +36,7 @@
         })
     </script>
 </head>
-<body data-nav-active="false" data-sidebar-active="false" data-page-buttons="0" data-settings="<?php echo(http_build_query(\Magistraal\User\Settings\get_all(), '', ',')); ?>">
+<body data-nav-active="false" data-sidebar-active="false" data-page-buttons="0" data-settings="<?php echo(http_build_query(\Magistraal\User\Settings\get_all($_COOKIE['magistraal-user-uuid'] ?? null), '', ',')); ?>">
      <nav onmouseenter="magistraal.nav.open()" onmouseleave="magistraal.nav.close();" class="scrollbar-hidden">
         <ul class="nav-items">
             <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('home');" data-magistraal="nav-item-home">

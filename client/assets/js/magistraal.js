@@ -21,8 +21,9 @@ const magistraalPersistentStorage = {
 			}
 		}
 
-		return undefined;
+		return null;
 	},
+
 	set: (key, value) => {
 		if(typeof value == 'object') {
 			return localStorage.setItem(`magistraal.${key}`, 'JSON:' + JSON.stringify(value));
@@ -32,6 +33,7 @@ const magistraalPersistentStorage = {
 			return localStorage.setItem(`magistraal.${key}`, value);
 		}
 	},
+
 	remove: key => {
 		return magistraalPersistentStorage.set(key, undefined);
 	},
@@ -47,11 +49,7 @@ const magistraalPersistentStorage = {
 				continue;
 			}
 
-			if(soft == true && (key == 'magistraal.token' || key == 'magistraal.locale')) {
-				continue;
-			}
-
-			if(key == 'magistraal.version') {
+			if(key == 'magistraal.version' || key == 'magistraal.locale') {
 				continue;
 			}
 
@@ -102,7 +100,7 @@ const magistraal = {
 					data: parameters.data,
 					headers: {
 						'Accept': '*/*',
-						'X-Auth-Token': magistraalPersistentStorage.get('token')
+						'X-Auth-Token': magistraalPersistentStorage.get('token') || null
 					},
 					xhrFields: parameters.xhrFields,
 					success: function(response, textStatus, request) {
@@ -705,6 +703,19 @@ const magistraal = {
 			$('body').attr('data-settings', trim(settingsString, ','));
 		},
 
+		get_all: () => {
+			return new Promise((resolve, reject) => {
+				magistraal.api.call({
+					url: 'user/settings/get_all'
+				}).then(data => {
+					resolve(data);
+				}).catch(data => {
+					magistraal.console.error();
+					reject(data);
+				})
+			})
+		},
+
 		set: (setting, value) => {
 			magistraal.console.loading('console.loading.save');
 
@@ -719,7 +730,7 @@ const magistraal = {
 					magistraal.console.success('console.success.save');
 
 					resolve();
-				}).catch(response => {
+				}).catch(data => {
 					magistraal.console.error();
 					reject();
 				})
