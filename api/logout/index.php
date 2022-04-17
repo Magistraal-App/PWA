@@ -2,8 +2,6 @@
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
     \Magister\Session::start();
     
-    setcookie('magistraal-user-uuid', null, 9999999, '/magistraal/');
-
     if(\Magistraal\Authentication\token_delete(\Magister\Session::$tokenId)) {
         \Magistraal\Response\success();
     }

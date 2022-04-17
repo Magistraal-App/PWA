@@ -1,5 +1,6 @@
 <?php 
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
+    \Magister\Session::start();
     header('Content-Type: text/html;'); 
 ?>
 <!DOCTYPE html>
@@ -37,7 +38,7 @@
         })
     </script>
 </head>
-<body data-nav-active="false" data-sidebar-active="false" data-page-buttons="0" data-settings="<?php echo(http_build_query(\Magistraal\User\Settings\get_all($_COOKIE['magistraal-user-uuid'] ?? null), '', ',')); ?>">
+<body data-nav-active="false" data-sidebar-active="false" data-page-buttons="0" data-settings="<?php echo(http_build_query(\Magistraal\User\Settings\get_all(\Magister\Session::$userUuid ?? null), '', ',')); ?>">
      <nav onmouseenter="magistraal.nav.open()" onmouseleave="magistraal.nav.close();" class="scrollbar-hidden">
         <ul class="nav-items">
             <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('home');" data-magistraal="nav-item-home">

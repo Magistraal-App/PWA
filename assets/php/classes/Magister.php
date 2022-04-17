@@ -211,7 +211,7 @@
                 return $bearer;
             }
 
-            \Magistraal\Response\error('error_getting_bearer');
+            \Magistraal\Response\error('invalid_token');
         }
 
         // public static function refreshTokens($refresh_token = null) {
@@ -250,8 +250,6 @@
             
             \Magister\Session::$userId   = $response['body']['Persoon']['Id'] ?? \Magistraal\Response\error('failed_to_obtain_user_id');
             \Magister\Session::$userUuid = \Magister\Session::$tenant.'-'.($response['body']['UuId'] ?? \Magistraal\Response\error('failed_to_obtain_user_uuid'));
-
-            setcookie('magistraal-user-uuid', \Magister\Session::$userUuid, time()+365*24*60*60, '/magistraal/');
 
             return \Magister\Session::$userId;
         }
