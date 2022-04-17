@@ -344,7 +344,7 @@ function setCookie(name, value, expires = null) {
     const date = new Date();
     date.setTime(date.getTime() + expires);
     expires = 'expires=' + date.toUTCString();
-    document.cookie = name + '=' + value + ';' + expires + ';path=/; SameSite=None; secure';
+    document.cookie = name + '=' + value + ';' + expires + ';path=/magistraal/;';
 }
 
 function getCookie(name) {

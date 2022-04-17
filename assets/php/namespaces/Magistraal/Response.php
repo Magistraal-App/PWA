@@ -6,7 +6,10 @@
         if(!headers_sent()) {
             header('content-type: application/json');
         }
-        exit(json_encode(['success' => false, 'info' => $info, 'took' => round(microtime(true) - REQUEST_START_US, 3)]));
+
+        if(!defined('ALLOW_EXIT') || ALLOW_EXIT == true) {
+            exit(json_encode(['success' => false, 'info' => $info, 'took' => round(microtime(true) - REQUEST_START_US, 3)]));
+        }
     }
 
     function success($data = [], $http_code = 200) {
@@ -14,6 +17,9 @@
         if(!headers_sent()) {
             header('content-type: application/json');
         }
-        exit(json_encode(['success' => true, 'data' => $data, 'took' => round(microtime(true) - REQUEST_START_US, 3)]));
+
+        if(!defined('ALLOW_EXIT') || ALLOW_EXIT == true) {
+            exit(json_encode(['success' => true, 'data' => $data, 'took' => round(microtime(true) - REQUEST_START_US, 3)]));
+        }
     }
 ?>
