@@ -208,7 +208,7 @@
                     <span class="bullet"></span>
                     <span class="appointment-time"></span>
                 </p>
-                <div class="list-item-content text-muted"></div>
+                <span class="list-item-content text-muted"></span>
                 <div class="list-item-actions">
                     <span class="list-item-action list-item-action-primary appointment-info-type" 
                           data-magistraal-tooltip="appointment_finish"

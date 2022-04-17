@@ -154,6 +154,7 @@
     "settings.setting.appearance.theme.value.auto.title": "Systeem",
     "settings.setting.appearance.theme.value.dark.title": "Donker",
     "settings.setting.appearance.theme.value.light.title": "Licht",
+    "settings.setting.appearance.theme.value.silver.title": "Grijs",
     "settings.setting.system.user_agent.title": "Useragent",
     "settings.setting.system.user_uuid.title": "Gebruikers-id",
     "settings.setting.system.version.title": "Versie",
