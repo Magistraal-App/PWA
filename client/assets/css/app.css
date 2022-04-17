@@ -273,6 +273,7 @@ textarea {
 
 .input-search-result-rich .input-search-result-title {
     grid-area: result-title;
+    color: var(--text);
 }
 
 .input-search-result-rich .input-search-result-description {
