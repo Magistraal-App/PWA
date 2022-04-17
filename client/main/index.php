@@ -23,7 +23,10 @@
         }
 
         $(document).ready(function() {
-            magistraal.load({version: '<?php echo(VERSION); ?>'});
+            magistraal.load({
+                version: '<?php echo(VERSION); ?>',
+                doPreCache: true
+            });
             magistraal.settings.get_all().then(settings => {
                 magistraal.settings.updateClient(settings, true);
             })

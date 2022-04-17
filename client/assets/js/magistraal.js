@@ -682,7 +682,8 @@ const magistraal = {
 		},
 
 		updateClient: (settings, updateOnServer = false) => {
-			let newSettings = object.from(settings);
+			let newSettings = {};
+			Object.assign(newSettings, settings);
 
 			if(typeof settings['appearance.theme'] != 'undefined' && settings['appearance.theme'].includes('auto')){
 				if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -694,7 +695,7 @@ const magistraal = {
 
 			magistraalPersistentStorage.set('settings', settings);
 
-			if(newSettings != settings && updateOnServer) {
+			if(Object.entries(settings).toString() != Object.entries(newSettings).toString() && updateOnServer) {
 				magistraal.settings.set_all(newSettings);
 			}
 
