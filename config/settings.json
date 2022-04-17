@@ -18,12 +18,20 @@
                         "text": {"title": "text", "icon": "fal fa-comment"},
                         "both": {"title": "both", "icon": "fal fa-comment-edit"}
                     }
+                },
+                "animations": {
+                    "icon": "fal fa-magic",
+                    "values": {
+                        "on": {"title": "on", "icon": "fal fa-check"},
+                        "off": {"title": "off", "icon": "fal fa-times"}
+                    }
                 }
             }
         }
     },
     "default": {
         "appearance.theme": "dark",
-        "appearance.buttons": "both"
+        "appearance.buttons": "both",
+        "appearance.animations": "on"
     }
 }

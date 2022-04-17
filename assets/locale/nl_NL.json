@@ -148,6 +148,9 @@
     "settings.setting.appearance.theme.value.auto.title": "Systeem",
     "settings.setting.appearance.theme.value.dark.title": "Donker",
     "settings.setting.appearance.theme.value.light.title": "Licht",
+    "settings.setting.appearance.animations.title": "Animaties en effecten",
+    "settings.setting.appearance.animations.value.on.title": "Aan",
+    "settings.setting.appearance.animations.value.off.title": "Uit",
 
     "people.type.employee": "Medewerker",
     "people.type.student": "Leerling",

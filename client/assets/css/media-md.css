@@ -14,7 +14,7 @@
 
     header {
         padding-left: var(--MAIN-padding);
-        background: var(--primary-accent);
+        background-color: var(--primary-accent);
         border-bottom: var(--border-width) solid var(--primary-border);
     }
 
@@ -35,7 +35,7 @@
     }
 
     [data-magistraal="sidebar"] {
-        background: var(--primary);
+        background-color: var(--primary);
     }
 
     [data-magistraal="page-search"] {
@@ -44,7 +44,7 @@
     }
 
     [data-magistraal="sidebar-actions"] {
-        background: transparent;
+        background-color: transparent;
         padding: 0 var(--spacing-md) calc(var(--spacing-md) + var(--spacing-lg) + var(--spacing-lg)) var(--spacing-md);
         justify-content: start;
     }
@@ -93,7 +93,7 @@
             'go-header-side go-header'
             'go-side        go-main';
         overflow: auto;
-        background: var(--primary);
+        background-color: var(--primary);
         border: var(--border-width) solid var(--primary-border);
         border-radius: var(--border-radius);
     }
@@ -154,7 +154,7 @@
     }
 
     .grades-overview-main-cell[data-type="averages"] {
-        background: var(--primary-border);
+        background-color: var(--primary-border);
         border-color: var(--primary);
     }
 
@@ -165,7 +165,7 @@
         align-items: center;
         justify-content: center;
         border-radius: var(--border-radius);
-        background: var(--secondary);
+        background-color: var(--secondary);
         position: relative;
         font-size: 1.25rem;
     }
@@ -175,7 +175,7 @@
         position: absolute;
         bottom: -0.125rem;
         right: -0.125rem;
-        background: var(--primary-border);
+        background-color: var(--primary-border);
         font-size: 0.75rem;
         border-radius: var(--border-radius);
         padding: 0.025rem 0.125rem;
