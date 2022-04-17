@@ -53,6 +53,10 @@ const magistraalPersistentStorage = {
 				continue;
 			}
 
+			if(key == 'magistraal.user_uuid' && soft) {
+				continue;
+			}
+
 			magistraalItems.push(localStorage.key(i));
 		}
 
