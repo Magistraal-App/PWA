@@ -1,5 +1,4 @@
-[data-settings*="appearance.theme=light"],
-[data-settings*="appearance.theme=auto"] {
+[data-settings*="appearance.theme=light"] {
     --background: #ffffff;
     --border-radius: 0.5rem;
     --danger-accent: #d26872;
@@ -21,7 +20,6 @@
     --text: #202124;
 }
 
-[data-settings*="appearance.theme=light"] input,
-[data-settings*="appearance.theme=auto"] input {
+[data-settings*="appearance.theme=light"] input {
     color-scheme: light;
 }

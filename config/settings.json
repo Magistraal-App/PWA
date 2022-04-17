@@ -8,7 +8,7 @@
                     "values": {
                         "dark": {"title": "dark", "icon": "fal fa-moon"},
                         "light": {"title": "light", "icon": "fal fa-sun"},
-                        "auto": {"title": "auto", "icon": "fal fa-magic", "description": "papud"}
+                        "auto": {"title": "auto", "icon": "fal fa-magic"}
                     }
                 },
                 "buttons": {

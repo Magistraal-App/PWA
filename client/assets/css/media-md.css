@@ -1,11 +1,11 @@
 @media(min-width: 768px) {
     :root {
-        --main-padding: 3vw;
-        --sidebar-width: 60vw;
+        --MAIN-padding: 3vw;
+        --SIDEBAR-width: 60vw;
     }
 
     body {
-        grid-template-columns: var(--nav-width) 1fr;
+        grid-template-columns: var(--NAV-width) 1fr;
         grid-template-areas: 
             'nav    header'
             'nav    main'
@@ -13,7 +13,7 @@
     }
 
     header {
-        padding-left: var(--main-padding);
+        padding-left: var(--MAIN-padding);
         background: var(--primary-accent);
         border-bottom: var(--border-width) solid var(--primary-border);
     }
@@ -54,11 +54,11 @@
     }
 
     [data-nav-active="false"] nav {
-        width: var(--nav-width);
+        width: var(--NAV-width);
     }
 
     [data-magistraal="sidebar"] {
-        top: var(--header-height);
+        top: var(--HEADER-height);
     }
 
     .btn.btn-with-icon .btn-icon {

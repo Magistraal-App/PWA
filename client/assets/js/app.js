@@ -114,10 +114,10 @@ $(document).on('click', function(e) {
 /*           Settings           */
 /* ============================ */
 
-$(document).on('magistraal.change', '.setting input', function(e) {
+$(document).on('magistraal.change', '.setting-list-item input', function(e) {
     let $input   = $(this);
     let value    = $input.value();
-    let $setting = $input.closest('.setting');
+    let $setting = $input.closest('.setting-list-item');
     let setting  = $setting.attr('data-setting');
 
     // Add system theme to auto theme to prevent flash when app starts
@@ -343,7 +343,7 @@ function setCookie(name, value, expires = null) {
     
     const date = new Date();
     date.setTime(date.getTime() + expires);
-    expires = 'expires=' + d.toUTCString();
+    expires = 'expires=' + date.toUTCString();
     document.cookie = name + '=' + value + ';' + expires + ';path=/; SameSite=None; secure';
 }
 

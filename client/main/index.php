@@ -78,7 +78,7 @@
                 <i class="fal fa-user"></i>
                 <span data-translation="page.account/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('settings/list');" data-magistraal="nav-item-settings/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('settings/list', {}, true, 'prefer_cache');" data-magistraal="nav-item-settings/list">
                 <i class="fal fa-cog"></i>
                 <span data-translation="page.settings/list.title"></span>
             </li>
@@ -291,14 +291,10 @@
             </div>
 
             <!-- Setting -->
-            <div data-magistraal-template="setting" tabindex="0" class="setting">
-                <h4 class="setting-title"></h4>
-            </div>
-
-            <!-- List item -->
-            <div data-magistraal-template="setting-item" tabindex="0" class="setting-item ml-md-3">
-                <span class="setting-item-title"></span>
-                <div class="setting-item-value"></div>
+            <div data-magistraal-template="setting-list-item" class="list-item list-item-with-input setting-list-item">
+                <div class="list-item-icon"></div>
+                <p class="list-item-title"></p>
+                <div class="list-item-content"></div>
             </div>
 
         <!-- SIDEBAR -->

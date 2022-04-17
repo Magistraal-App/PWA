@@ -12,12 +12,14 @@
 
     --btn-md-height: 2rem;
     --btn-lg-height: 3rem;
-    --footer-height: calc(var(--btn-md-height) + 2 * var(--spacing-lg));
-    --header-height: calc(3.5rem + 2 * var(--spacing-md));
-    --nav-width: 3rem;
-    --sidebar-width: 100%;
 
-    --main-padding: var(--spacing-lg);
+    --animation-duration: 250ms;
+
+    --MAIN-padding: var(--spacing-lg);
+    --FOOTER-height: calc(var(--btn-md-height) + 2 * var(--spacing-lg));
+    --HEADER-height: calc(3.5rem + 2 * var(--spacing-md));
+    --NAV-width: 3rem;
+    --SIDEBAR-width: 100%;
 }
 
 @font-face {
@@ -71,7 +73,7 @@ body {
     width: 100%;
     max-width: 100%;
     display: grid;
-    grid-template-rows: var(--header-height) 1fr var(--footer-height);
+    grid-template-rows: var(--HEADER-height) 1fr var(--FOOTER-height);
     grid-template-areas: 
         'header'
         'main'
@@ -87,7 +89,7 @@ body {
 header {
     grid-area: header;
     padding: var(--spacing-lg);
-    padding-left: calc(var(--main-padding) + var(--spacing-md));
+    padding-left: calc(var(--MAIN-padding) + var(--spacing-md));
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -113,7 +115,7 @@ main {
     grid-area: main;
     overflow-x: hidden !important;
     overflow-y: scroll !important;
-    padding: var(--spacing-lg) var(--main-padding);
+    padding: var(--spacing-lg) var(--MAIN-padding);
     border-bottom: var(--border-width) solid var(--primary-border);
 }
 
@@ -191,23 +193,27 @@ textarea {
     flex-direction: column;
     left: 0;
     right: 0;
-    z-index: 100;
+    z-index: 25;
     top: calc(100% + var(--spacing-md));
     background: var(--primary);
     max-height: 0px;
-    border: 2px solid var(--secondary);
-    border-width: 0 2px;
-    transition: 250ms max-height, 250ms padding, 250ms border-width;
+    border: calc(var(--border-width) * 2) solid var(--secondary);
+    border-width: 0 calc(var(--border-width) * 2);
+    transition: var(--animation-duration) max-height, var(--animation-duration) border-width;
     overflow: hidden;
     margin: 0;
     padding: 0;
     border-radius: var(--border-radius);
 }
 
+.input-search-results::-webkit-scrollbar {
+    display: none;
+}
+
 .input-search-wrapper.active .input-search-results:not(:empty) {
-    overflow-y: auto;
+    overflow-y: scroll;
     max-height: min(10rem, 50vh);
-    border-width: 2px;
+    border-width: calc(var(--border-width) * 2);
 }
 
 .input-search-result {
@@ -249,6 +255,7 @@ textarea {
     text-align: center;
     margin-left: -0.25em;
     z-index: 1;
+    color: var(--text-inverse);
 }
 
 .input-search-result-rich .input-search-result-icon::after {
@@ -356,6 +363,7 @@ textarea {
     border: var(--border-width) solid var(--list-item-border-color);
     background-color: var(--list-item-background);
     margin-bottom: var(--spacing-lg);
+    position: relative;
 }
 
 .list-item .list-item-icon {
@@ -382,7 +390,7 @@ textarea {
 
 .list-item .list-item-title,
 .list-item .list-item-content {
-    padding: 0 0.5rem;
+    padding: 0 var(--spacing-lg);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -440,6 +448,41 @@ textarea {
     text-align: center;
     vertical-align: middle;
 }
+
+.list-item.list-item-with-input .list-item-content {
+    overflow: visible !important;
+}
+
+.list-item.list-item-with-input .input-search {
+    color: var(--text-muted) !important;
+    pointer-events: none !important;
+    width: 100%;
+    padding: 0;
+    border: none;
+    height: auto;
+    line-height: inherit !important;
+    width: 100%;
+}
+
+.list-item.list-item-with-input .input-search-wrapper {
+    width: 100%;
+    cursor: pointer;
+    position: static;
+}
+
+.list-item.list-item-with-input .input-search-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.list-item.list-item-with-input .input-search-wrapper .input-search-results {
+    top: calc(100% + var(--border-width) * 4 + var(--spacing-md));
+    left: calc(var(--btn-lg-height) + var(--spacing-lg) + var(--border-width) * 2);
+} 
 
 [data-sidebar-active="true"] .list-item[data-selected="true"] {
     --list-item-background: var(--list-item-border-color);
@@ -628,14 +671,8 @@ textarea {
 /*           Settings           */
 /* ============================ */
 
-.setting-item {
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 0.25rem;
-}
-
-.setting-item-value {
-    margin-left: auto;
+.setting {
+    margin-bottom: var(--spacing-lg);
 }
 
 
@@ -655,7 +692,7 @@ textarea {
     background: var(--primary);
     border-radius: var(--border-radius);
     padding: var(--spacing-lg);
-    transition: 250ms opacity;
+    transition: var(--animation-duration) opacity;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -700,7 +737,7 @@ textarea {
     pointer-events: none;
     display: block;
     background: rgba(0, 0, 0, 0.5);
-    transition: 250ms opacity;
+    transition: var(--animation-duration) opacity;
 }
 
 .popup.show,
@@ -743,13 +780,13 @@ textarea {
     max-height: 100%;
     flex-direction: column;
     position: fixed;
-    top: var(--header-height);
+    top: var(--HEADER-height);
     right: 0;
-    bottom: var(--footer-height);
-    min-width: var(--sidebar-width);
-    max-width: var(--sidebar-width);
+    bottom: var(--FOOTER-height);
+    min-width: var(--SIDEBAR-width);
+    max-width: var(--SIDEBAR-width);
     transform: translateX(100%);
-    transition: 250ms transform;
+    transition: var(--animation-duration) transform;
     z-index: 25;
     overflow: visible;
     background: var(--background);
@@ -788,7 +825,7 @@ textarea {
 }
 
 [data-magistraal="page-search"] {
-    transition: 250ms opacity;
+    transition: var(--animation-duration) opacity;
 }
 
 [data-sidebar-active="true"] [data-magistraal="page-search"] {
@@ -835,14 +872,14 @@ nav {
     background-color: var(--secondary);
     display: flex;
     flex-direction: column;
-    transition: width 250ms;
+    transition: width var(--animation-duration);
     overflow-x: hidden;
     overflow-y: scroll;
     z-index: 100;
     width: 0px;
     top: 0;
     left: 0;
-    bottom: var(--footer-height);
+    bottom: var(--FOOTER-height);
     z-index: 75;
 }
 
@@ -873,15 +910,15 @@ nav .nav-item.active {
 
 nav .nav-item i {
     text-align: center;
-    min-width: var(--nav-width);
-    min-height: var(--nav-width);
-    line-height: var(--nav-width);
+    min-width: var(--NAV-width);
+    min-height: var(--NAV-width);
+    line-height: var(--NAV-width);
     font-size: 1.5em;
 }
 
 nav .nav-item span {
-    min-height: var(--nav-width);
-    line-height: var(--nav-width);
+    min-height: var(--NAV-width);
+    line-height: var(--NAV-width);
     padding-left: 0.75rem;
 }
 
@@ -897,8 +934,8 @@ footer {
     position: relative;
     z-index: 50;
     padding: var(--spacing-lg);
-    min-height: var(--footer-height);
-    max-height: var(--footer-height);
+    min-height: var(--FOOTER-height);
+    max-height: var(--FOOTER-height);
     background: var(--primary-accent);
     display: flex;
     flex-direction: row;
@@ -931,7 +968,7 @@ footer {
 .bullet::before {
     display: inline-block;
     content: '\2022';
-    padding: 0 0.5rem;
+    padding: 0 var(--spacing-lg);
 }
 
 .text-ellipsis {
@@ -941,13 +978,13 @@ footer {
 }
 
 .scrollbar-hidden::-webkit-scrollbar {
-    display: none !important;
+    display: none;
 }
 
 
 
 /* ============================ */
-/*         Theme styling        */
+/*          Overriding          */
 /* ============================ */
 
 .rounded, .btn, .form-control {
@@ -967,7 +1004,7 @@ footer {
 .form-control:focus,
 .form-control.focus {
     border: var(--border-width) solid var(--secondary);
-    box-shadow: 0 0 0 1px var(--secondary);
+    box-shadow: 0 0 0 var(--border-width) var(--secondary);
 }
 
 .input {
@@ -1005,6 +1042,24 @@ footer {
 
 .form-control::placeholder {
     color: var(--text-muted) !important;
+}
+
+
+
+/* ============================ */
+/*            Theme             */
+/* ============================ */
+
+[data-settings*="appearance.buttons=icon"] .btn.btn-with-icon .btn-text {
+    display: none;
+}
+
+[data-settings*="appearance.buttons=text"] .btn.btn-with-icon .btn-icon {
+    display: none;
+}
+
+[data-settings*="appearance.buttons=text"] .btn.btn-with-icon .btn-text {
+    margin-left: 0;
 }
 
 
