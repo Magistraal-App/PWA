@@ -83,7 +83,7 @@ const magistraal = {
 				// Response voorladen uit cache, alleen als er een callback is opgegeven
 				if(parameters.cachable) {
 					let cachedResponseData = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`);
-					if(typeof cachedResponseData != 'undefined') {
+					if(cachedResponseData != null) {
 						// Er is een response opgeslagen, voorladen
 						if(parameters.source == 'prefer_cache') {
 							// Stuur geen request naar de server als source == prefer_cache
@@ -829,36 +829,40 @@ const magistraal = {
 	},
 
 	load: (parameters = {}) => {
-		magistraalStorage.set('api', '/magistraal/api/');
+		try {
+			magistraalStorage.set('api', '/magistraal/api/');
 
-		if(typeof parameters.version == 'undefined') {
-			return false;
-		}
-
-		// If current version is not equal to new one, soft-clear cache
-		if(magistraalPersistentStorage.get('version') != parameters?.version) {
-			console.log(`New version (${parameters?.version}) was found!`);
-			magistraalPersistentStorage.clear(true);
-		}
-
-		magistraalStorage.set('version', parameters?.version);
-		magistraalPersistentStorage.set('version', parameters?.version);
-
-		return new Promise((resolve, reject) => {
-			magistraal.locale.load('nl_NL').then(() => {
-				$(document).trigger('magistraal.ready');
-				resolve();
-			}).catch(() => {});
-
-			if(parameters?.doPreCache != 'false') {
-				// Pre-load absences, appointments, grades, messages, etc. for offline use
-				magistraal.api.call({url: 'absences/list', source: 'prefer_cache'});
-				magistraal.api.call({url: 'appointments/list', source: 'prefer_cache'});
-				magistraal.api.call({url: 'grades/list', source: 'prefer_cache'});
-				magistraal.api.call({url: 'messages/list', source: 'prefer_cache'});
-				magistraal.api.call({url: 'settings/list', source: 'prefer_cache'});
+			if(typeof parameters.version == 'undefined') {
+				return false;
 			}
-		});
+
+			// If current version is not equal to new one, soft-clear cache
+			if(magistraalPersistentStorage.get('version') != parameters?.version) {
+				console.log(`New version (${parameters?.version}) was found!`);
+				magistraalPersistentStorage.clear(true);
+			}
+
+			magistraalStorage.set('version', parameters?.version);
+			magistraalPersistentStorage.set('version', parameters?.version);
+
+			return new Promise((resolve, reject) => {
+				magistraal.locale.load('nl_NL').then(() => {
+					$(document).trigger('magistraal.ready');
+					resolve();
+				}).catch(() => {});
+
+				if(parameters?.doPreCache != 'false') {
+					// Pre-load absences, appointments, grades, messages, etc. for offline use
+					magistraal.api.call({url: 'absences/list', source: 'prefer_cache'});
+					magistraal.api.call({url: 'appointments/list', source: 'prefer_cache'});
+					magistraal.api.call({url: 'grades/list', source: 'prefer_cache'});
+					magistraal.api.call({url: 'messages/list', source: 'prefer_cache'});
+					magistraal.api.call({url: 'settings/list', source: 'prefer_cache'});
+				}
+			});
+		} catch(err) {
+			console.error(err);
+		}
 	},
 
 	locale: {
