@@ -903,7 +903,7 @@ const magistraal = {
 					resolve();
 				}).catch(() => {});
 
-				if(parameters?.doPreCache != 'false') {
+				if(parameters?.doPreCache === true) {
 					// Pre-load absences, appointments, grades, messages, etc. for offline use
 					magistraal.api.call({url: 'absences/list', source: 'prefer_cache'});
 					magistraal.api.call({url: 'appointments/list', source: 'prefer_cache'});
