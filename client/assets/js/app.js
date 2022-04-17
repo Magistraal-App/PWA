@@ -13,6 +13,10 @@ function unique(array) {
     return [...new Set(array)];
 }
 
+function isSet(variable) {
+    return !(variable === null || typeof variable == 'undefined');
+}
+
 $.fn.value = function(value = undefined) {
     if(typeof value == 'undefined') {
         if(this.attr('type') == 'date') {
@@ -108,6 +112,26 @@ $(document).on('click', function(e) {
         e.preventDefault();
         magistraal.nav.close();
     }
+})
+
+/* ============================ */
+/*           On/Offline         */
+/* ============================ */
+
+$(document).on('magistraal.ready', function() {
+    $('body').attr('data-online', isOnline());
+})
+
+function isOnline() {
+    return window.navigator.onLine;
+}
+
+$(window).on('online', function() {
+    $('body').attr('data-online', true);
+})
+
+$(window).on('offline', function() {
+    $('body').attr('data-online', false);
 })
 
 /* ============================ */

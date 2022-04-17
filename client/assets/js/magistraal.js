@@ -2,36 +2,39 @@ var _magistraalStorage = {};
 
 const magistraalStorage = {
 	get: key => {
-		return _magistraalStorage[key] || undefined;
+		const result = _magistraalStorage[key] ?? null;
+
+		if(!isSet(result)) {
+			return {value: null, storedAt: Date.now()};
+		}
+
+		return result;
 	},
+
 	set: (key, value) => {
-		_magistraalStorage[key] = value;
+		const result = {value: value, storedAt: Date.now()};
+		_magistraalStorage[key] = result;
 	}
 };
 
 const magistraalPersistentStorage = {
 	get: key => {
-		let value = localStorage.getItem(`magistraal.${key}`);
+		try {
+			const result = JSON.parse(localStorage.getItem(`magistraal.${key}`));
 
-		if(typeof value != 'undefined' && value !== null) {
-			if(value.substring(0, 5) == 'JSON:') {
-				return JSON.parse(value.substring(5));
-			} else {
-				return value;
+			if(!isSet(result)) {
+				return {value: null, storedAt: Date.now()};
 			}
-		}
 
-		return null;
+			return result;
+		} catch(err) {
+			return {value: null, storedAt: Date.now()};
+		}
 	},
 
 	set: (key, value) => {
-		if(typeof value == 'object') {
-			return localStorage.setItem(`magistraal.${key}`, 'JSON:' + JSON.stringify(value));
-		} else if(typeof value == 'undefined') {
-			return localStorage.removeItem(`magistraal.${key}`);
-		} else {
-			return localStorage.setItem(`magistraal.${key}`, value);
-		}
+		const result = {value: value, storedAt: Date.now()};
+		return localStorage.setItem(`magistraal.${key}`, JSON.stringify(result));
 	},
 
 	remove: key => {
@@ -75,95 +78,127 @@ const magistraalPersistentStorage = {
 const magistraal = {
 	api: {
 		call: (parameters = {}) => {
-			if(typeof parameters.callback  == 'undefined') { parameters.callback = function() {}; }
-			if(typeof parameters.source    == 'undefined') { parameters.source = 'both'; }
-			if(typeof parameters.scope     == 'undefined') { parameters.scope = undefined; }
-			if(typeof parameters.url       == 'undefined') { return false; }
-			if(typeof parameters.data      == 'undefined') { parameters.data = {}; }
-			if(typeof parameters.cachable  == 'undefined') { parameters.cachable = (parameters.source != 'server_only'); }
-			if(typeof parameters.xhrFields == 'undefined') { parameters.xhrFields = {}; }
-
-			console.groupCollapsed(`Request for ${magistraalStorage.get('api')}${parameters.url}/`);
-			console.log('source:', parameters.source);
-			console.log('cachable:', parameters.cachable);
+			if(!isSet(parameters.callback )) { parameters.callback = function() {}; }
+			if(!isSet(parameters.source))    { parameters.source = 'both'; }
+			if(!isSet(parameters.scope))     { parameters.scope = undefined; }
+			if(!isSet(parameters.url))       { return false; }
+			if(!isSet(parameters.data))      { parameters.data = {}; }
+			if(!isSet(parameters.cachable))  { parameters.cachable = (parameters.source != 'server_only'); }
+			if(!isSet(parameters.xhrFields)) { parameters.xhrFields = {}; }
 
 			return new Promise((resolve, reject) => {
-				// Response voorladen uit cache, alleen als er een callback is opgegeven
 				if(parameters.cachable) {
-					let cachedResponseData = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`);
-					console.log('cached:', cachedResponseData);
-					console.groupEnd();
-					if(cachedResponseData != null) {
-						console.groupCollapsed(`Response for ${magistraalStorage.get('api')}${parameters.url}/`);
-						console.log('data:', cachedResponseData);
-						console.groupEnd();
+					// Laad response voor uit cache, maar alleen als er een callback is opgegeven
+					const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`).value;
+					if(isSet(cachedResponse) && isSet(cachedResponse.data)) {
+						// Beantwoord request met response uit cache
 						if(parameters.source == 'prefer_cache') {
-							// Stuur geen request naar de server als source == prefer_cache
-							if(typeof parameters.callback == 'function') {
-								parameters.callback(cachedResponseData, 'server');
+							// Stuur geen meer request naar de server
+							try {
+								if(typeof parameters.callback == 'function') {
+									parameters.callback(cachedResponse, 'final', null, parameters.url);
+								}
+							} catch(err) {
+								console.error('An error occured with cached response:', err);
+								magistraal.console.error();
 							}
 
-							resolve(cachedResponseData);
-							return true;
+							resolve(cachedResponse.data);
+							return;
 						} else {
-							// Antwoord met cache, maar stuur nog wel een request naar de server
-							if(typeof parameters.callback == 'function') {
-								parameters.callback(cachedResponseData, 'cache');
+							// Stuur nog wel een request naar de server
+							try {
+								if(typeof parameters.callback == 'function') {
+									parameters.callback(cachedResponse, 'pre', null, parameters.url);
+								}
+							} catch(err) {
+								console.error('An error occured with cached response:', err);
+								magistraal.console.error();
 							}
 						}
 					}
 				}
 
+				// Sttuur cookies mee
 				parameters.xhrFields.withCredentials = true;
 
-				// Stuur een request naar de server
+				// Verstuur request naar de server
 				$.ajax({
 					method: 'POST',
-					url: `${magistraalStorage.get('api')}${parameters.url}/`,
+					url: `${magistraalStorage.get('api').value}${parameters.url}/`,
 					data: parameters.data,
 					headers: {'Accept': '*/*'},
 					xhrFields: parameters.xhrFields,
+					cache: false,
 					success: function(response, textStatus, request) {
-						if(typeof parameters.scope != 'undefined' && parameters.scope != magistraal.page.current()) {
-							return false;
+						if(isSet(parameters.scope) && parameters.scope != magistraal.page.current()) {
+							return;
 						}
 
 						// Als de request gelukt is
-						if(response?.success === true) {
-							resolve(response?.data || response);
+						if(isSet(response.success) && response.success === true && isSet(response.data)) {
+							// Sla de response op in de cache
+							if(parameters.cachable && isSet(response.data)) {
+								magistraalPersistentStorage.set(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`, response);
+							}
 
-							// Sla op in cache
-							if(parameters.cachable && typeof response.data != 'undefined') {
-								magistraalPersistentStorage.set(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`, response === null || response === void 0 ? void 0 : response.data);
+							// Voer callback uit met response van server
+							try {
+								if(typeof parameters.callback == 'function') {
+									parameters.callback(response, 'final', request, parameters.url);
+								}
+
+								resolve(response);
+							} catch(err) {
+								console.error('An error occured with live response:', err);
+								magistraal.console.error();
 							}
 						} else {
-							reject(response?.data || response);
-						}
-
-						if(typeof parameters.callback == 'function') {
-							parameters.callback(response?.data || response, 'server', request);
+							magistraal.console.error();
+							reject(response);
 						}
 					},
 
 					error: function(response) {
-						if(typeof response?.responseJSON?.info != 'undefined' && response?.responseJSON?.info == 'token_invalid') {
+						// Laat de gebruiker opnieuw inloggen als token niet bestaat / onjuist is
+						if(isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info == 'token_invalid') {
 							magistraal.token.delete();
 							magistraal.page.load('login');
 							return;
 						}
 
-						if(typeof parameters.scope != 'undefined' && parameters.scope != magistraal.page.current()) {
-							return false;
+						// Verwerp de response als de pagina niet meer hetzelfde is
+						if(isSet(parameters.scope) && parameters.scope != magistraal.page.current()) {
+							return;
 						}
 
-						magistraal.console.error();
-						console.error(response);
-					},
-					complete: function(response, textStatus) {
-						console.groupCollapsed(`Response for ${magistraalStorage.get('api')}${parameters.url}/`);
-						console.log('status:', textStatus);
-						console.log('response:', response);
-						console.groupEnd();
+						// Als de gebruiker offline is
+						if(response.readyState == 0 && response.status == 0) {
+							console.log('offline:', true);
+
+							const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`);
+							
+							if(isSet(cachedResponse.data)) {
+								// Voer callback uit met response van cache
+								try {
+									const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`).value;
+									if(typeof parameters.callback == 'function') {
+										parameters.callback(cachedResponse, 'final', null, parameters.url);
+									}
+
+									resolve(cachedResponse.data);
+								} catch(err) {
+									console.error('An error occured with cached response:', err);
+									magistraal.console.error();
+								}
+
+								console.info('bgw om ' + magistraal.locale.formatDate(cachedResponse.storedAt, 'Hi'));
+								return;
+							}
+						} else {
+							magistraal.console.error();
+							console.error(response);
+						}
 					}
 				});
 			});
@@ -174,30 +209,38 @@ const magistraal = {
 	/*         Absences         */
 	/* ============================ */
 	absences: {
-		paintList: (absences, source) => {
+		paintList: (response) => {
 			let $html = $('<div></div>');
 
-			$.each(absences, function (month, data) {
+			$.each(response.data, function (month, data) {
+				// Ga naar volgende maand als er geen absenties voor deze maand zijn
 				if(data.absences.length == 0) {
 					return true;
 				}
 
+				// Maak een groep en stel de titel in
 				let $absencesGroup = magistraal.template.get('absences-group');
 				$absencesGroup.find('.absences-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'Fy')));
 				
+				// Ga alle absenties bij langs
 				$.each(data.absences, function (i, absence) {
+					// Maak een absentie
 					let $absence = magistraal.template.get('absence-list-item');
-					$absence.find('.absence-list-item-title').html(absence.appointment.designation + '<span class="bullet"></span>' + magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'Hi'));
-					$absence.find('.absence-list-item-icon').text(absence.lesson || absence.abbr);
-					$absence.find('.absence-list-item-content').text(absence.designation);
+
+					// Informatie
+					$absence.find('.list-item-title').html(absence.appointment.designation + '<span class="bullet"></span>' + magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'Hi'));
+					$absence.find('.list-item-icon').text(absence.lesson || absence.abbr);
+					$absence.find('.list-item-content').text(absence.designation);
+					
+					// Attributen
 					$absence.attr({
 						'data-interesting': true,
 						'data-permitted': absence.permitted,
 						'data-search': absence.designation,
 						'data-type': absence.type
-					}); // let icon = (message.read == true ? 'envelope-open' : 'envelope');
-					// $message.find('.message-list-item-icon').html(`<i class="fal fa-${icon}"></i>`);
+					});
 
+					// Maak een sidebar feed
 					magistraal.sidebar.addFeed($absence, {
 						'title': absence.appointment.designation,
 						'subtitle': absence.designation,
@@ -209,12 +252,15 @@ const magistraal = {
 						}
 					});
 
+					// Voeg de asbentie toe aan de groep
 					$absence.appendTo($absencesGroup);
 				});
 
+				// Voeg de groep toe aan de inhoud
 				$absencesGroup.appendTo($html);
 			});
 			
+			// Werk de inhoud bij
 			magistraal.page.setContent($html);
 		}
 	},
@@ -223,35 +269,28 @@ const magistraal = {
 	/*         Appointments         */
 	/* ============================ */
 	appointments: {
-		paintList: (appointments) => {
+		paintList: (response) => {
 			let $html = $('<div></div>');
 			
-			$.each(appointments, function (day, data) {
+			$.each(response.data, function (day, data) {
+				// Maak een groep en stel de titel in
 				let $appointmentsGroup = magistraal.template.get('appointments-group');
 				$appointmentsGroup.find('.appointments-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'ldF')));
 
+				// Ga naar de volgende dag ls er geen afspraken op deze dag zijn
 				if(data.appointments.length == 0) {
-					// No appointments on this day
-					let $appointment = magistraal.template.get('appointment');
-					$appointment.find('.lesson-number').html('<i class="fal fa-check"></i>');
-					$appointment.attr({
-						'data-type': 'none',
-						'data-status': 'none',
-						'data-search': '',
-						'data-finishable': false,
-						'data-interesting': false,
-					}).removeAttr('onclick');
-					$appointment.find('.lesson-designation').text(magistraal.locale.translate('appointments.none_this_day'));
-					$appointment.find('.bullet').remove();
-					$appointment.appendTo($appointmentsGroup);
 					return true;
 				}
 
+				// Ga alle afspraken bij langs
 				$.each(data.appointments, function (i, appointment) {
+					// Maak een afspraak
 					let $appointment = magistraal.template.get('appointment');
 
+					// Bepaal of gebruiker de afspraak kan beheren
 					appointment.editable = (appointment.type == 'personal' || appointment.type == 'planning');
 
+					// Attributen
 					$appointment.attr({
 						'data-editable': appointment.editable,
 						'data-finishable': true,
@@ -266,23 +305,38 @@ const magistraal = {
 						'data-type': appointment.type
 					});
 
+					// Pictogram
 					if(appointment.start.lesson > 0) {
-						$appointment.find('.lesson-number').text(appointment.duration.lessons <= 1 ? appointment.start.lesson: `${appointment.start.lesson}-${appointment.end.lesson}`);
+						// 'startuur' of 'einduur-startuur'
+						$appointment.find('.list-item-icon').text(
+							appointment.duration.lessons <= 1 
+								? appointment.start.lesson
+								: `${appointment.start.lesson}-${appointment.end.lesson}`
+						);
 					} else {
-						$appointment.find('.lesson-number').html(appointment.status == 'schedule' ? '<i class="fal fa-info"></i>' : '');
+						// Info pictogram of niks
+						$appointment.find('.list-item-icon').html(
+							appointment.status == 'schedule' 
+								? '<i class="fal fa-info"></i>' 
+								: ''
+						);
 					}
 
+					// Microsoft Teams link
 					if(appointment['has_meeting_link']) {
 						$appointment.find('.lesson-join-ms-teams').attr('href', appointment['meeting_link']);
 					}
 
-					$appointment.find('.lesson-time').text(magistraal.locale.formatDate(appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(appointment.end.time, 'Hi')); // Set designation
-					$appointment.find('.lesson-designation').text(appointment.facility == '' ? appointment.designation : `${appointment.designation} (${appointment.facility})`); // Set content
-					$appointment.find('.lesson-content').html(appointment['content_text']); // Set type
+					// Informatie (tijd, omschrijving en inhoud)
+					$appointment.find('.appointment-time').text(magistraal.locale.formatDate(appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(appointment.end.time, 'Hi')); // Set designation
+					$appointment.find('.appointment-designation').text(appointment.facility == '' ? appointment.designation : `${appointment.designation} (${appointment.facility})`); // Set content
+					$appointment.find('.list-item-content').html(appointment['content_text']); // Set type
 
+					// Infotype
 					let lessonType = magistraal.locale.translate(`appointments.appointment.info_type.${appointment.info_type}`);
-					$appointment.find('.lesson-type').text(lessonType); // Format attachments as html
-
+					$appointment.find('.list-item-action-primary').text(lessonType); 
+					
+					// Maak een sidebar feed
 					let sidebarFeed = {
 						title: appointment['designation'],
 						subtitle: `${magistraal.locale.formatDate(appointment.start.time, 'Hi')} - ${magistraal.locale.formatDate(appointment.end.time, 'Hi')}`,
@@ -294,10 +348,10 @@ const magistraal = {
 						},
 						actions: {}
 					};
-
 					sidebarFeed.table[`appointment.info_type.${appointment.info_type}`] = appointment.content;
 					sidebarFeed.table['appointment.teachers'] = appointment.teachers.join(', ');
 
+					// Voeg de nodige knoppen toe aan de sidebar feed
 					if(appointment.editable) {
 						sidebarFeed.actions = {
 							edit: {
@@ -311,19 +365,23 @@ const magistraal = {
 						}
 					}
 
+					// Voeg de sidebar feed toe aan de afspraak
 					magistraal.sidebar.addFeed($appointment, sidebarFeed);
 
+					// Voeg de afspraak toe aan de groep
 					$appointment.appendTo($appointmentsGroup);
 				});
 
+				// Voeg de groep toe aan de inhoud
 				$appointmentsGroup.appendTo($html);
 			});
 
+			// Werk de inhoud bij
 			magistraal.page.setContent($html);
 		},
 
 		view: (id) => {
-			if($(`.appointment[data-id="${id}"]`).attr('data-has-attachments') != 'true') {
+			if($(`.appointment-list-item[data-id="${id}"]`).attr('data-has-attachments') != 'true') {
 				// Don't try to load attachments if appointment doesn't have attachments
 				return false;
 			}
@@ -336,7 +394,7 @@ const magistraal = {
 			});
 		},
 
-		viewCallback: (appointment, source) => {
+		viewCallback: (appointment, loadType) => {
 			let attachmentsHTML = '';
 
 			if(appointment.attachments.length > 0) {
@@ -352,17 +410,17 @@ const magistraal = {
 				}
 			}, 'appointment.end');
 
-			if(source == 'server') {
+			if(loadType == 'final') {
 				magistraal.console.success('console.success.appointment_attachments');
 			}
 		},
 
 		finish: (id, finished) => {
-			if($(`.appointment[data-id="${id}"]`).attr('data-finishable') != 'true') {
+			if($(`.appointment-list-item[data-id="${id}"]`).attr('data-finishable') != 'true') {
 				return false;
 			}
 
-			$(`.appointment[data-id="${id}"]`).attr('data-finished', finished);
+			$(`.appointment-list-item[data-id="${id}"]`).attr('data-finished', finished);
 
 			magistraal.console.loading('console.loading.finish_appointment');
 
@@ -373,7 +431,7 @@ const magistraal = {
 			}).then(() => {
 				magistraal.console.success('console.success.finish_appointment');
 			}).catch(() => {
-				$(`.appointment[data-id="${id}"]`).attr('data-finished', !finished);
+				$(`.appointment-list-item[data-id="${id}"]`).attr('data-finished', !finished);
 			});
 		},
 
@@ -458,7 +516,7 @@ const magistraal = {
 			});
 		},
 
-		downloadCallback(arrayBuffer, source, request) {
+		downloadCallback(arrayBuffer, loadType, request, page) {
 			let blob = new Blob([arrayBuffer], {type: request.getResponseHeader('Content-Type')});	
 			let link = document.createElement('a');
 			link.href = URL.createObjectURL(blob);
@@ -474,10 +532,10 @@ const magistraal = {
 	/*            Grades            */
 	/* ============================ */
 	grades: {
-		paintList: (grades, source, request) => {
+		paintList: (response) => {
 			let $html = $('<div></div>');
 			
-			$.each(grades, function (i, grade) {
+			$.each(response.data, function (i, grade) {
 				let $grade    = magistraal.template.get('grade-list-item');
 				let enteredAt = magistraal.locale.formatDate(grade['entered_at'], 'dFYHi');
 
@@ -522,20 +580,26 @@ const magistraal = {
 	/*           Messages           */
 	/* ============================ */
 	messages: {
-		paintList: (messages, source) => {
-			/* Pre-load newest three messages while painting */
-			magistraal.api.call({url: 'messages/info', data: {id: String(messages[0].id)}, source: 'prefer_cache'});
-			magistraal.api.call({url: 'messages/info', data: {id: String(messages[1].id)}, source: 'prefer_cache'});
-			magistraal.api.call({url: 'messages/info', data: {id: String(messages[2].id)}, source: 'prefer_cache'});
+		paintList: (response) => {
+			// Laad de drie nieuwste berichten
+			magistraal.api.call({url: 'messages/info', data: {id: String(response.data[0].id)}, source: 'prefer_cache'});
+			magistraal.api.call({url: 'messages/info', data: {id: String(response.data[1].id)}, source: 'prefer_cache'});
+			magistraal.api.call({url: 'messages/info', data: {id: String(response.data[2].id)}, source: 'prefer_cache'});
 
 			let $html = $('<div></div>');
 
-			$.each(messages, function (i, message) {
+			// Ga alle berichten bij langs
+			$.each(response.data, function (i, message) {
+				// Maak een bericht
 				let $message = magistraal.template.get('message-list-item');
+
+				// Informatie
 				message.subject = message.subject || magistraal.locale.translate('messages.subject.no_subject');
 				$message.find('.message-list-item-title').text(message.subject);
 				$message.find('.message-list-item-side-title').text();
 				$message.find('.message-list-item-content').text(message.sender.name);
+
+				// Attributen
 				$message.attr({
 					'data-id': message.id,
 					'data-interesting': true,
@@ -544,9 +608,11 @@ const magistraal = {
 					'data-search': message.subject + message.sender.name
 				});
 
-				let icon = message.read == true ? 'envelope-open' : 'envelope';
+				// Pictogram
+				const icon = message.read ? 'envelope-open' : 'envelope';
 				$message.find('.message-list-item-icon').html(`<i class="fal fa-${icon}"></i>`);
 
+				// Maak een sidebar feed en voeg deze toe aan het bericht
 				magistraal.sidebar.addFeed($message, {
 					'title': message.subject,
 					'subtitle': message.sender.name,
@@ -556,14 +622,19 @@ const magistraal = {
 					}
 				});
 
+				// Voeg het bericht toe aan de inhoud
 				$message.appendTo($html);
 			});
 
+			// Werk de inhoud bij
 			magistraal.page.setContent($html);
 		},
 
 		view: (id, read = true) => {
+			// Stuur een bericht in de console
 			magistraal.console.loading('console.loading.message_content');
+
+			// Laad het bericht
 			magistraal.api.call({
 				url: 'messages/info', 
 				data: {id: id},
@@ -571,7 +642,8 @@ const magistraal = {
 				source: 'prefer_cache'
 			});
 
-			if(read != true) {
+			// Markeer het bericht als gelezen als dit nog niet het geval is
+			if(!read) {
 				magistraal.api.call({
 					url: 'messages/info', 
 					data: {id: id, read: true}
@@ -579,9 +651,11 @@ const magistraal = {
 			}
 		},
 
-		viewCallback: (message, source) => {
+		viewCallback: (response, loadType) => {
 			let attachmentsHTML = '';
+			const message       = response.data;
 
+			// Maak de bijlage
 			if(message.attachments.length > 0) {
 				$.each(message.attachments, function(i, attachment) {
 					attachment.icon = magistraal.mapping.icons('file_icons', attachment.mime_type);
@@ -589,6 +663,7 @@ const magistraal = {
 				})
 			}
 
+			// Maak een sidebar feed
 			let updateFeedWith = {
 				'table': {
 					'message.to': message.recipients.to.names.join(', '),
@@ -599,9 +674,11 @@ const magistraal = {
 				}
 			};
 			
+			// Werk de huidige sidebar feed bij
 			magistraal.sidebar.updateFeed(updateFeedWith, undefined);
 
-			if(source == 'server') {
+			// Stuur een bericht in de console
+			if(loadType == 'final') {
 				magistraal.console.success('console.success.message_content');
 			}
 		},
@@ -613,7 +690,7 @@ const magistraal = {
 				url: 'messages/send', 
 				data: message,
 				source: 'server_only'
-			}).then(data => {
+			}).then(response => {
 				magistraal.console.success('console.success.send_message');
 				magistraal.page.load('messages/list');
 
@@ -623,7 +700,7 @@ const magistraal = {
 			}).catch(response => {
 				magistraal.popup.open('messages-write-message');
 
-				magistraal.console.error(`console.error.${response?.responseJSON?.info}`);
+				magistraal.console.error(`console.error.${response.responseJSON?.info}`);
 			})
 		}
 	},
@@ -632,76 +709,85 @@ const magistraal = {
 	/*           Settings           */
 	/* ============================ */
 	settings: {
-		paintList: settings => {
-			let currentSettings = magistraalPersistentStorage.get('settings');
+		paintList: (response) => {
+			// Laad de huidige instellingen
+			let currentSettings = magistraalPersistentStorage.get('settings').value;
+
 			let $html = $('<div></div>');
 
-
-			$.each(settings?.items, function (itemNamespace, item) {
+			// Ga alle mogelijke instellingen bij langs
+			$.each(response.data.items, function (itemNamespace, item) {
 				let $item = $('<div></div>');
 
-				if(typeof item.items != 'undefined') {
-					// Item is a category
+				// Als item een categorie is
+				if(isSet(item.items)) {
+					// Maak een item
 					$item = magistraal.template.get('setting-category');
-					$item.find('.setting-category-title').text(magistraal.locale.translate(`settings.category.${settings.category}.${itemNamespace}.title`));
+
+					// Informatie
+					$item.find('.setting-category-title').text(magistraal.locale.translate(`settings.category.${response.data.category}.${itemNamespace}.title`));
 					$item.find('.setting-category-icon').html(`<i class="${item?.icon || 'cog'}"></i>`); 
 					
-					// Create content description which consists of the children's names of this items
-					let content = '';
+					// Beschrijving (bestaat uit de namen van de sub-items in deze categorie)
+					let $content = $('<div></div>');
 					$.each(item.items, function (childItemNamespace, childItem) {
-						if(typeof childItem.items == 'undefined') {
-							// Child item is a setting
-							content += magistraal.locale.translate(`settings.setting.${itemNamespace}.${childItemNamespace}.title`) + ', ';
+						if(isSet(childItem.items)) {
+							// Sub-item is een categorie
+							$content.append(`<span>${magistraal.locale.translate(`settings.category.${itemNamespace}.${childItemNamespace}.title`)}</span><span class="bullet"></span>`);
 						} else {
-							content += magistraal.locale.translate(`settings.category.${itemNamespace}.${childItemNamespace}.title`) + ', ';
+							// Sub-item is een instelling
+							$content.append(`<span>${magistraal.locale.translate(`settings.setting.${itemNamespace}.${childItemNamespace}.title`)}</span><span class="bullet"></span>`);
 						}
 					});
-					content = content.slice(0, -2); // Remove last ', ' from string
 
-					$item.find('.setting-category-content').text(content);
+					// Verwijder de laatste bullet uit de inhoud
+					$content.find('.bullet:last-child').remove();
+
+					$item.find('.setting-category-content').html($content.html());
 					$item.attr('onclick', `magistraal.page.load('settings/list', {'category': '${itemNamespace}'}, true, 'prefer_cache');`);
+				
+				// Als item een instelling is
 				} else {
-					// Item is a setting
 					$item       = magistraal.template.get('setting-list-item');
 					let $input  = $('<input class="form-control input-search">')
-					let setting = `${settings.category}.${itemNamespace}`;
+					let setting = `${response.data.category}.${itemNamespace}`;
 					$input.appendTo($item.find('.list-item-content'));
 
-					if(typeof currentSettings[setting] != 'undefined') {
+					if(isSet(currentSettings[setting])) {
 						item.value = currentSettings[setting];
 					}
 					
-					// Per-setting adaptations
+					// Aanpassingen per instelling
 					switch(setting) {
 						case 'appearance.theme':
-							// Remap dark_auto and light_auto theme to auto
-							if(typeof item.value != 'undefined' && (item.value == 'dark_auto' || item.value == 'light_auto')) {
+							// Remap dark_auto en light_auto naar auto
+							if(isSet(item.value) && (item.value == 'dark_auto' || item.value == 'light_auto')) {
 								item.value = 'auto';
 							}
 							break;
 
 						case 'system.version':
-							item.value = magistraalPersistentStorage.get('version') || '-';
+							item.value = magistraalPersistentStorage.get('version').value || '-';
 							break;
 
 						case 'system.user_uuid':
-							item.value = magistraalPersistentStorage.get('user_uuid') || '-';
+							item.value = magistraalPersistentStorage.get('user_uuid').value || '-';
 							break;
 
 						case 'system.user_agent':
 							item.value = navigator.userAgent || '-';
 							break;
 					}
-
+					
+					// Voeg een zoekinput toe
 					let inputObj           = new magistraal.inputs.searchInput($input);
 					const value            = item?.value || item?.default || null;
-					const valueTranslation = magistraal.locale.translate(`settings.setting.${setting}.value.${value}.title`);
+					const valueTranslation = magistraal.locale.translate(`settings.setting.${setting}.value.${value}.title`, magistraal.locale.translate('generic.invalid'));
 					let results            = [];
 
-					if(typeof item.enabled == 'undefined' || item.enabled == 'true') {
-						$input.value(value);
-						$input.val(valueTranslation);
-
+					// Als de waarde van deze instelling kan worden gewijzigd
+					if(!isSet(item.enabled) || item.enabled == 'true') {
+						// Ga alle mogelijke waarden van deze instelling bij langs
 						$.each(item.values, function(itemValue, itemInfo) {
 							const itemTitle = magistraal.locale.translate(`settings.setting.${setting}.value.${itemInfo?.title}.title`);
 							
@@ -713,23 +799,37 @@ const magistraal = {
 							});
 						})
 
+						// Voeg de waarden toe als zoekresultaten
 						inputObj.results.set(results);
+
+						// Stel de waarde van de zoekinvoer in op de huidige waarde van de instelling
+						$input.value(value);
+						$input.val(valueTranslation);
+						inputObj.results.select(value);
+					
+					// Als de waarde van deze instelling niet kan worden gewijzigd
 					} else {
+						// Stel de inhoud van het item in op de huidige waarde
 						$item.removeClass('list-item-with-input');
 						$item.find('.list-item-content').text(value);
 					}
 
+					// Attributen
 					$item.attr({
-						'data-setting': `${settings?.category}.${itemNamespace}`,
+						'data-setting': `${response.data.category}.${itemNamespace}`,
 						'data-reload': item?.options?.reload || false
 					})
+
+					// Pictogram en titel
 					$item.find('.list-item-icon').html(`<i class="${item?.icon || 'cog'}"></i>`); 
-					$item.find('.list-item-title').text(magistraal.locale.translate(`settings.setting.${settings.category}.${itemNamespace}.title`));
+					$item.find('.list-item-title').text(magistraal.locale.translate(`settings.setting.${response.data.category}.${itemNamespace}.title`));
 				}
 
+				// Voeg item toe aan de inhoud
 				$item.appendTo($html);
 			});
 
+			// Werk de inhoud bij
 			magistraal.page.setContent($html);
 		},
 
@@ -737,14 +837,13 @@ const magistraal = {
 			let newSettings = {};
 			Object.assign(newSettings, settings);
 
-			if(typeof settings['appearance.theme'] != 'undefined' && settings['appearance.theme'].includes('auto')){
+			if(isSet(settings['appearance.theme']) && settings['appearance.theme'].includes('auto')){
 				if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 					newSettings['appearance.theme'] = 'dark_auto';
 				} else {
 					newSettings['appearance.theme'] = 'light_auto';
 				}
 			}
-
 			magistraalPersistentStorage.set('settings', settings);
 
 			if(Object.entries(settings).toString() != Object.entries(newSettings).toString() && updateOnServer) {
@@ -763,11 +862,11 @@ const magistraal = {
 			return new Promise((resolve, reject) => {
 				magistraal.api.call({
 					url: 'user/settings/get_all'
-				}).then(data => {
-					resolve(data);
-				}).catch(data => {
+				}).then(response => {
+					resolve(response.data);
+				}).catch(response => {
 					magistraal.console.error();
-					reject(data);
+					reject(response.data);
 				})
 			})
 		},
@@ -780,13 +879,13 @@ const magistraal = {
 					url: 'user/settings/set',
 					data: {setting: setting, value: value},
 					source: 'server_only'
-				}).then(data => {
-					magistraal.settings.updateClient(data);
+				}).then(response => {
+					magistraal.settings.updateClient(response.data);
 
 					magistraal.console.success('console.success.save');
 
 					resolve();
-				}).catch(data => {
+				}).catch(err => {
 					magistraal.console.error();
 					reject();
 				})
@@ -884,12 +983,12 @@ const magistraal = {
 		try {
 			magistraalStorage.set('api', '/magistraal/api/');
 
-			if(typeof parameters.version == 'undefined') {
+			if(!isSet(parameters.version)) {
 				return false;
 			}
 
 			// If current version is not equal to new one, soft-clear cache
-			if(magistraalPersistentStorage.get('version') != parameters?.version) {
+			if(magistraalPersistentStorage.get('version').value != parameters?.version) {
 				console.log(`New version (${parameters?.version}) was found!`);
 				magistraalPersistentStorage.clear(true);
 			}
@@ -931,8 +1030,8 @@ const magistraal = {
 			});
 		},
 
-		loadCallback: (localeData, source) => {
-			magistraalStorage.set('translations', localeData);
+		loadCallback: (response, source) => {
+			magistraalStorage.set('translations', response);
 			$('[data-translation]').each(function () {
 				if(this.tagName.toLowerCase() === 'input' || this.tagName.toLowerCase() === 'textarea') {
 					// Set placeholder on input or textarea elements
@@ -946,9 +1045,9 @@ const magistraal = {
 
 		translate: (key, fallback = undefined) => {
 			fallback = fallback || key;
-			let translations = magistraalStorage.get('translations');
+			let translations = magistraalStorage.get('translations').value.data;
 
-			if(typeof translations == 'undefined' || typeof translations[key] == 'undefined') {
+			if(!isSet(translations) || !isSet(translations[key])) {
 				return fallback;
 			}
 
@@ -1067,7 +1166,7 @@ const magistraal = {
 		},
 
 		toggle: () => {
-			if(magistraalStorage.get('nav_active') == 'true') {
+			if(magistraalStorage.get('nav_active').value == 'true') {
 				magistraal.nav.close();
 			} else {
 				magistraal.nav.open();
@@ -1079,31 +1178,45 @@ const magistraal = {
 		load: (page, data = {}, cachable = true, source = 'both') => {
 			page = trim(page.replace(/[^a-zA-Z\/]/g, ''), '/');
 
-			if(page == 'login' || page == 'main') {
-				window.location.href = `../${page}/`;
-				return true;
-			} else if(page == 'logout') {
-				magistraal.logout.logout();
-			} else if(page == 'settings/list') {
-				source = 'prefer_cache';
+			// Aanpassingen per pagina
+			switch(page) {
+				case 'login':
+					window.location.href = '../login/';
+					return;
+				
+				case 'main':
+					window.location.rhef = '../main';
+					return;
+				
+				case 'settings/list':
+					source = 'prefer_cache';
+					break;
 			}
 
+			// Pad opslaan in gebruikers geschiedenis (voor als gebruiker een pagina terug wil)
 			history.pushState(null, null, window.location.pathname + '#' + page + '/' + random(1000, 9999));
 			
+			// Sidebar leeg maken en sluiten
 			magistraal.sidebar.clearFeed();
 			magistraal.sidebar.close();
+
+			// Zoekbalk leegmaken
+			magistraal.element.get('page-search').val('');
+
+			// Scroll pagina naar boven
 			magistraal.element.get('main').scrollTop(0);
+
+			// Geselecteerde item in navigatiebalk wijzigen
 			$('.nav-item').removeClass('active');
 			magistraal.element.get(`nav-item-${page}`).addClass('active');
 			
+			// Pagina laden
 			magistraal.page.get(page, data, cachable, source);
 		},
 
 		get: (page, data = {}, cachable = true, source = 'both') => {
-			magistraal.element.get('page-search').val('');
-			page = trim(page, '/');
-
-			let callbacks = {
+			// Lijst van callbacks
+			const callbacks = {
 				'absences/list': magistraal.absences.paintList,
 				'appointments/list': magistraal.appointments.paintList,
 				'grades/list': magistraal.grades.paintList,
@@ -1112,58 +1225,48 @@ const magistraal = {
 				'settings/list': magistraal.settings.paintList
 			};
 
-			let callback = undefined
-			if(typeof callbacks[page] != 'undefined') {
+			// Juiste callback kiezen
+			let callback = function() {};
+			if(isSet(callbacks[page])) {
 				callback = callbacks[page];
 			}
 
-			let $pageButtonsTemplate = magistraal.template.get(`page-buttons-${page}`);
-			let $pageButtonsContainer = magistraal.element.get('page-buttons-container');
-
-			if($pageButtonsTemplate.length > 0) {
-				$pageButtonsContainer.html($pageButtonsTemplate.html());
-			} else {
-				$pageButtonsContainer.html('');
-			}
-
-			$('body').attr('data-page-buttons', $pageButtonsContainer.find('.btn').length); // Change page title
-
-			magistraal.element.get('page-title').text(magistraal.locale.translate(`page.${page}.title`));
-			return new Promise((resolve, reject) => {
-				try {
-					magistraal.page.request(page, data, callback, cachable, source).then(response => {
-						resolve(response);
-					}).catch(() => {});
-				} catch {
-					magistraal.console.error();
-				}
-			});
-		},
-		
-		request: (page, data = {}, callback = null, cachable = true, source = 'both') => {
 			return new Promise((resolve, reject) => {
 				magistraal.console.loading('console.loading.refresh');
+
 				magistraal.api.call({
 					url: page, 
 					data: data, 
 					source: source,
 					cachable: cachable, 
-					callback: function(data, source, request){callback(data, source, request);magistraal.page.requestCallback(data, source, request);}, 
+					callback: function(response, source, request, page) {
+						callback(response, source, request, page);
+						magistraal.page.getCallback(response, source, request, page);
+					}, 
 					scope: page,
 				}).then(data => {
 					resolve(data);
-				}).catch(response => {
-					reject(response);
-				});
+				}).catch(() => {});
 			});
 		},
 
-		requestCallback: (data, source, request) => {
-			// Selecteer eerste item
+		getCallback: (response, loadType, request, page) => {
+			// Selecteer eerste item in lijst
 			let $li_first = magistraal.element.get('main').find('.list-item[data-interesting="true"]').first();
 			magistraal.sidebar.selectFeed($li_first, false);
 
-			if(source == 'server') {
+			// Werk paginaknoppen bij
+			let $pageButtonsTemplate = magistraal.template.get(`page-buttons-${page}`);
+			let $pageButtonsContainer = magistraal.element.get('page-buttons-container');
+			if($pageButtonsTemplate.length) {
+				$pageButtonsContainer.html($pageButtonsTemplate.length >= 1 ? $pageButtonsTemplate.html() : '');
+			}
+
+			// Werk de paginatitel bij
+			$('body').attr('data-page-buttons', $pageButtonsContainer.find('.btn').length);
+
+			// Stuur een bericht in de console
+			if(loadType == 'final') {
 				magistraal.console.success('console.success.refresh');
 			}
 		},
@@ -1186,8 +1289,8 @@ const magistraal = {
 				url: action, 
 				data: $form.serialize(),
 				source: 'server_only',
-			}).then(data => {
-				if(typeof data.user_uuid != 'undefined') {
+			}).then(response => {
+				if(isSet(response.data.user_uuid)) {
 					magistraalPersistentStorage.set('user_uuid', data.user_uuid);
 				}
 
@@ -1294,7 +1397,7 @@ const magistraal = {
 					}
 				});
 				
-				if(typeof this.$input.attr('data-magistraal-search-api') == 'undefined') {
+				if(isSet(this.$input.attr('data-magistraal-search-api'))) {
 					this.$input.on('input', e => {
 						this.eventInput(e);
 					});
@@ -1319,7 +1422,7 @@ const magistraal = {
 			}
 
 			eventInput(e) {
-				if(typeof this.$input.attr('data-magistraal-search-api') != 'undefined') {
+				if(isSet(this.$input.attr('data-magistraal-search-api'))) {
 					// Fetch data from api
 					let api = this.$input.attr('data-magistraal-search-api');
 					let query = this.$input.val() || this.$input.text();
@@ -1327,8 +1430,8 @@ const magistraal = {
 						url: `${api}/search`,
 						data: {query: query},
 						cachable: false
-					}).then(data => {
-						let results = magistraal.inputs.search.remap_api_response(api, data);
+					}).then(response => {
+						let results = magistraal.inputs.search.remap_api_response(api, response);
 						this.results.set(results);
 					}).catch(err => {
 						console.error(err);
@@ -1341,6 +1444,7 @@ const magistraal = {
 				let value = $result.attr('value');
 				let text = $result.find('.input-search-result-title').text() || $result.text();
 				this.$input.val('');
+				this.results.select(value);
 
 				if(this.$wrapper.hasClass('input-tags-wrapper')) {
 					let $inputTags = this.$wrapper.find('.input-tags');
@@ -1367,7 +1471,7 @@ const magistraal = {
 					let html = '';
 
 					$.each(results, function (i, result) {
-						if(typeof result.icon == 'undefined' || typeof result.description == 'undefined') {
+						if(!isSet(result.icon) || !isSet(result.description)) {
 							html += `<li class="input-search-result" value="${result?.value}"><span class="input-search-result-title">${result?.title}</span></li>`;
 						} else {
 							html += `<li class="input-search-result input-search-result-rich" value="${result?.value}"><i class="input-search-result-icon ${result?.icon}"></i><span class="input-search-result-title">${result?.title}</span><span class="input-search-result-description">${result?.description}</span></li>`;
@@ -1375,16 +1479,21 @@ const magistraal = {
 					});
 					
 					this.$results.html(html);
+				},
+
+				select: (value = null) => {
+					this.$results.find('.input-search-result').removeAttr('data-selected');
+					this.$results.find(`.input-search-result[value="${value}"]`).attr('data-selected', true);
 				}
 			}
 		},
 		search: {
-			remap_api_response: (api, data) => {
+			remap_api_response: (api, response) => {
 				let result = [];
 
 				switch (api) {
 					case 'people':
-						$.each(data, function (i, person) {
+						$.each(response.data, function (i, person) {
 							result.push({
 								'icon': person.type == 'student' ? 'fal fa-book-open' : 'fal fa-briefcase',
 								'title': person.infix == '' ? `${person.first_name} ${person.last_name}` : `${person.first_name} ${person.infix} ${person.last_name}`,
@@ -1430,14 +1539,14 @@ const magistraal = {
 			return JSON.parse(decodeURI($elem.attr('data-sidebar-feed') || '{}'));
 		},
 
-		selectFeed: ($elem, openSidebar = true) => {
-			if($elem == null) {
+		selectFeed: ($el, openSidebar = true) => {
+			if(!isSet($el)) {
 				return magistraal.sidebar.setFeed(undefined, false);
 			}
 
-			$(`[class="${$elem.attr('class')}"]`).removeAttr('data-selected');
-			$elem.attr('data-selected', true);
-			magistraal.sidebar.setFeed(magistraal.sidebar.getFeed($elem), openSidebar);
+			$(`[class="${$el.attr('class')}"]`).removeAttr('data-selected');
+			$el.attr('data-selected', true);
+			magistraal.sidebar.setFeed(magistraal.sidebar.getFeed($el), openSidebar);
 		},
 
 		setFeed: (feed = {title: '', subtitle: '', table: {}, actions: {}}, openSidebar = true) => {
@@ -1526,7 +1635,7 @@ const magistraal = {
 			magistraalStorage.set('sidebar_active', false);
 		},
 		toggle: () => {
-			if(magistraalStorage.get('sidebar_active') == 'true') {
+			if(magistraalStorage.get('sidebar_active').value == 'true') {
 				magistraal.sidebar.close();
 			} else {
 				magistraal.sidebar.open();

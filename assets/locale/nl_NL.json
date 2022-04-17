@@ -32,6 +32,8 @@
     "generic.bool.true": "Ja",
     "generic.bool.false": "Nee",
 
+    "generic.invalid": "Ongeldig",
+
     "account.info.basic.heading": "Naam, adres en woonplaats",
     "account.info.basic.name": "Naam",
     "account.info.basic.name_official": "Officiële naam",

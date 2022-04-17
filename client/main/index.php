@@ -39,7 +39,7 @@
         })
     </script>
 </head>
-<body data-nav-active="false" data-sidebar-active="false" data-page-buttons="0" data-settings="<?php echo(http_build_query(\Magistraal\User\Settings\get_all(\Magister\Session::$userUuid ?? null), '', ',')); ?>">
+<body data-nav-active="false" data-sidebar-active="false" data-page-buttons="0" data-settings="<?php echo(http_build_query(\Magistraal\User\Settings\get_all(\Magister\Session::$userUuid ?? null), '', ',')); ?>" data-online="false">
      <nav onmouseenter="magistraal.nav.open()" onmouseleave="magistraal.nav.close();" class="scrollbar-hidden">
         <ul class="nav-items">
             <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('home');" data-magistraal="nav-item-home">
@@ -80,7 +80,7 @@
                 <i class="fal fa-user"></i>
                 <span data-translation="page.account/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('settings/list', {}, true, 'prefer_cache');" data-magistraal="nav-item-settings/list">
+            <li tabindex="0" class="nav-item text-inverse online-only" onclick="magistraal.page.load('settings/list', {}, true, 'prefer_cache');" data-magistraal="nav-item-settings/list">
                 <i class="fal fa-cog"></i>
                 <span data-translation="page.settings/list.title"></span>
             </li>
@@ -128,9 +128,9 @@
 
             <!-- List item -->
             <div data-magistraal-template="absence-list-item" tabindex="0" class="absence-list-item list-item" onclick="magistraal.sidebar.selectFeed($(this));">
-                <div class="absence-list-item-icon list-item-icon font-heading"></div>
-                <p class="list-item-title absence-list-item-title"></p>
-                <p class="list-item-content absence-list-item-content text-muted"></p>
+                <div class=" list-item-icon font-heading"></div>
+                <p class="list-item-title "></p>
+                <p class="list-item-content text-muted"></p>
             </div>
         
         <!-- ACCOUNT -->
@@ -197,25 +197,25 @@
             </div>
 
             <!-- List item -->
-            <div data-magistraal-template="appointment" tabindex="0" class="appointment list-item" onclick="magistraal.sidebar.selectFeed($(this)); magistraal.appointments.view($(this).attr('data-id'));">
+            <div data-magistraal-template="appointment" tabindex="0" class="appointment-list-item list-item" onclick="magistraal.sidebar.selectFeed($(this)); magistraal.appointments.view($(this).attr('data-id'));">
                 <div 
                     data-magistraal-tooltip="appointment_finish"
                     onclick="event.stopPropagation(); if(!magistraalStorage.get('nav_open')) { magistraal.appointments.finish($(event.target).parents('.appointment').attr('data-id'), ($(event.target).parents('.appointment').attr('data-finished') != 'true')); }"
-                    class="lesson-number list-item-icon font-heading">
+                    class="list-item-icon font-heading">
                 </div>
-                <p class="lesson-main list-item-title">
-                    <span class="lesson-designation"></span>
+                <p class="list-item-title">
+                    <span class="appointment-designation"></span>
                     <span class="bullet"></span>
-                    <span class="lesson-time"></span>
+                    <span class="appointment-time"></span>
                 </p>
-                <div class="lesson-content list-item-content text-muted"></div>
-                <div class="lesson-actions list-item-actions">
-                    <span class="lesson-action list-item-action list-item-action-primary lesson-type" 
+                <div class="list-item-content text-muted"></div>
+                <div class="list-item-actions">
+                    <span class="list-item-action list-item-action-primary appointment-info-type" 
                           data-magistraal-tooltip="appointment_finish"
                           onclick="event.stopPropagation(); magistraal.appointments.finish($(this).parents('.appointment').attr('data-id'), ($(this).parents('.appointment').attr('data-finished') != 'true'));">
                     </span>
-                    <a class="lesson-action list-item-action list-item-action-square lesson-join-ms-teams" 
-                       onclick="event.stopPropagation();"
+                    <a class="list-item-action list-item-action-square appointment-meeting-link" 
+                       onclick="event.stopPropagation(); magistraal.appointments.joinMeeting($(this).parents('.appointment').attr('data-id'));"
                        data-magistraal-tooltip="appointment_join_ms_teams"
                        target="_blank" 
                        rel="noopener norefferer nofollow">
@@ -317,9 +317,9 @@
             <i data-magistraal-template="page-error-icon" class="fal fa-exclamation-circle text-danger" data-magistraal="page-error-icon"></i>
         
         <!-- PAGE BUTTONS -->
-            <!-- Appointments list -->
+            <!-- Appointments -->
             <div data-magistraal-template="page-buttons-appointments/list">
-                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.popup.open('appointments-create-appointment');">
+                <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.popup.open('appointments-create-appointment');">
                     <i class="btn-icon fal fa-calendar-plus"></i>
                     <span class="btn-text" data-translation="appointments.create_appointment"></span>
                 </button>
@@ -340,7 +340,7 @@
 
             <!-- Messages -->
             <div data-magistraal-template="page-buttons-messages/list">
-                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.popup.open('messages-write-message');">
+                <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.popup.open('messages-write-message');">
                     <i class="btn-icon fal fa-pencil-alt"></i>
                     <span class="btn-text" data-translation="messages.write_message" ></span>
                 </button>

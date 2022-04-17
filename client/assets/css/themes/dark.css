@@ -1,3 +1,4 @@
+/* DARK THEME (DEFAULT VARIANT) */
 [data-settings*="appearance.theme=dark"] {
     --background: #202124;
     --border-radius: 0.5rem;
@@ -9,8 +10,6 @@
     --primary-accent: #33343b;
     --primary-border: #44474c;
     --primary: #2d2e33;
-    --secondary-accent: #4b86d8;
-    --secondary-border: #3679d8;
     --secondary: #0058db;
     --selection-color: rgba(255, 255, 255, 0.1);
     --success: #28a745;

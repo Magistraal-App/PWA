@@ -1,3 +1,4 @@
+/* LIGHT THEME (DEFAULT VARIANT) */
 [data-settings*="appearance.theme=light"] {
     --background: #ffffff;
     --border-radius: 0.5rem;
