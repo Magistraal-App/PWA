@@ -8,10 +8,10 @@
         CLIENT.'/login/index.php',
         CLIENT.'/main/index.php',
         CLIENT.'/offline/index.php',
-        // CLIENT.'/assets/webfonts/patua-one-regular/400.woff2',
-        // CLIENT.'/assets/webfonts/patua-one-regular/400.woff',
-        // CLIENT.'/assets/webfonts/rubik-regular/400.woff2',
-        // CLIENT.'/assets/webfonts/rubik-regular/400.woff'
+        CLIENT.'/assets/webfonts/patua-one-regular/400.woff2',
+        CLIENT.'/assets/webfonts/patua-one-regular/400.woff',
+        CLIENT.'/assets/webfonts/rubik-regular/400.woff2',
+        CLIENT.'/assets/webfonts/rubik-regular/400.woff'
     ]);
 
     $app_name = strtolower(\Magistraal\Config\get('name'));
