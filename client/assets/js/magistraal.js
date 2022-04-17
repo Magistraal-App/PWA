@@ -85,14 +85,18 @@ const magistraal = {
 					let cachedResponseData = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`);
 					if(typeof cachedResponseData != 'undefined') {
 						// Er is een response opgeslagen, voorladen
-						if(typeof parameters.callback == 'function') {
-							parameters.callback(cachedResponseData, 'server');
-						}
-
-						// Stuur geen request naar de server als source == prefer_cache
 						if(parameters.source == 'prefer_cache') {
+							// Stuur geen request naar de server als source == prefer_cache
+							if(typeof parameters.callback == 'function') {
+								parameters.callback(cachedResponseData, 'server');
+							}
+
 							resolve(cachedResponseData);
 							return true;
+						} else {
+							if(typeof parameters.callback == 'function') {
+								parameters.callback(cachedResponseData, 'cache');
+							}
 						}
 					}
 				}
@@ -678,22 +682,24 @@ const magistraal = {
 		},
 
 		updateClient: (settings, updateOnServer = false) => {
+			let newSettings = object.from(settings);
+
 			if(typeof settings['appearance.theme'] != 'undefined' && settings['appearance.theme'].includes('auto')){
 				if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-					settings['appearance.theme'] = 'dark_auto';
+					newSettings['appearance.theme'] = 'dark_auto';
 				} else {
-					settings['appearance.theme'] = 'light_auto';
+					newSettings['appearance.theme'] = 'light_auto';
 				}
 			}
 
 			magistraalPersistentStorage.set('settings', settings);
 
-			if(updateOnServer) {
-				magistraal.settings.set_all(settings);
+			if(newSettings != settings && updateOnServer) {
+				magistraal.settings.set_all(newSettings);
 			}
 
 			let settingsString = '';
-			$.each(settings, function(key, value) {
+			$.each(newSettings, function(key, value) {
 				settingsString += `${key}=${value},`
 			})
 
