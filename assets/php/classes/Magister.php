@@ -211,7 +211,7 @@
                 return $bearer;
             }
 
-            \Magistraal\Response\error('invalid_token');
+            \Magistraal\Response\error('token_invalid');
         }
 
         // public static function refreshTokens($refresh_token = null) {

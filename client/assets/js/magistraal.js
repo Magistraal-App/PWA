@@ -153,7 +153,7 @@ const magistraal = {
 						}
 
 						magistraal.console.error();
-						reject(response);
+						console.error(response);
 					},
 					complete: function(response, textStatus) {
 						console.groupCollapsed(`Response for ${magistraalStorage.get('api')}${parameters.url}/`);
