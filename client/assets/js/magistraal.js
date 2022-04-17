@@ -388,7 +388,7 @@ const magistraal = {
 				url: 'appointments/create',
 				data: appointment,
 				source: 'server_only'
-			}).then(response => {
+			}).then(data => {
 				magistraal.console.success('console.success.create_appointment');
 				magistraal.page.load('appointments/list');
 
@@ -427,7 +427,7 @@ const magistraal = {
 				url: 'appointments/delete',
 				data: {id: id},
 				source: 'server_only'
-			}).then(response => {
+			}).then(data => {
 				magistraal.console.success('console.success.delete_appointment');
 				magistraal.page.load('appointments/list');
 			}).catch(response => {
@@ -609,7 +609,7 @@ const magistraal = {
 				url: 'messages/send', 
 				data: message,
 				source: 'server_only'
-			}).then(response => {
+			}).then(data => {
 				magistraal.console.success('console.success.send_message');
 				magistraal.page.load('messages/list');
 
@@ -631,6 +631,7 @@ const magistraal = {
 		paintList: settings => {
 			let currentSettings = magistraalPersistentStorage.get('settings');
 			let $html = $('<div></div>');
+
 
 			$.each(settings?.items, function (itemNamespace, item) {
 				let $item = $('<div></div>');
@@ -655,39 +656,64 @@ const magistraal = {
 
 					$item.find('.setting-category-content').text(content);
 					$item.attr('onclick', `magistraal.page.load('settings/list', {'category': '${itemNamespace}'}, true, 'prefer_cache');`);
-				} else if(typeof item.values != 'undefined') {
+				} else {
 					// Item is a setting
-					$item        = magistraal.template.get('setting-list-item');
-					let $input   = $('<input class="form-control input-search">')
+					$item       = magistraal.template.get('setting-list-item');
+					let $input  = $('<input class="form-control input-search">')
+					let setting = `${settings.category}.${itemNamespace}`;
 					$input.appendTo($item.find('.list-item-content'));
 
-					if(typeof currentSettings[`${settings.category}.${itemNamespace}`] != 'undefined') {
-						item.value = currentSettings[`${settings.category}.${itemNamespace}`];
+					if(typeof currentSettings[setting] != 'undefined') {
+						item.value = currentSettings[setting];
 					}
 					
-					// Remap dark_auto and light_auto theme to auto
-					if(typeof item.value != 'undefined' && (item.value == 'dark_auto' || item.value == 'light_auto')) {
-						item.value = 'auto';
+					// Per-setting adaptations
+					switch(setting) {
+						case 'appearance.theme':
+							// Remap dark_auto and light_auto theme to auto
+							if(typeof item.value != 'undefined' && (item.value == 'dark_auto' || item.value == 'light_auto')) {
+								item.value = 'auto';
+							}
+							break;
+
+						case 'system.version':
+							item.value = magistraalPersistentStorage.get('version') || '-';
+							break;
+
+						case 'system.user_uuid':
+							item.value = magistraalPersistentStorage.get('user_uuid') || '-';
+							break;
+
+						case 'system.user_agent':
+							item.value = navigator.userAgent || '-';
+							break;
 					}
 
-					let inputObj = new magistraal.inputs.searchInput($input);
-					let values   = [];
+					let inputObj           = new magistraal.inputs.searchInput($input);
+					const value            = item?.value || item?.default || null;
+					const valueTranslation = magistraal.locale.translate(`settings.setting.${setting}.value.${value}.title`);
+					let results            = [];
 
-					$input.value(item?.value || item?.default);
-					$input.val(magistraal.locale.translate(`settings.setting.${settings.category}.${itemNamespace}.value.${item?.value || item?.default}.title`));
+					if(typeof item.enabled == 'undefined' || item.enabled == 'true') {
+						$input.value(value);
+						$input.val(valueTranslation);
 
-					$.each(item.values, function(value, info) {
-						let title = magistraal.locale.translate(`settings.setting.${settings.category}.${itemNamespace}.value.${info?.title}.title`);
-						
-						values.push({
-							title: title,
-							value: value,
-							icon: info?.icon,
-							description: info?.description || title
-						});
-					})
+						$.each(item.values, function(itemValue, itemInfo) {
+							const itemTitle = magistraal.locale.translate(`settings.setting.${setting}.value.${itemInfo?.title}.title`);
+							
+							results.push({
+								title: itemTitle,
+								value: itemValue,
+								icon: itemInfo?.icon,
+								description: itemInfo?.description || itemTitle
+							});
+						})
 
-					inputObj.results.set(values);
+						inputObj.results.set(results);
+					} else {
+						$item.removeClass('list-item-with-input');
+						$item.find('.list-item-content').text(value);
+					}
 
 					$item.attr({
 						'data-setting': `${settings?.category}.${itemNamespace}`,
@@ -1120,8 +1146,8 @@ const magistraal = {
 					cachable: cachable, 
 					callback: function(data, source, request){callback(data, source, request);magistraal.page.requestCallback(data, source, request);}, 
 					scope: page,
-				}).then(response => {
-					resolve(response);
+				}).then(data => {
+					resolve(data);
 				}).catch(response => {
 					reject(response);
 				});
@@ -1156,7 +1182,11 @@ const magistraal = {
 				url: action, 
 				data: $form.serialize(),
 				source: 'server_only',
-			}).then(response => {
+			}).then(data => {
+				if(typeof data.user_uuid != 'undefined') {
+					magistraalPersistentStorage.set('user_uuid', data.user_uuid);
+				}
+
 				window.location.href = '../main/';
 			}).catch(response => {
 				magistraal.console.error(`console.error.${response?.responseJSON?.info}`);
@@ -1293,8 +1323,8 @@ const magistraal = {
 						url: `${api}/search`,
 						data: {query: query},
 						cachable: false
-					}).then(response => {
-						let results = magistraal.inputs.search.remap_api_response(api, response);
+					}).then(data => {
+						let results = magistraal.inputs.search.remap_api_response(api, data);
 						this.results.set(results);
 					}).catch(err => {
 						console.error(err);

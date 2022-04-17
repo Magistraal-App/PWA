@@ -296,7 +296,7 @@
             <div data-magistraal-template="setting-list-item" class="list-item list-item-with-input setting-list-item">
                 <div class="list-item-icon"></div>
                 <p class="list-item-title"></p>
-                <div class="list-item-content"></div>
+                <div class="list-item-content text-muted" style="white-space: normal;"></div>
             </div>
 
         <!-- SIDEBAR -->

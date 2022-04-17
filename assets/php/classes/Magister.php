@@ -52,15 +52,15 @@
             }
             
             \Magister\Session::obtainTokenData();
-            \Magister\Session::obtainUserId();
+            \Magister\Session::obtainUserInfo();
             
-            return ['success' => true, 'token_id' => \Magister\Session::$tokenId ?? null];
+            return ['success' => true, 'token_id' => \Magister\Session::$tokenId ?? null, 'user_uuid' => \Magister\Session::$userUuid ?? null];
         }
 
         public static function loginToken($token_id) {
             \Magister\Session::obtainTokenData($token_id);
             \Magister\Session::setupEnvironment();
-            \Magister\Session::obtainUserId();
+            \Magister\Session::obtainUserInfo();
         }
 
         public static function loginTenant($tenant) {
@@ -245,7 +245,7 @@
         //     // ];
         // }
 
-        public static function obtainUserId() {
+        public static function obtainUserInfo() {
             $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/account?noCache=0');
             
             \Magister\Session::$userId   = $response['body']['Persoon']['Id'] ?? \Magistraal\Response\error('failed_to_obtain_user_id');

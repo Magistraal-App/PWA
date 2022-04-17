@@ -23,7 +23,7 @@
 
     if($result['success'] === true) {
         setcookie('magistraal-authorization', $result['token_id'], time()+365*24*60*60, '/magistraal/');
-        \Magistraal\Response\success();
+        \Magistraal\Response\success(['user_uuid' => $result['user_uuid']]);
     } else {
         \Magistraal\Response\error($result['info']);
     }

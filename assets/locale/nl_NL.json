@@ -140,6 +140,10 @@
     "messages.popup.write_message.item.subject.title": "Onderwerp",
 
     "settings.category.root.appearance.title": "Vormgeving",
+    "settings.category.root.system.title": "Appinformatie",
+    "settings.setting.appearance.animations.title": "Animaties en effecten",
+    "settings.setting.appearance.animations.value.off.title": "Uit",
+    "settings.setting.appearance.animations.value.on.title": "Aan",
     "settings.setting.appearance.buttons.title": "Knoppen",
     "settings.setting.appearance.buttons.value.both.title": "Tekst en pictogram",
     "settings.setting.appearance.buttons.value.icon.title": "Alleen pictogram",
@@ -148,9 +152,9 @@
     "settings.setting.appearance.theme.value.auto.title": "Systeem",
     "settings.setting.appearance.theme.value.dark.title": "Donker",
     "settings.setting.appearance.theme.value.light.title": "Licht",
-    "settings.setting.appearance.animations.title": "Animaties en effecten",
-    "settings.setting.appearance.animations.value.on.title": "Aan",
-    "settings.setting.appearance.animations.value.off.title": "Uit",
+    "settings.setting.system.user_agent.title": "Useragent",
+    "settings.setting.system.user_uuid.title": "Gebruikers-id",
+    "settings.setting.system.version.title": "Versie",
 
     "people.type.employee": "Medewerker",
     "people.type.student": "Leerling",

@@ -27,6 +27,23 @@
                     }
                 }
             }
+        },
+        "system": {
+            "icon": "fal fa-cog",
+            "items": {
+                "version": {
+                    "icon": "fal fa-code-branch",
+                    "enabled": false
+                },
+                "user_uuid": {
+                    "icon": "fal fa-user",
+                    "enabled": false
+                },
+                "user_agent": {
+                    "icon": "fal fa-globe",
+                    "enabled": false
+                }
+            }
         }
     },
     "default": {
