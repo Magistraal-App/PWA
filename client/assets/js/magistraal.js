@@ -99,8 +99,6 @@ const magistraal = {
 
 				parameters.xhrFields.withCredentials = true;
 
-				console.log(parameters);
-
 				// Stuur een request naar de server
 				$.ajax({
 					method: 'POST',
@@ -687,7 +685,6 @@ const magistraal = {
 					settings['appearance.theme'] = 'light_auto';
 				}
 			}
-			console.log(settings);
 
 			magistraalPersistentStorage.set('settings', settings);
 

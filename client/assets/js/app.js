@@ -39,7 +39,7 @@ $.fn.value = function(value = undefined) {
         }
     } else {
         if(this.attr('type') == 'date') {
-            let date = new Date(value);
+            let date = (value ? new Date(value) : new Date());
             return this.get(0).value = `${date.getFullYear()}-${addLeadingZero(date.getMonth()+1)}-${addLeadingZero(date.getDate())}`;
         } else if(this.attr('type') == 'time') {
             let date = new Date(value);
@@ -94,7 +94,7 @@ $.fn.formReset = function() {
         } else if($el.attr('type') == 'time' && $el.attr('value')) {
             $el.val($el.attr('value'));
         } else if($el.attr('type') == 'date') {
-            $el.get(0).valueAsDate = new Date();
+            $el.value(null);
         } else if(typeof $el.attr('data-rich-editor') != 'undefined') {
             $el.data('editor').html.set('');
         } else {
@@ -313,11 +313,11 @@ $(document).on('click', '[data-popup-action]', function(e) {
     }
 })
 
-// DOM ready
-$('input[type="date"]').each(function() {
-    this.valueAsDate = new Date();
-});
-
+$(document).ready(function() {
+    $('input[type="date"]').each(function() {
+        $(this).value(null);
+    });
+})
 
 $(window).on('hashchange', function() {
     magistraal.page.load(window.location.hash.substring(1));
