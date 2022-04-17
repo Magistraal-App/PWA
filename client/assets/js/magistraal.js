@@ -1401,7 +1401,10 @@ const magistraal = {
 	},
 	logout: {
 		logout: () => {
-			magistraal.page.request('logout', {}).finally(() => {
+			magistraal.api.call({
+				url: 'logout',
+				source: 'server_only'
+			}).finally(() => {
 				magistraalPersistentStorage.clear();
 				magistraal.page.load('login');
 			});
