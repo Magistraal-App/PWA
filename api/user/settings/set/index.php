@@ -10,7 +10,11 @@
         \Magistraal\Response\error('parameter_value_missing');
     }
 
-    \Magistraal\User\Settings\set(\Magister\Session::$userUuid ?? $_COOKIE['magistraal-user-uuid'] ?? null, $_POST['setting'], $_POST['value']);
+    if(!isset(\Magister\Session::$userUuid)) {
+        \Magistraal\Response\error('error_authentication');
+    }
 
-    \Magistraal\Response\success(\Magistraal\User\Settings\get_all());
+    \Magistraal\User\Settings\set(\Magister\Session::$userUuid, $_POST['setting'], $_POST['value']);
+
+    \Magistraal\Response\success(\Magistraal\User\Settings\get_all(\Magister\Session::$userUuid));
 ?>

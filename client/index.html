@@ -6,16 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magistraal</title>
 
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/magistraal.js"></script>
-    <script src="assets/js/app.js"></script>
+    <script src="/magistraal/client/assets/js/jquery.min.js"></script>
+    <script src="/magistraal/client/assets/js/magistraal.js"></script>
+    <script src="/magistraal/client/assets/js/app.js"></script>
 </head>
 <body>
     <script>
-        if(magistraalPersistentStorage.get('token') == null) {
-            window.location.href = './login/';
+        if(magistraal.token.isSet()) {
+            window.location.href = './main';
         } else {
-            window.location.href = './main/';
+            window.location.href = './login';
         }
     </script>
 </body>

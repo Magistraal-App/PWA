@@ -17,15 +17,13 @@
         public static $codeChallenge;
         public static $codeVerifier;
 
-        public static function start() {
-            global $_REQUESTHEADERS;
-            
-            if(!isset($_REQUESTHEADERS['x-auth-token'])) {
-                \Magistraal\Response\error('token_invalid');
+        public static function start() {          
+            if(!isset($_COOKIE['magistraal-authorization'])) {
+                \Magistraal\Response\error('token_not_sent');
             }
             
             if(!isset(\Magister\Session::$tokenId)) {
-                return \Magister\Session::loginToken($_REQUESTHEADERS['x-auth-token']);
+                return \Magister\Session::loginToken($_COOKIE['magistraal-authorization']);
             } else {
                 return ['success' => true, 'token_id' => \Magister\Session::$tokenId];
             }
@@ -159,7 +157,7 @@
             if(!isset($refresh_token)) {
                 // echo('OBTAINING!');
                 if(!isset(\Magister\Session::$returnUrl)) {
-                    \Magistraal\Response\error('token_invalid');
+                    \Magistraal\Response\error('return_url_not_set');
                 }
 
                 // var_dump(\Magister\Session::$returnUrl);

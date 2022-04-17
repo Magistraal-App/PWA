@@ -6,7 +6,7 @@
             $db = \Magistraal\Database\connect();
 
             $response = $db->q("SELECT * FROM magistraal_userdata WHERE user_uuid='{$user_uuid}'");
-            
+
             $settings = @json_decode($response[0]['settings'] ?? '[]', true) ?? [];
         } else {
             $settings = [];
@@ -36,15 +36,24 @@
             return false;
         }
 
+        return \Magistraal\User\Settings\set_all($user_uuid, [$setting => $value]);
+    }
+
+    function set_all($user_uuid = null, $new_settings = null) {
+        if(!isset($user_uuid) || !isset($new_settings)) {
+            return false;
+        }
+
         $db = \Magistraal\Database\connect();
 
         $settings = \Magistraal\User\Settings\get_all($user_uuid);
-        $settings[$setting] = $value;
+        $settings = array_replace($settings, $new_settings);
         $settings_encoded = json_encode($settings);
 
-        $response = $db->q("UPDATE magistraal_userdata 
-                            SET settings='{$settings_encoded}'
-                            WHERE user_uuid='{$user_uuid}'");
+        $response = $db->q("REPLACE INTO magistraal_userdata
+                            (user_uuid,      settings) VALUES
+                            ('{$user_uuid}', '{$settings_encoded}')
+                        ");
 
         return ($response > 0);
     }

@@ -120,7 +120,7 @@ $(document).on('magistraal.change', '.setting input', function(e) {
     let $setting = $input.closest('.setting');
     let setting  = $setting.attr('data-setting');
 
-    // Add system os theme to auto theme to prevent flash when app starts
+    // Add system theme to auto theme to prevent flash when app starts
     if(setting == 'appearance.theme' && value == 'auto') {
         value = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark_auto' : 'light_auto');
     }
@@ -128,7 +128,7 @@ $(document).on('magistraal.change', '.setting input', function(e) {
     magistraal.settings.set(setting, value);
 })
 
-// If OS theme changes
+// If system theme changes
 if(window.matchMedia) {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
         let settings = magistraalPersistentStorage.get('settings');
@@ -334,6 +334,33 @@ function trim(str, char = ' ') {
         --end;
 
     return (start > 0 || end < str.length) ? str.substring(start, end) : str;
+}
+
+function setCookie(name, value, expires = null) {
+    if(expires === null) {
+        expires = 365*24*60*60;
+    }
+    
+    const date = new Date();
+    date.setTime(date.getTime() + expires);
+    expires = 'expires=' + d.toUTCString();
+    document.cookie = name + '=' + value + ';' + expires + ';path=/; SameSite=None; secure';
+}
+
+function getCookie(name) {
+    name = name + '=';
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i <ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return '';
 }
 
 function random(min, max) {

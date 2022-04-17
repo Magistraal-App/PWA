@@ -20,7 +20,7 @@
     }
 
     nav {
-        transition: 0ms transform !important;
+        min-width: var(--nav-width);
     }
 
     [data-magistraal="sidebar"] {

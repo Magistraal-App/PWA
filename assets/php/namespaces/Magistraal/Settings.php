@@ -4,7 +4,7 @@
     function get_all($category = null) {
         $category      = $category ?? 'root';
         $content       = @json_decode(@file_get_contents(ROOT.'/config/settings.json'), true);
-        $user_settings = \Magistraal\User\Settings\get_all();
+        $user_settings = \Magistraal\User\Settings\get_all(\Magister\Session::$userUuid ?? null);
 
         if($category == 'root') {
             $items = $content['settings'];

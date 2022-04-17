@@ -22,7 +22,7 @@
     $result = \Magister\Session::login($tenant, $username, $password);
 
     if($result['success'] === true) {
-        header("X-Auth-Token: {$result['token_id']}");
+        setcookie('magistraal-authorization', $result['token_id'], time()+365*24*60*60, '/magistraal/');
         \Magistraal\Response\success();
     } else {
         \Magistraal\Response\error($result['info']);

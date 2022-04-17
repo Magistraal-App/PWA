@@ -6,5 +6,9 @@
         \Magistraal\Response\error('parameter_setting_missing');
     }
 
-    \Magistraal\Response\success(\Magistraal\User\Settings\get(\Magister\Session::$userUuid ?? $_COOKIE['magistraal-user-uuid'] ?? null, $_POST['setting']));
+    if(!isset(\Magister\Session::$userUuid)) {
+        \Magistraal\Response\error('error_authentication');
+    }
+
+    \Magistraal\Response\success(\Magistraal\User\Settings\get(\Magister\Session::$userUuid, $_POST['setting']));
 ?>

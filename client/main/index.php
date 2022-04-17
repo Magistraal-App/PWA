@@ -18,16 +18,14 @@
     <?php echo(\Magistraal\Frontend\assetsHTML()); ?>
 
     <script>
-        magistraal.settings.refresh(<?php echo(json_encode(\Magistraal\User\Settings\get_all($_COOKIE['magistraal-user-uuid'] ?? null))); ?>);
-
-        if(magistraalPersistentStorage.get('token') == null) {
-            window.location.href = '../login/';
+        if(!magistraal.token.isSet()) {
+            magistraal.page.load('login');
         }
 
         $(document).ready(function() {
             magistraal.load({version: '<?php echo(VERSION); ?>'});
             magistraal.settings.get_all().then(settings => {
-                magistraal.settings.refresh(settings);
+                magistraal.settings.updateClient(settings, true);
             })
         })
 

@@ -91,7 +91,7 @@
 
             $token_data = \Magistraal\Authentication\token_get($new_token_id);
         
-            header("X-Auth-Token: {$new_token_id}");
+            setcookie('magistraal-authorization', $new_token_id, time()+365*24*60*60, '/magistraal/');
         }
 
         return $token_data;

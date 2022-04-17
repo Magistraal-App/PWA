@@ -49,7 +49,7 @@ const magistraalPersistentStorage = {
 				continue;
 			}
 
-			if(key == 'magistraal.version' || key == 'magistraal.locale') {
+			if(key == 'magistraal.version' || key == 'magistraal.api_response.locale') {
 				continue;
 			}
 
@@ -58,6 +58,10 @@ const magistraalPersistentStorage = {
 
 		for (let i = 0; i < magistraalItems.length; i++) {
 			localStorage.removeItem(magistraalItems[i]);
+		}
+
+		if(!soft) {
+			magistraal.token.delete();
 		}
 
 		return true;
@@ -93,15 +97,16 @@ const magistraal = {
 					}
 				}
 
+				parameters.xhrFields.withCredentials = true;
+
+				console.log(parameters);
+
 				// Stuur een request naar de server
 				$.ajax({
 					method: 'POST',
 					url: `${magistraalStorage.get('api')}${parameters.url}/`,
 					data: parameters.data,
-					headers: {
-						'Accept': '*/*',
-						'X-Auth-Token': magistraalPersistentStorage.get('token') || null
-					},
+					headers: {'Accept': '*/*'},
 					xhrFields: parameters.xhrFields,
 					success: function(response, textStatus, request) {
 						if(typeof parameters.scope != 'undefined' && parameters.scope != magistraal.page.current()) {
@@ -127,8 +132,8 @@ const magistraal = {
 
 					error: function(response) {
 						if(typeof response?.responseJSON?.info != 'undefined' && response?.responseJSON?.info == 'token_invalid') {
-							magistraalPersistentStorage.remove('token');
-							magistraal.page.get('login');
+							magistraal.token.delete();
+							magistraal.page.load('login');
 							return;
 						}
 
@@ -138,14 +143,6 @@ const magistraal = {
 
 						magistraal.console.error();
 						reject(response);
-					},
-
-					complete: function(response, textStatus, request) {
-						let token = response.getResponseHeader('X-Auth-Token');
-
-						if(typeof token != 'undefined' && token != null && token.length > 0) {
-							magistraalPersistentStorage.set('token', token);
-						}
 					}
 				});
 			});
@@ -617,7 +614,7 @@ const magistraal = {
 		paintList: settings => {
 			let $html = $('<div></div>');
 
-			$.each(settings.items, function (itemNamespace, item) {
+			$.each(settings?.items, function (itemNamespace, item) {
 				let $item = $('<div></div>');
 
 				if(typeof item.items != 'undefined') {
@@ -639,40 +636,38 @@ const magistraal = {
 
 					$item.find('.setting-category-content').text(content);
 					$item.attr('onclick', `magistraal.page.load('settings/list', {'category': '${itemNamespace}'});`);
-				} else {
+				} else if(typeof item.values != 'undefined') {
 					// Item is a setting
-					if(typeof item.values != 'undefined') {
-						$item        = magistraal.template.get('setting');
-						let $input   = $('<input class="form-control input-search">')
-						$input.appendTo($item);
-						
-						// Remap dark_auto and light_auto theme to auto
-						if(typeof item.value != 'undefined' && (item.value == 'dark_auto' || item.value == 'light_auto')) {
-							item.value = 'auto';
-						}
-
-						let inputObj = new magistraal.inputs.searchInput($input);
-						let values   = [];
-
-						$input.val(magistraal.locale.translate(`settings.setting.${settings.category}.${itemNamespace}.value.${item?.value || item?.default}.title`));
-						$input.value(item?.value || item?.default);
-
-						$.each(item.values, function(value, info) {
-							let title = magistraal.locale.translate(`settings.setting.${settings.category}.${itemNamespace}.value.${info?.title}.title`);
-							
-							values.push({
-								title: title,
-								value: value,
-								icon: info?.icon,
-								description: info?.description || title
-							});
-						})
-
-						inputObj.results.set(values);
+					$item        = magistraal.template.get('setting');
+					let $input   = $('<input class="form-control input-search">')
+					$input.appendTo($item);
+					
+					// Remap dark_auto and light_auto theme to auto
+					if(typeof item.value != 'undefined' && (item.value == 'dark_auto' || item.value == 'light_auto')) {
+						item.value = 'auto';
 					}
 
+					let inputObj = new magistraal.inputs.searchInput($input);
+					let values   = [];
+
+					$input.val(magistraal.locale.translate(`settings.setting.${settings.category}.${itemNamespace}.value.${item?.value || item?.default}.title`));
+					$input.value(item?.value || item?.default);
+
+					$.each(item.values, function(value, info) {
+						let title = magistraal.locale.translate(`settings.setting.${settings.category}.${itemNamespace}.value.${info?.title}.title`);
+						
+						values.push({
+							title: title,
+							value: value,
+							icon: info?.icon,
+							description: info?.description || title
+						});
+					})
+
+					inputObj.results.set(values);
+
 					$item.attr({
-						'data-setting': `${settings.category}.${itemNamespace}`,
+						'data-setting': `${settings?.category}.${itemNamespace}`,
 						'data-reload': item?.options?.reload || false
 					})
 					$item.find('.setting-title').text(magistraal.locale.translate(`settings.setting.${settings.category}.${itemNamespace}.title`));
@@ -684,7 +679,7 @@ const magistraal = {
 			magistraal.page.setContent($html);
 		},
 
-		refresh: (settings) => {
+		updateClient: (settings, updateOnServer = false) => {
 			if(typeof settings['appearance.theme'] != 'undefined' && settings['appearance.theme'].includes('auto')){
 				if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 					settings['appearance.theme'] = 'dark_auto';
@@ -692,8 +687,13 @@ const magistraal = {
 					settings['appearance.theme'] = 'light_auto';
 				}
 			}
+			console.log(settings);
 
 			magistraalPersistentStorage.set('settings', settings);
+
+			if(updateOnServer) {
+				magistraal.settings.set_all(settings);
+			}
 
 			let settingsString = '';
 			$.each(settings, function(key, value) {
@@ -725,7 +725,28 @@ const magistraal = {
 					data: {setting: setting, value: value},
 					source: 'server_only'
 				}).then(data => {
-					magistraal.settings.refresh(data);
+					magistraal.settings.updateClient(data);
+
+					magistraal.console.success('console.success.save');
+
+					resolve();
+				}).catch(data => {
+					magistraal.console.error();
+					reject();
+				})
+			})
+		},
+
+		set_all: settings => {
+			magistraal.console.loading('console.loading.save');
+			
+			return new Promise((resolve, reject) => {
+				magistraal.api.call({
+					url: 'user/settings/set_all',
+					data: {settings: settings},
+					source: 'server_only'
+				}).then(data => {
+					magistraal.settings.updateClient(data);
 
 					magistraal.console.success('console.success.save');
 
@@ -1322,6 +1343,10 @@ const magistraal = {
 	},
 	sidebar: {
 		addFeed: ($elem = null, feed) => {
+			feed.title    = feed?.title || '';
+			feed.subtitle = feed?.subtitle || '';
+			feed.table    = feed?.table || {};
+			feed.actions  = feed?.actions || {};
 			$elem = $elem || magistraal.element.get('sidebar');
 			$elem.attr('data-sidebar-feed', encodeURI(JSON.stringify(feed)));
 			return true;
@@ -1490,6 +1515,16 @@ const magistraal = {
 	element: {
 		get: selector => {
 			return $(`[data-magistraal="${selector}"]`);
+		}
+	},
+
+	token: {
+		isSet: () => {
+			return (getCookie('magistraal-authorization') != '');
+		},
+		delete: () => {
+			setCookie('magistraal-authorization', null, -1);
+			return true;
 		}
 	},
 	
