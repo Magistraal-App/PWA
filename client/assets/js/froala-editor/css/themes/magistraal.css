@@ -151,7 +151,7 @@
 	border: 1px solid var(--primary-border);
 	top: 0;
 	left: 0;
-    min-height: 200px;
+    min-height: 100px;
 }
 
 .magistraal-theme.fr-box.fr-basic.fr-top .fr-wrapper {
