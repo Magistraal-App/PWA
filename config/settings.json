@@ -26,6 +26,16 @@
                         "on": {"title": "on", "icon": "fal fa-check"},
                         "off": {"title": "off", "icon": "fal fa-times"}
                     }
+                },
+                "language": {
+                    "icon": "fal fa-globe",
+                    "values": {
+                        "nl_NL": {"title": "nl_NL", "icon": "fal fa-flower-tulip"},
+                        "en_US": {"title": "en_US", "icon": "fal fa-flag-usa"}
+                    },
+                    "options": {
+                        "do_reload": true
+                    }
                 }
             }
         },

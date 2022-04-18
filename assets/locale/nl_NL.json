@@ -26,6 +26,7 @@
     "generic.action.send": "Verzenden",
     "generic.action.edit": "Bewerken",
     "generic.action.delete": "Verwijderen",
+    "generic.action.login": "Inloggen",
     
     "generic.date_time_seperator": "om",
 
@@ -33,19 +34,6 @@
     "generic.bool.false": "Nee",
 
     "generic.invalid": "Ongeldig",
-
-    "account.info.basic.heading": "Naam, adres en woonplaats",
-    "account.info.basic.name": "Naam",
-    "account.info.basic.name_official": "Officiële naam",
-    "account.info.basic.birth_date": "Geboortedatum",
-    "account.info.basic.address": "Adres",
-    "account.info.contact.heading": "Contactgegevens",
-    "account.info.contact.phone": "Mobiel nummer",
-    "account.info.contact.email": "E-mailadres",
-    "account.info.education.heading": "Opleiding",
-    "account.info.education.study": "Studie",
-    "account.info.education.curriculum": "Profiel",
-    "account.info.education.class": "Klas",
 
     "appointments.popup.create_appointment.item.content.title": "Inhoud",
     "appointments.popup.create_appointment.item.date.title": "Datum",
@@ -56,14 +44,13 @@
     "appointments.popup.create_appointment.item.variant.personal.title": "Persoonlijk",
     "appointments.popup.create_appointment.item.variant.planning.title": "Planning",
     "appointments.popup.create_appointment.title": "Nieuwe afspraak",
-    "appointments.none_this_day": "Geen afspraken op deze dag!",
     "appointments.appointment.info_type.none": "Inhoud",
     "appointments.appointment.info_type.homework": "Huiswerk",
     "appointments.appointment.info_type.info": "Informatie",
     "appointments.appointment.info_type.test": "Proefwerk",
     "appointments.appointment.info_type.exam": "Tentamen",
-    "appointments.appointment.info_type.exam_written": "SO",
-    "appointments.appointment.info_type.exam_oral": "MO",
+    "appointments.appointment.info_type.test_written": "SO",
+    "appointments.appointment.info_type.test_oral": "MO",
     "appointments.create_appointment": "Nieuw",
 
     "console.error.appointment_field_empty.content": "Je hebt geen inhoud ingevuld.",
@@ -117,7 +104,6 @@
     "login.hint.tenant": "Schooldomein",
     "login.hint.username": "Gebruikersnaam",
     "login.hint.password": "Wachtwoord",
-    "login.hint.submit": "Inloggen",
 
     "page.home.title": "Home",
     "page.appointments/list.title": "Afspraken",
@@ -150,6 +136,9 @@
     "settings.setting.appearance.buttons.value.both.title": "Tekst en pictogram",
     "settings.setting.appearance.buttons.value.icon.title": "Alleen pictogram",
     "settings.setting.appearance.buttons.value.text.title": "Alleen tekst",
+    "settings.setting.appearance.language.title": "Taal",
+    "settings.setting.appearance.language.value.nl_NL.title": "Nederlands",
+    "settings.setting.appearance.language.value.en_US.title": "Engels",
     "settings.setting.appearance.theme.title": "Thema",
     "settings.setting.appearance.theme.value.auto.title": "Systeem",
     "settings.setting.appearance.theme.value.dark.title": "Donker",
@@ -169,9 +158,9 @@
     "sidebar.table.info.appointment.designation": "Omschrijving",
     "sidebar.table.info.appointment.end": "Einde",
     "sidebar.table.info.appointment.facility": "Locatie",
-    "sidebar.table.info.appointment.info_type.exam_oral": "Mondelinge overhoring",
+    "sidebar.table.info.appointment.info_type.test_oral": "Mondelinge overhoring",
     "sidebar.table.info.appointment.attachments": "Bijlage",
-    "sidebar.table.info.appointment.info_type.exam_written": "Schriftelijke overhoring",
+    "sidebar.table.info.appointment.info_type.test_written": "Schriftelijke overhoring",
     "sidebar.table.info.appointment.info_type.exam": "Tentamen",
     "sidebar.table.info.appointment.info_type.homework": "Huiswerk",
     "sidebar.table.info.appointment.info_type.info": "Informatie",
@@ -197,7 +186,5 @@
     "tooltip.hint.appointment_join_ms_teams": "Deelnemen aan online vergadering",
     "tooltip.hint.message_delete": "Bericht verwijderen",
     "tooltip.hint.message_reply": "Beantwoorden",
-    "tooltip.hint.message_reply_all": "Allen beantwoorden",
     "tooltip.hint.message_forward": "Doorsturen"
-
 }

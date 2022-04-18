@@ -39,7 +39,7 @@
         })
     </script>
 </head>
-<body data-nav-active="false" data-sidebar-active="false" data-page-buttons="0" data-settings="<?php echo(http_build_query(\Magistraal\User\Settings\get_all(\Magister\Session::$userUuid ?? null), '', ',')); ?>" data-online="false">
+<body data-nav-active="false" data-sidebar-active="false" data-settings="<?php echo(http_build_query(\Magistraal\User\Settings\get_all(\Magister\Session::$userUuid ?? null), '', ',')); ?>" data-online="false">
      <nav onmouseenter="magistraal.nav.open()" onmouseleave="magistraal.nav.close();" class="scrollbar-hidden">
         <ul class="nav-items">
             <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('home');" data-magistraal="nav-item-home">
@@ -94,7 +94,7 @@
         <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="nav-toggler" onclick="magistraal.nav.open();">
             <i class="fal fa-bars"></i>
         </button>
-        <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="sidebar-toggler" onclick="magistraal.sidebar.close();">
+        <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="page-back-button" onclick="magistraal.sidebar.close(); magistraal.page.loadPrevious();">
             <i class="fal fa-arrow-left"></i>
         </button>
         <h2 data-magistraal="page-title" class="col px-1"></h2>

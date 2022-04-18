@@ -16,8 +16,9 @@
     }
 
     function assetsHTML() {
-        $version = str_replace('.', '-', \Magistraal\Config\get('version'));
-        $infix  = (\Magistraal\Config\get('production') === false ? '' : '.min');
+        $version    = str_replace('.', '-', \Magistraal\Config\get('version'));
+        $production = \Magistraal\Config\get('production');
+        $infix      = ($production === false ? '' : '.min');
 
         return '
             <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/bootstrap.min.css?v='.$version.'">
@@ -55,13 +56,12 @@
             
             <script>
                 if(\'serviceWorker\' in navigator) {
-                    navigator.serviceWorker.register(\'../../service-worker.js.php?v='.$version.'\').then(function(registration) {
+                        navigator.serviceWorker.register(\'../../service-worker.js.php?v='.$version.'\').then(function(registration) {
                         console.log(\'Service worker registered. Scope is:\', registration.scope);
                     }).catch(function(error) {
                         console.error(\'Service worker registration failed, error:\', error);
                     });
                 }
-            </script>
-        ';
+            </script>';
     }
 ?>
