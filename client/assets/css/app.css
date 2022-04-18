@@ -19,7 +19,7 @@
     --MAIN-padding: var(--spacing-lg);
     --FOOTER-height: calc(var(--btn-md-height) + 2 * var(--spacing-lg));
     --HEADER-height: calc(3.5rem + 2 * var(--spacing-md));
-    --NAV-width: 3rem;
+    --NAV-width: 2.75rem;
     --SIDEBAR-width: 100%;
 }
 
@@ -875,11 +875,11 @@ body[data-sidebar-active="true"] [data-magistraal="page-search"] {
     pointer-events: none;
 }
 
-body[data-history] [data-magistraal="nav-toggler"] { /* Hide nav toggler, show sidebar toggler button */
+body[data-sidebar-active="true"] [data-magistraal="nav-toggler"] { /* Hide nav toggler, show sidebar toggler button */
     display: none;
 }
 
-body[data-history] [data-magistraal="page-back-button"] {
+body[data-sidebar-active="true"] [data-magistraal="page-back-button"] {
     display: block;
 }
 

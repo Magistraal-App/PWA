@@ -374,7 +374,6 @@ $(document).on('mouseenter', '[data-magistraal-tooltip]', function() {
 
 $(document).on('click', '[data-magistraal="popup-backdrop"]', function(e) {
     if($('[data-magistraal-popup].show').length > 0) {
-        // magistraal.page.loadPrevious();
         magistraal.popup.close();
     }
 })
@@ -388,10 +387,10 @@ $(document).on('click', '[data-popup-action]', function(e) {
     
     switch(action) {
         case 'confirm':
-            magistraal.page.loadPrevious(false);
+            magistraal.popup.close(popup, false);
             break;
         case 'cancel':
-            magistraal.page.loadPrevious();
+            magistraal.popup.close(popup);
             break;
     }
 })

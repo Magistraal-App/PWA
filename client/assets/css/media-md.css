@@ -2,6 +2,7 @@
     :root {
         --MAIN-padding: 3vw;
         --SIDEBAR-width: 60vw;
+        --NAV-width: 3rem;
     }
 
     body {

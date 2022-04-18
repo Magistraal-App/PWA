@@ -96,18 +96,16 @@ const magistraal = {
 			if(!isSet(parameters.xhrFields))    { parameters.xhrFields = {}; }
 			if(!isSet(parameters.alwaysReturn)) { parameters.alwaysReturn = {}; }
 
-			console.log('Loading page', parameters);
-
 			return new Promise((resolve, reject) => {
 				if(parameters.cachable) {
 					// Laad response voor uit cache, maar alleen als er een callback is opgegeven
 					const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`).value;
-					if(isSet(cachedResponse) && isSet(cachedResponse.data)) {
+					if(isSet(cachedResponse)) {
 						// Beantwoord request met response uit cache
 						if(parameters.source == 'prefer_cache') {
 							// Stuur geen meer request naar de server
 							try {
-								resolve(cachedResponse.data);
+								resolve(cachedResponse);
 								if(typeof parameters.callback == 'function') {
 									parameters.callback(cachedResponse, 'final', undefined, parameters.url);
 								}
@@ -118,7 +116,7 @@ const magistraal = {
 						} else {
 							// Stuur nog wel een request naar de server
 							try {
-								resolve(cachedResponse.data);
+								resolve(cachedResponse);
 								if(typeof parameters.callback == 'function') {
 									parameters.callback(cachedResponse, 'pre', undefined, parameters.url);
 								}
@@ -149,7 +147,7 @@ const magistraal = {
 						// Als de request gelukt is
 						if(isSet(response.success) && response.success === true && isSet(response.data)) {
 							// Sla de response op in de cache
-							if(parameters.cachable && isSet(response.data)) {
+							if(parameters.cachable) {
 								magistraalPersistentStorage.set(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`, response);
 							}
 
@@ -192,12 +190,12 @@ const magistraal = {
 						if(response.readyState == 0 && response.status == 0) {
 							console.log('offline:', true);
 
-							const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`);
+							const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`).value;
 							
-							if(isSet(cachedResponse.data)) {
+							if(isSet(cachedResponse)) {
 								// Voer callback uit met response van cache
 								try {
-									resolve(cachedResponse.data);
+									resolve(cachedResponse);
 									if(typeof parameters.callback == 'function') {
 										parameters.callback(cachedResponse, 'final', undefined, parameters.url);
 									}
@@ -378,7 +376,7 @@ const magistraal = {
 						sidebarFeed.actions = {
 							edit: {
 								handler: `magistraal.appointments.edit({id: '${appointment.id}', start: '${appointment.start.time}', end: '${appointment.end.time}', facility: '${escapeQuotes(appointment.facility)}', designation: '${escapeQuotes(appointment.designation)}', content: '${escapeQuotes(appointment.content)}'})`, 
-								icon: 'fal fa-pencil'
+								icon: 'fal fa-pencil-alt'
 							},
 							delete: {
 								handler: `magistraal.appointments.delete('${appointment.id}')`, 
@@ -773,7 +771,7 @@ const magistraal = {
 					$content.find('.bullet:last-child').remove();
 
 					$item.find('.setting-category-content').html($content.html());
-					$item.attr('onclick', `magistraal.page.load({page: 'settings/list', data: {'category': '${itemNamespace}'}, source: 'prefer_cache', historyPush: true});`);
+					$item.attr('onclick', `magistraal.page.load({page: 'settings/list', data: {'category': '${itemNamespace}'}, source: 'prefer_cache'});`);
 				
 				// Als item een instelling is
 				} else {
@@ -863,6 +861,10 @@ const magistraal = {
 		},
 
 		updateClient: (settings, updateOnServer = false) => {
+			if(!isSet(settings)) {
+				settings = {};
+			}
+
 			let newSettings = {};
 			Object.assign(newSettings, settings);
 
@@ -929,13 +931,13 @@ const magistraal = {
 					url: 'user/settings/set_all',
 					data: {settings: settings},
 					source: 'server_only'
-				}).then(data => {
-					magistraal.settings.updateClient(data);
+				}).then(response => {
+					magistraal.settings.updateClient(response.data);
 
 					magistraal.console.success('console.success.save');
 
 					resolve();
-				}).catch(data => {
+				}).catch(response => {
 					magistraal.console.error();
 					reject();
 				})
@@ -1209,11 +1211,10 @@ const magistraal = {
 
 	page: {
 		load: (parameters) => {
-			if(!isSet(parameters.cachable)) { parameters.cachable = null; }
-			if(!isSet(parameters.data)) { parameters.data = {}; }
-			if(!isSet(parameters.page)) { return false; }
-			if(!isSet(parameters.source)) { parameters.source = null; }
-			if(!isSet(parameters.historyMethod)) { parameters.historyMethod = 'push'; }
+			if(!isSet(parameters.cachable))      { parameters.cachable = null; }
+			if(!isSet(parameters.data))          { parameters.data = {}; }
+			if(!isSet(parameters.page))          { return false; }
+			if(!isSet(parameters.source))        { parameters.source = null; }
 
 			if(parameters.page.includes('?')) {
 				// Query string is embedded in page, extract it
@@ -1237,6 +1238,9 @@ const magistraal = {
 					source = 'prefer_cache';
 					break;
 			}
+
+			// Wijzig de URL
+			magistraal.page.modifyLocation(parameters.page, parameters.data);
 						
 			// Sidebar leeg maken en sluiten
 			magistraal.sidebar.clearFeed();
@@ -1287,8 +1291,6 @@ const magistraal = {
 						magistraal.page.getCallback(response, loadType, request, page);
 					}, 
 				}).then(response => {
-					// Voeg de pagina toe aan geschiedenis
-					magistraal.page.updateLocation(parameters.page, parameters.data, parameters.historyMethod);
 					resolve(response);
 				}).catch(() => {});
 			});
@@ -1307,73 +1309,47 @@ const magistraal = {
 			// Werk de paginatitel bij
 			// console.log('BB', loadType);
 
-			// Stuur een bericht in de console
 			if(loadType == 'final') {
 				magistraal.console.success('console.success.refresh');
 			}
 		},
 
-		loadPrevious: (showDialog = true) => {
-			const previousPage = $('body').attr('data-history');
-			if(!isSet(previousPage)) {
-				return;
+		current: (ignoreQuery = false) => {
+			let page = trim(window.location.hash.substring(2), '/');
+			
+			if(ignoreQuery) {
+				return page.split('?')[0];
 			}
 
-			magistraal.sidebar.close(); 
-			magistraal.popup.close(undefined, showDialog).then(() => {
-				magistraal.page.load({
-					page: previousPage,
-					historyMethod: 'clear'
-				});
-			})
-		},
+			// Verwijder 'activity' parameter
+			if(page.includes('?')) {
+				const params = new URLSearchParams(page.split('?')[1]);
+				params.delete('activity');
+				page = page.split('?')[0] + params.toString();
+			}
 
-		current: (ignoreQuery = false) => {
-			const page = trim(window.location.hash.substring(2), '/');
-			return (ignoreQuery ? page.split('?')[0] : page);
+			console.log(page);
+
+			return page;
 		},
 		
 		setContent: ($html) => {
 			$('main').empty().append($html.children());
 		},
 
-		historyPush: (location, activity = undefined, method = 'push') => {
-			if(isSet(activity)) {
-				location = location + (location.includes('?') ? '&' : '?') + 'activity=' + activity;
-			}
-
-
-			let historyData = magistraalStorage.get('history').value;
-			historyData = (isSet(historyData) ? [historyData].flat() : []);
-
-			if(method == 'push') {
-				historyData.push(location);;
-				history.pushState(null, null, window.location.pathname + '#/' + location);
-			} else if(method == 'clear') {
-				historyData = [];
-			} else {
-				historyData[0] = location;
-				history.replaceState(null, null, window.location.pathname + '#/' + location);
-			}
-
-			magistraalStorage.set('history', historyData);
-
-			if(historyData.length > 1) {
-				// Toon de terugknop
-				$('body').attr('data-history', historyData[0]);
-			} else {
-				// Verberg de terugknop
-				$('body').removeAttr('data-history');
-			}
-		},
-
-		updateLocation: (page, data = {}, method = 'push') => {
-			const currentHash = window.location.hash;
+		modifyLocation: (page, data = {}, method = 'push') => {
+			const currentHash = magistraal.page.current();
 			const query       = new URLSearchParams(data).toString();
-			const newHash     = page + (query.length > 0 ? '?' : '') + query;
+			const seperator   = query.length > 0 
+									? page.includes('?')
+										? '&'
+										: '?'
+									: ''; 
+			const newHash     = page + seperator + query;
 
-			if(newHash != currentHash) {
-				magistraal.page.historyPush(newHash, undefined, method);
+			// Verander url
+			if(currentHash != newHash) {
+				history.pushState(null, null, '#/' + newHash);
 			}
 		}
 	},
@@ -1782,7 +1758,10 @@ const magistraal = {
 		open: () => {
 			$('body').attr('data-sidebar-active', true);
 			magistraalStorage.set('sidebar_active', true);
-			magistraal.page.historyPush(magistraal.page.current(), 'sidebar');
+
+			if(window.innerWidth < 768) {
+				magistraal.page.modifyLocation(magistraal.page.current(), {activity: 'sidebar'});
+			}
 		},
 
 		close: () => {
@@ -1810,7 +1789,7 @@ const magistraal = {
 				return false;
 			}
 
-			magistraal.page.historyPush(magistraal.page.current(), 'popup');
+			magistraal.page.modifyLocation(magistraal.page.current(), {activity: 'popup'});
 
 			magistraal.element.get('popup-backdrop').addClass('show');
 			magistraal.popup.enable(selector);
@@ -1848,7 +1827,7 @@ const magistraal = {
 			})
 		},
 
-		closeCallback: ($popup, selector) => {
+		closeCallback: ($popup, selector) => {	
 			magistraal.element.get('popup-backdrop').removeClass('show');
 			magistraal.popup.disable(selector);
 			$popup.removeClass('show');

@@ -39,7 +39,8 @@
         $(document).on('magistraal.ready', function() {
             const currentPage = magistraal.page.current();
             magistraal.page.load({
-                page: currentPage.length > 0 ? currentPage : 'appointments/list'
+                page: currentPage.length > 0 ? currentPage : 'appointments/list',
+                historyMethod: 'ignore'
             });
         })
     </script>
@@ -72,7 +73,7 @@
                 <span data-translation="page.studyguides/list.title"></span>
             </li>
             <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'tasks'});" data-magistraal="nav-item-tasks/list">
-                <i class="fal fa-pen"></i>
+                <i class="fal fa-pencil-alt"></i>
                 <span data-translation="page.tasks/list.title"></span>
             </li>
         </ul>
@@ -99,7 +100,7 @@
         <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="nav-toggler" onclick="magistraal.nav.open();">
             <i class="fal fa-bars"></i>
         </button>
-        <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="page-back-button" onclick="magistraal.page.loadPrevious();">
+        <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="page-back-button" onclick="magistraal.sidebar.close();">
             <i class="fal fa-arrow-left"></i>
         </button>
         <h2 data-magistraal="page-title" class="col px-1"></h2>
