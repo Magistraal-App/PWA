@@ -37,10 +37,9 @@
         })
 
         $(document).on('magistraal.ready', function() {
-            const currentPage = magistraal.page.current();
+            const currentPage = magistraal.page.current(true);
             magistraal.page.load({
-                page: currentPage.length > 0 ? currentPage : 'appointments/list',
-                historyMethod: 'ignore'
+                page: currentPage.length > 0 ? currentPage : 'appointments/list'
             });
         })
     </script>
