@@ -141,8 +141,8 @@
             case 1: return 'homework';     // Huiswerk
             case 2: return 'test';         // Proefwerk
             case 3: return 'exam';         // Tentamen
-            case 4: return 'exam_written'; // Schriftelijke overhoring
-            case 5: return 'exam_oral';    // Mondelijke overhoring
+            case 4: return 'test_written'; // Schriftelijke overhoring
+            case 5: return 'test_oral';    // Mondelijke overhoring
             case 6: return 'info';         // Informatie
             case 7: return 'note';         // Aantekening
         }

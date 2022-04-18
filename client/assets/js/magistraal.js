@@ -177,7 +177,9 @@ const magistraal = {
 						// Laat de gebruiker opnieuw inloggen als token niet bestaat / onjuist is
 						if(isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info == 'token_invalid') {
 							magistraal.token.delete();
-							magistraal.page.load('login');
+							magistraal.page.load({
+								page: 'login'
+							});
 							return;
 						}
 
@@ -211,7 +213,6 @@ const magistraal = {
 							}
 						} else {
 							// Beantwoord de promise alleen als de response geschikt is om verder te gebruiken
-							console.log(parameters.alwaysReturn);
 							if((isSet(response.responseJSON) && isSet(response.responseJSON.info)) || parameters.alwaysReturn) {
 								if(typeof parameters.callback == 'function') {
 									parameters.callback(response, 'final', undefined, parameters.url);
@@ -475,13 +476,15 @@ const magistraal = {
 				source: 'server_only'
 			}).then(data => {
 				magistraal.console.success('console.success.create_appointment');
-				magistraal.page.load('appointments/list');
+				magistraal.page.load({
+					page: 'appointments/list'
+				});
 
 				if($form) {
 					$form.formReset();
 				}
 			}).catch(response => {
-				magistraal.popup.open('appointments-create-appointment');
+				magistraal.popup.open('appointments_create_appointment');
 
 				if(response.responseJSON && response.responseJSON.info) {
 					magistraal.console.error(`console.error.${response.responseJSON.info}`);
@@ -491,8 +494,8 @@ const magistraal = {
 		},
 
 		edit: (appointment) => {
-			let popup = 'appointments-create-appointment';
-			let $form = magistraal.element.get('form-appointments-create-appointment');
+			let popup = 'appointments_create_appointment';
+			let $form = magistraal.element.get('form-appointments_create_appointment');
 						
 			$form.find('[name="id"]').value(appointment.id);
 			$form.find('[name="date"]').value(appointment.start);
@@ -514,7 +517,9 @@ const magistraal = {
 				source: 'server_only'
 			}).then(data => {
 				magistraal.console.success('console.success.delete_appointment');
-				magistraal.page.load('appointments/list');
+				magistraal.page.load({
+					page: 'appointments/list'
+				});
 			}).catch(response => {
 				if(response.responseJSON && response.responseJSON.info) {
 					magistraal.console.error(`console.error.${response.responseJSON.info}`);
@@ -716,13 +721,15 @@ const magistraal = {
 				source: 'server_only'
 			}).then(response => {
 				magistraal.console.success('console.success.send_message');
-				magistraal.page.load('messages/list');
+				magistraal.page.load({
+					page: 'messages/list'
+				});
 
 				if($form) {
 					$form.formReset();
 				}
 			}).catch(response => {
-				magistraal.popup.open('messages-write-message');
+				magistraal.popup.open('messages_write_message');
 
 				magistraal.console.error(`console.error.${response.responseJSON?.info}`);
 			})
@@ -768,7 +775,7 @@ const magistraal = {
 					$content.find('.bullet:last-child').remove();
 
 					$item.find('.setting-category-content').html($content.html());
-					$item.attr('onclick', `magistraal.page.load('settings/list', {'category': '${itemNamespace}'}, true, 'prefer_cache');`);
+					$item.attr('onclick', `magistraal.page.load({page: 'settings/list', data: {'category': '${itemNamespace}'}, source: 'prefer_cache', historyPush: true});`);
 				
 				// Als item een instelling is
 				} else {
@@ -1203,23 +1210,23 @@ const magistraal = {
 	},
 
 	page: {
-		load: (page, data = {}, cachable = true, source = 'both') => {
-			if(page.includes('?')) {
+		load: (parameters) => {
+			if(!isSet(parameters.cachable)) { parameters.cachable = null; }
+			if(!isSet(parameters.data)) { parameters.data = {}; }
+			if(!isSet(parameters.page)) { return false; }
+			if(!isSet(parameters.source)) { parameters.source = null; }
+			if(!isSet(parameters.historyPush)) { parameters.historyPush = false; }
+
+			if(parameters.page.includes('?')) {
 				// Query string is embedded in page, extract it
-				[page, data] = page.split('?');
-				data = Object.fromEntries(new URLSearchParams(data));
+				[parameters.page, parameters.data] = parameters.page.split('?');
+				parameters.data = Object.fromEntries(new URLSearchParams(parameters.data));
 			}
 
-			if(isSet(data.popup)) {
-				delete data.popup;
-			}
-
-			if(isSet(data.sidebar)) {
-				delete data.sidebar;
-			}
+			if(isSet(parameters.data.activity)) { delete parameters.data.activity; }
 
 			// Aanpassingen per pagina
-			switch(page) {
+			switch(parameters.page) {
 				case 'login':
 					window.location.href = '../login/';
 					return;
@@ -1230,19 +1237,10 @@ const magistraal = {
 				
 				case 'settings/list':
 					source = 'prefer_cache';
-					if(isSet(data['category'])) {
-						magistraal.page.setPrevious('settings/list');
-					}
 					break;
 			}
-
-			// Pad opslaan in gebruikers geschiedenis (voor als gebruiker een pagina terug wil)
-			let currentLocation = window.location.pathname + window.location.hash;
-			let query           = new URLSearchParams(data).toString();
-			let newLocation     = window.location.pathname + '#' + page + (query.length > 0 ? '?' : '') + query;
-			if(currentLocation != newLocation) {
-				history.pushState(null, null, newLocation);
-			}
+			
+			magistraal.page.updateLocation(parameters.page, parameters.data, (parameters.historyPush ? 'push' : 'replace'));
 			
 			// Sidebar leeg maken en sluiten
 			magistraal.sidebar.clearFeed();
@@ -1256,13 +1254,13 @@ const magistraal = {
 
 			// Geselecteerde item in navigatiebalk wijzigen
 			$('.nav-item').removeClass('active');
-			magistraal.element.get(`nav-item-${page}`).addClass('active');
+			magistraal.element.get(`nav-item-${parameters.page}`).addClass('active');
 			
 			// Pagina laden
-			magistraal.page.get(page, data, cachable, source);
+			magistraal.page.get(parameters);
 		},
 
-		get: (page, data = {}, cachable = true, source = 'both') => {
+		get: (parameters) => {
 			// Lijst van callbacks
 			const callbacks = {
 				'absences/list': magistraal.absences.paintList,
@@ -1275,23 +1273,23 @@ const magistraal = {
 
 			// Juiste callback kiezen
 			let callback = function() {};
-			if(isSet(callbacks[page])) {
-				callback = callbacks[page];
+			if(isSet(callbacks[parameters.page])) {
+				callback = callbacks[parameters.page];
 			}
 
 			return new Promise((resolve, reject) => {
 				magistraal.console.loading('console.loading.refresh');
 
 				magistraal.api.call({
-					url: page, 
-					data: data, 
-					source: source,
-					cachable: cachable, 
+					url: parameters.page, 
+					data: parameters.data, 
+					source: parameters.source,
+					cachable: parameters.cachable, 
+					scope: parameters.page,
 					callback: function(response, loadType, request, page) {
 						callback(response, loadType, request, page);
 						magistraal.page.getCallback(response, loadType, request, page);
 					}, 
-					scope: page,
 				}).then(data => {
 					resolve(data);
 				}).catch(() => {});
@@ -1316,46 +1314,64 @@ const magistraal = {
 			}
 		},
 
+		loadPrevious: (showDialog = true) => {
+			const previousPage = $('body').attr('data-history');
+			if(!isSet(previousPage)) {
+				return;
+			}
+
+			magistraal.sidebar.close(); 
+			magistraal.popup.close(undefined, showDialog).then(() => {
+				magistraal.page.load({
+					page: previousPage
+				});
+			})
+		},
+
 		current: () => {
-			return trim(window.location.hash.substring(1).replace(/[^a-zA-Z\/]/g, ''), '/');
+			return trim(window.location.hash.substring(2), '/');
 		},
 		
 		setContent: ($html) => {
 			$('main').empty().append($html.children());
 		},
 
-		setPrevious: (page = undefined, reason = undefined) => {
-			if(isSet(page)) {
-				$('body').attr('data-previous-page', encodeURI(page));
-				magistraalStorage.set('previous_page', page);
-				
-				if(isSet(reason)) {
-					let previousLocation = window.location.pathname + '#' + page + (page.includes('?') ? '&' : '?') + reason + '=true';
-					console.log(previousLocation);
-					history.pushState(null, null, previousLocation);
-				}
+		historyPush: (location, activity = undefined, method = 'push') => {
+			if(isSet(activity)) {
+				location = location + (location.includes('?') ? '&' : '?') + 'activity=' + activity;
+			}
 
-				console.log('prev page was set to', page);
+
+			let historyData = ([magistraalStorage.get('history').value] || []).flat();
+			if(method == 'push') {
+				historyData.push(location);
+				history.pushState(null, null, window.location.pathname + '#/' + location);
 			} else {
-				$('body').removeAttr('data-previous-page');
-				magistraalStorage.remove('previous_page');
+				historyData = [location];
+				history.replaceState(null, null, window.location.pathname + '#/' + location);
+			}
+
+			magistraalStorage.set('history', historyData);
+
+			if(historyData.length > 1) {
+				// Toon de terugknop
+				$('body').attr('data-history', historyData[0]);
+			} else {
+				// Verberg de terugknop
+				$('body').removeAttr('data-history');
 			}
 		},
 
-		loadPrevious: () => {
-			let page = magistraalStorage.get('previous_page').value;
-			if(!isSet(page)) {
-				return false;
+		updateLocation: (page, data = {}, method = 'push') => {
+			const currentHash = window.location.hash;
+			const query       = new URLSearchParams(data).toString();
+			const newHash     = page + (query.length > 0 ? '?' : '') + query;
+			if(newHash != currentHash) {
+				magistraal.page.historyPush(newHash, undefined, method);
 			}
-			
-			magistraal.sidebar.close();
-			magistraal.popup.close().then(() => {
-				$('body').removeAttr('data-previous-page');
-				magistraal.page.load(page, undefined, undefined, 'prefer_cache');
-				magistraalStorage.remove('previous_page');
-			});
 		}
 	},
+
 	login: {
 		login: (credentials) => {
 			magistraal.console.loading('console.loading.login');
@@ -1375,23 +1391,55 @@ const magistraal = {
 			});
 		}
 	},
+
 	inputs: {
 		dialog: class {
 			constructor(parameters = {}) {
 				if(!isSet(parameters.title))       { parameters.title = ''; }
 				if(!isSet(parameters.description)) { parameters.description = ''; }
 
-				this.$parameters = parameters;
+				this.parameters = parameters;
 
 				return this.open();
 			}
 
 			open() {
+				this.$dialog = magistraal.template.get('dialog');
+
+				this.$dialog.find('.dialog-title').text(this.parameters.title);
+				this.$dialog.find('.dialog-description').text(this.parameters.description);
+
 				return new Promise((resolve, reject) => {
+					this.$dialog.appendTo('body');
 					setTimeout(() => {
-						resolve();
-					}, random(100, 500));
+						this.$dialog.addClass('show');
+						magistraal.element.get('dialog-backdrop').addClass('show');
+
+						const dialog = this;
+							this.$dialog.find('[data-dialog-action]').on('click', function() {
+								if($(this).attr('data-dialog-action') == 'yes') {
+									resolve();
+								} else {
+									reject();
+								}
+
+								dialog.close();
+							})
+					}, 10);
 				})
+			}
+
+			close() {
+				if(!isSet(this.$dialog)) {
+					return false;
+				}
+
+				magistraal.element.get('dialog-backdrop').removeClass('show');
+
+				this.$dialog.removeClass('show');
+				setTimeout(() => {
+					this.$dialog.remove();
+				}, 5000);
 			}
 		},
 
@@ -1405,6 +1453,8 @@ const magistraal = {
 				if(this.$input.closest('.input-wrapper').length == 0) {
 					this.$input.wrap('<div class="input-wrapper"></div>');
 				}
+
+				this.$input.data('tagsInput', this);
 
 				this.$wrapper = this.$input.closest('.input-wrapper');
 				this.$wrapper.addClass('input-tags-wrapper');
@@ -1471,7 +1521,7 @@ const magistraal = {
 					this.$input.wrap('<div class="input-wrapper"></div>');
 				}
 
-				this.$input.data('input', this);
+				this.$input.data('searchInput', this);
 
 				this.$wrapper = this.$input.closest('.input-wrapper');
 				this.$wrapper.addClass('input-search-wrapper');
@@ -1581,6 +1631,7 @@ const magistraal = {
 				}
 			}
 		},
+
 		search: {
 			remap_api_response: (api, response) => {
 				let result = [];
@@ -1609,7 +1660,9 @@ const magistraal = {
 				source: 'server_only'
 			}).finally(() => {
 				magistraalPersistentStorage.clear();
-				magistraal.page.load('login');
+				magistraal.page.load({
+					page: 'login'
+				});
 			});
 		}
 	},
@@ -1723,7 +1776,7 @@ const magistraal = {
 		open: () => {
 			$('body').attr('data-sidebar-active', true);
 			magistraalStorage.set('sidebar_active', true);
-			magistraal.page.setPrevious(magistraal.page.current());
+			magistraal.page.historyPush(magistraal.page.current(), 'sidebar');
 		},
 
 		close: () => {
@@ -1751,14 +1804,14 @@ const magistraal = {
 				return false;
 			}
 
-			magistraal.page.setPrevious(magistraal.page.current(), 'popup');
+			magistraal.page.historyPush(magistraal.page.current(), 'popup');
 
 			magistraal.element.get('popup-backdrop').addClass('show');
 			magistraal.popup.enable(selector);
 			$popup.addClass('show');
 		},
 
-		close: (selector  = undefined) => {
+		close: (selector  = undefined, showDialog = true) => {
 			if(!isSet(selector)) {
 				selector = $('[data-magistraal-popup].show').last().attr('data-magistraal-popup');
 			}
@@ -1771,22 +1824,28 @@ const magistraal = {
 				}
 
 				let $form = $popup.find('form').first();
-				if($form.length) {
-					if(!$form.formEmpty()) {
-						// Toon een dialog aan de gebruiker
-						new magistraal.inputs.dialog({
-							title: 'ee',
-							description: 'bbb'
-						})
-					}
+				if($form.length && $form.formHasChanges() && showDialog) {
+					// Toon een dialog aan de gebruiker
+					new magistraal.inputs.dialog({
+						title: magistraal.locale.translate(`generic.dialog.popup_close.${selector}.title`, magistraal.locale.translate('generic.dialog.popup_close.title')),
+						description: magistraal.locale.translate(`generic.dialog.popup_close.${selector}.description`, magistraal.locale.translate('generic.dialog.popup_close.description'))
+					}).then(() => {
+						resolve();
+						$form.formReset();
+						return magistraal.popup.closeCallback($popup, selector);
+					}).catch(() => {})
+				} else {
+					resolve();
+					$form.formReset();
+					return magistraal.popup.closeCallback($popup, selector);
 				}
-
-				magistraal.element.get('popup-backdrop').removeClass('show');
-				magistraal.popup.disable(selector);
-				$popup.removeClass('show');
-
-				resolve();
 			})
+		},
+
+		closeCallback: ($popup, selector) => {
+			magistraal.element.get('popup-backdrop').removeClass('show');
+			magistraal.popup.disable(selector);
+			$popup.removeClass('show');
 		},
 
 		enable: selector => {

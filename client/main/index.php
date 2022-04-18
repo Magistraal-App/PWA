@@ -21,7 +21,9 @@
 
     <script>
         if(!magistraal.token.isSet()) {
-            magistraal.page.load('login');
+            magistraal.page.load({
+                page: 'login'
+            });
         }
 
         $(document).ready(function() {
@@ -35,56 +37,59 @@
         })
 
         $(document).on('magistraal.ready', function() {
-            magistraal.page.load((window.location.hash.length > 0 ? window.location.hash.substring(1) : 'appointments/list'));
+            const currentPage = magistraal.page.current();
+            magistraal.page.load({
+                page: currentPage.length > 0 ? currentPage : 'appointments/list'
+            });
         })
     </script>
 </head>
 <body data-nav-active="false" data-sidebar-active="false" data-settings="<?php echo(http_build_query(\Magistraal\User\Settings\get_all(\Magister\Session::$userUuid ?? null), '', ',')); ?>" data-online="false">
      <nav onmouseenter="magistraal.nav.open()" onmouseleave="magistraal.nav.close();" class="scrollbar-hidden">
         <ul class="nav-items">
-            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('home');" data-magistraal="nav-item-home">
+            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'home'});" data-magistraal="nav-item-home">
                 <i class="fal fa-home"></i>
                 <span data-translation="page.home.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('appointments/list');" data-magistraal="nav-item-appointments/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'appointments/list'});" data-magistraal="nav-item-appointments/list">
                 <i class="fal fa-calendar-alt"></i>
                 <span data-translation="page.appointments/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('grades/list');" data-magistraal="nav-item-grades/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'grades/list'});" data-magistraal="nav-item-grades/list">
                 <i class="fal fa-award"></i>
                 <span data-translation="page.grades/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('absences/list');" data-magistraal="nav-item-absences/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'absences/list'});" data-magistraal="nav-item-absences/list">
                 <i class="fal fa-calendar-times"></i>
                 <span data-translation="page.absences/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('sources');" data-magistraal="nav-item-sources/list">
+            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'sources'});" data-magistraal="nav-item-sources/list">
                 <i class="fal fa-folder"></i>
                 <span data-translation="page.sources/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('studyguides');" data-magistraal="nav-item-studyguides/list">
+            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'studyguides'});" data-magistraal="nav-item-studyguides/list">
                 <i class="fal fa-map-signs"></i>
                 <span data-translation="page.studyguides/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('tasks');" data-magistraal="nav-item-tasks/list">
+            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'tasks'});" data-magistraal="nav-item-tasks/list">
                 <i class="fal fa-pen"></i>
                 <span data-translation="page.tasks/list.title"></span>
             </li>
         </ul>
         <ul class="nav-items mt-auto">
-            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('messages/list');" data-magistraal="nav-item-messages/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'messages/list'});" data-magistraal="nav-item-messages/list">
                 <i class="fal fa-envelope"></i>
                 <span data-translation="page.messages/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load('account');" data-magistraal="nav-item-account/list">
+            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'account'});" data-magistraal="nav-item-account/list">
                 <i class="fal fa-user"></i>
                 <span data-translation="page.account/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse online-only" onclick="magistraal.page.load('settings/list', {}, true, 'prefer_cache');" data-magistraal="nav-item-settings/list">
+            <li tabindex="0" class="nav-item text-inverse online-only" onclick="magistraal.page.load({page: 'settings/list'});" data-magistraal="nav-item-settings/list">
                 <i class="fal fa-cog"></i>
                 <span data-translation="page.settings/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load('logout', {}, false);" data-magistraal="nav-item-logout">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'logout', {}, false);" data-magistraal="nav-item-logout">
                 <i class="fal fa-sign-out"></i>
                 <span data-translation="page.logout.title"></span>
             </li>
@@ -94,7 +99,7 @@
         <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="nav-toggler" onclick="magistraal.nav.open();">
             <i class="fal fa-bars"></i>
         </button>
-        <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="page-back-button" onclick="magistraal.sidebar.close(); magistraal.page.loadPrevious();">
+        <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="page-back-button" onclick="magistraal.page.loadPrevious();">
             <i class="fal fa-arrow-left"></i>
         </button>
         <h2 data-magistraal="page-title" class="col px-1"></h2>
@@ -309,17 +314,28 @@
               <!-- Action -->
             <div data-magistraal-template="sidebar-action" class="sidebar-action btn btn-with-icon"></div>
 
-        <!-- PAGE ICONS -->
-            <!-- Loading -->
-            <i data-magistraal-template="page-loading-icon" class="fal fa-circle-notch fa-spin text-secondary" data-magistraal="page-loading-icon"></i>
-        
-            <!-- Error -->
-            <i data-magistraal-template="page-error-icon" class="fal fa-exclamation-circle text-danger" data-magistraal="page-error-icon"></i>
+        <!-- DIALOG -->
+            <div data-magistraal-template="dialog" class="dialog">
+                <div class="dialog-main">
+                    <h3 class="dialog-title"></h3>
+                    <span class="dialog-description text-muted"></span>
+                </div>
+                <div class="dialog-footer">
+                    <button class="btn btn-secondary btn-with-icon" data-dialog-action="yes">
+                        <i class="btn-icon fal fa-check"></i>
+                        <span class="btn-text" data-translation="generic.bool.true"></span>
+                    </button>
+                    <button class="btn btn-danger btn-with-icon" data-dialog-action="no">
+                        <i class="btn-icon fal fa-times"></i>
+                        <span class="btn-text" data-translation="generic.bool.false"></span>
+                    </button>
+                </div>
+            </div>
         
         <!-- PAGE BUTTONS -->
             <!-- Appointments -->
             <div data-magistraal-template="page-buttons-appointments/list">
-                <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.popup.open('appointments-create-appointment');">
+                <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.popup.open('appointments_create_appointment');">
                     <i class="btn-icon fal fa-calendar-plus"></i>
                     <span class="btn-text" data-translation="appointments.create_appointment"></span>
                 </button>
@@ -328,19 +344,19 @@
 
             <!-- Grades list -->
             <div data-magistraal-template="page-buttons-grades/list">
-                <!-- <button class="btn btn-secondary" data-translation="grades.to_overview" onclick="magistraal.page.load('gradesoverview');"></button> -->
+                <!-- <button class="btn btn-secondary" data-translation="grades.to_overview" onclick="magistraal.page.load({page: 'gradesoverview');"></button> -->
                 <!-- <button class="btn btn-secondary" data-translation="grades.to_grade_calculator"></button> -->
             </div>
 
             <!-- Grades overview -->
             <div data-magistraal-template="page-buttons-grades/overview">
-                <!-- <button class="btn btn-secondary" data-translation="grades.to_list" onclick="magistraal.page.load('grades');"></button> -->
+                <!-- <button class="btn btn-secondary" data-translation="grades.to_list" onclick="magistraal.page.load({page: 'grades');"></button> -->
                 <!-- <button class="btn btn-secondary" data-translation="grades.to_grade_calculator"></button> -->
             </div>
 
             <!-- Messages -->
             <div data-magistraal-template="page-buttons-messages/list">
-                <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.popup.open('messages-write-message');">
+                <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.popup.open('messages_write_message');">
                     <i class="btn-icon fal fa-pencil-alt"></i>
                     <span class="btn-text" data-translation="messages.write_message" ></span>
                 </button>
@@ -350,8 +366,8 @@
     <div data-magistraal="popups">
           <!-- APPOINTMENTS -->
             <!-- Create appointment popup -->
-            <div data-magistraal-popup="appointments-create-appointment" class="popup">
-                <form data-magistraal="form-appointments-create-appointment">
+            <div data-magistraal-popup="appointments_create_appointment" class="popup">
+                <form data-magistraal="form-appointments_create_appointment">
                     <div class="popup-main">
                         <input type="hidden" name="id">
                         <h3 class="popup-title" data-translation="appointments.popup.create_appointment.title"></h3>
@@ -403,7 +419,7 @@
                         </div>
                     </div>
                     <div class="popup-footer">
-                        <button type="button" class="btn btn-danger btn-with-icon" data-popup-action="cancel" onclick="$(this).parents('form').formReset();">
+                        <button type="button" class="btn btn-danger btn-with-icon" data-popup-action="cancel">
                             <i class="btn-icon fal fa-times"></i>
                             <span class="btn-text" data-translation="generic.action.cancel"></span>
                         </button>
@@ -417,8 +433,8 @@
         </div>
         <!-- MESSAGES -->
             <!-- Write message popup -->
-            <div data-magistraal-popup="messages-write-message" class="popup">
-                <form data-magistraal="form-messages-write-message">
+            <div data-magistraal-popup="messages_write_message" class="popup">
+                <form data-magistraal="form-messages_write_message">
                     <div class="popup-main">
                         <h3 class="popup-title" data-translation="messages.popup.write_message.title"></h3>
                         <div class="popup-item">
@@ -463,7 +479,7 @@
                         </div>
                     </div>
                     <div class="popup-footer">
-                       <button type="button" class="btn btn-danger btn-with-icon" data-popup-action="cancel" onclick="$(this).parents('form').formReset();">
+                       <button type="button" class="btn btn-danger btn-with-icon" data-popup-action="cancel">
                             <i class="btn-icon fal fa-times"></i>
                             <span class="btn-text" data-translation="generic.action.cancel"></span>
                         </button>
@@ -477,6 +493,7 @@
         </div>
     </div>
     <div data-magistraal="popup-backdrop" class="popup-backdrop"></div>
+    <div data-magistraal="dialog-backdrop" class="dialog-backdrop"></div>
     <span data-magistraal="tooltip" style="display: none;"></span>
 </body>
 </html>

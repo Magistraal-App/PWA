@@ -9,6 +9,32 @@ function debounce(callback, delay = 500) {
     }
 }
 
+function throttle(callback, delay = 1000) {
+    let shouldWait = false;
+    let waitingArgs;
+    const timeoutFunc = () => {
+        if (waitingArgs == null) {
+            shouldWait = false;
+        } else {
+            callback(...waitingArgs);
+            waitingArgs = null;
+            setTimeout(timeoutFunc, delay);
+        }
+    }
+
+    return (...args) => {
+        if (shouldWait) {
+            waitingArgs = args;
+            return;
+        }
+
+        callback(...args);
+        shouldWait = true;
+
+        setTimeout(timeoutFunc, delay);
+    }
+}
+
 function unique(array) {
     return [...new Set(array)];
 }
@@ -61,40 +87,63 @@ $.fn.value = function(value = undefined) {
 }
 
 $.fn.formSerialize = function() {
-    let $form  = this;
-    let form   = this.get(0);
-    let output = {};
+    const $form  = this;
+    const form   = this.get(0);
+    const output = {};
 
     if(form.nodeName.toLowerCase() != 'form') {
         return false;
     }
 
     $form.find('[name]').each(function() {
-        let $input = $(this);
+        const $el = $(this);
 
-        if($input.get(0).nodeName.toLowerCase() == 'textarea') {
+        if($el.get(0).nodeName.toLowerCase() == 'textarea') {
             // Replace newline with br
-            output[$input.attr('name')] = $input.value().replace(/\r\n|\r|\n/g, '<br/>');
+            output[$el.attr('name')] = $el.value().replace(/\r\n|\r|\n/g, '<br/>');
         } else {
-            output[$input.attr('name')] = $input.value();
+            output[$el.attr('name')] = $el.value();
         }
     })
 
     return output;
 }
 
+$.fn.formHasChanges = function() {
+    const $form  = this;
+    const form   = this.get(0);
+
+    if(form.nodeName.toLowerCase() != 'form') {
+        return false;
+    } 
+
+    return isSet($form.attr('data-has-changes')) && $form.attr('data-has-changes') == 'true';
+}
+
+$(document).on('input', 'input, textarea, [contenteditable]', throttle(function(e) {
+    let $form = $(e.target).closest('form');
+
+    if($form.length == 0) {
+        return false;
+    }
+
+    $form.attr('data-has-changes', true);
+}, 1000))
+
 $.fn.formReset = function() {
-    let $form  = this;
-    let form   = this.get(0);
+    const $form  = this;
+    const form   = this.get(0);
 
     if(form.nodeName.toLowerCase() != 'form') {
         return false;
     }
 
-    $form.find('[name]').each(function() {
-        let $el = $(this);
+    $form.find('input, textarea, [contenteditable]').each(function() {
+        const $el = $(this);
         if($el.hasClass('input-tags')) {
             $el.setTags({});
+            $el.val('');
+            $el.data('searchInput').results.set({});
         } else if($el.attr('type') == 'time' && $el.attr('value')) {
             $el.val($el.attr('value'));
         } else if($el.attr('type') == 'date') {
@@ -105,10 +154,15 @@ $.fn.formReset = function() {
             $el.val('');
         }
     })
+
+    $form.removeAttr('data-has-changes');
 }
 
 $(document).on('click', function(e) {
-    if($(e.target).closest('[data-magistraal="nav-toggler"]').length == 0 && magistraalStorage.get('nav_active')) {
+    if($(e.target).closest('[data-magistraal="nav-toggler"]').length == 0 && 
+       magistraal.element.get('nav').length > 0 && 
+       magistraalStorage.get('nav_active') === true
+    ) {
         e.preventDefault();
         magistraal.nav.close();
     }
@@ -143,13 +197,18 @@ $(document).on('magistraal.change', '.setting-list-item input', function(e) {
     let value    = $input.value();
     let $setting = $input.closest('.setting-list-item');
     let setting  = $setting.attr('data-setting');
+    let doReload = ($setting.attr('data-reload') == 'true' ? true : false);
 
     // Add system theme to auto theme to prevent flash when app starts
     if(setting == 'appearance.theme' && value == 'auto') {
         value = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark_auto' : 'light_auto');
     }
 
-    magistraal.settings.set(setting, value);
+    magistraal.settings.set(setting, value).then(response => {
+        if(doReload) {
+            window.location.reload();
+        }
+    });
 })
 
 // If system theme changes
@@ -315,8 +374,8 @@ $(document).on('mouseenter', '[data-magistraal-tooltip]', function() {
 
 $(document).on('click', '[data-magistraal="popup-backdrop"]', function(e) {
     if($('[data-magistraal-popup].show').length > 0) {
-        magistraal.popup.close($('[data-magistraal-popup].show').last().attr('data-magistraal-popup'));
-        return false;
+        // magistraal.page.loadPrevious();
+        magistraal.popup.close();
     }
 })
 
@@ -329,10 +388,10 @@ $(document).on('click', '[data-popup-action]', function(e) {
     
     switch(action) {
         case 'confirm':
-            magistraal.popup.close(popup);
+            magistraal.page.loadPrevious(false);
             break;
         case 'cancel':
-            magistraal.popup.close(popup);
+            magistraal.page.loadPrevious();
             break;
     }
 })
@@ -343,8 +402,25 @@ $(document).ready(function() {
     });
 })
 
-$(window).on('hashchange', function() {
-    magistraal.page.load(window.location.hash.substring(1));
+$(window).on('hashchange', function(e) {
+    const page = window.location.hash.substring(2);
+
+    if(!page.includes('activity=popup')) {
+        magistraal.popup.close();
+    }
+
+    if(!page.includes('activity=sidebar')) {
+        magistraal.sidebar.close();
+    }
+
+    magistraal.page.load({
+        page: page
+    });
+})
+
+// Forms moeten via Ajax gesubmit worden
+$(document).on('submit', 'form', function(e) {
+    e.preventDefault();
 })
 
 function trim(str, char = ' ') {
