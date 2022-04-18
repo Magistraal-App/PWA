@@ -160,8 +160,8 @@ $.fn.formReset = function() {
 
 $(document).on('click', function(e) {
     if($(e.target).closest('[data-magistraal="nav-toggler"]').length == 0 && 
-       magistraal.element.get('nav').length > 0 && 
-       magistraalStorage.get('nav_active') === true
+       $('nav').length > 0 && 
+       magistraalStorage.get('nav_active').value === true
     ) {
         e.preventDefault();
         magistraal.nav.close();

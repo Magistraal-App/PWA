@@ -724,13 +724,14 @@ textarea {
     width: fit-content;
 }
 
-.popup-main {
+.popup-main,
+.dialog-main {
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
     overflow-y: auto;
     position: relative;
-    padding: calc(var(--spacing-lg) + var(--spacing-md));
+    padding: var(--spacing-lg);
 }
 
 .dialog-description {
@@ -747,8 +748,7 @@ textarea {
     flex-direction: row;
     justify-content: end;
     gap: var(--spacing-lg);
-    padding: calc(var(--spacing-md) + var(--spacing-lg));
-    margin: 0 calc(-1 * var(--spacing-lg)) calc(-1 * var(--spacing-lg)) calc(-1 * var(--spacing-lg));
+    padding: var(--spacing-lg);
     z-index: 10;
     background-color: var(--primary-accent);
     border-top: var(--border-width) solid var(--primary-border);
