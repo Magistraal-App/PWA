@@ -1838,7 +1838,7 @@ const magistraal = {
 			$popup.addClass('show');
 		},
 
-		close: (selector  = undefined, goBack = true) => {
+		close: (selector  = undefined, goBack = true, clearForm = false) => {
 			if(!isSet(selector)) {
 				selector = $('[data-magistraal-popup].show').last().attr('data-magistraal-popup');
 			}
@@ -1852,6 +1852,13 @@ const magistraal = {
 			magistraal.element.get('popup-backdrop').removeClass('show');
 			magistraal.popup.disable(selector);
 			$popup.removeClass('show');
+
+			if(clearForm) {
+				const $form = $popup.find('form').first();
+				if($form.length) {
+					$form.formReset();
+				}
+			}
 
 			if(goBack) {
 				window.history.back();

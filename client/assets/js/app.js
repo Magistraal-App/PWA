@@ -390,7 +390,7 @@ $(document).on('click', '[data-popup-action]', function(e) {
             magistraal.popup.close(popup);
             break;
         case 'cancel':
-            magistraal.popup.close(popup);
+            magistraal.popup.close(popup, true, true);
             break;
     }
 })
@@ -403,7 +403,7 @@ $(document).ready(function() {
 
 $(window).on('popstate', function (e) {
     if($('.popup.show').length > 0) {
-        magistraal.popup.close(undefined, false);
+        magistraal.popup.close(undefined, false, true);
         return;
     }
        
