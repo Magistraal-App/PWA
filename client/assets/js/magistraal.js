@@ -107,7 +107,7 @@ const magistraal = {
 							try {
 								resolve(cachedResponse);
 								if(typeof parameters.callback == 'function') {
-									parameters.callback(cachedResponse, 'final', undefined, parameters.url);
+									parameters.callback(cachedResponse, 'cache_final', undefined, parameters.url);
 								}
 							} catch(err) {
 								console.error('An error occured with cached response:', err);
@@ -118,7 +118,7 @@ const magistraal = {
 							try {
 								resolve(cachedResponse);
 								if(typeof parameters.callback == 'function') {
-									parameters.callback(cachedResponse, 'pre', undefined, parameters.url);
+									parameters.callback(cachedResponse, 'cache_pre', undefined, parameters.url);
 								}
 							} catch(err) {
 								console.error('An error occured with cached response:', err);
@@ -155,18 +155,23 @@ const magistraal = {
 							try {
 								resolve(response);
 								if(typeof parameters.callback == 'function') {
-									parameters.callback(response, 'final', request, parameters.url);
+									parameters.callback(response, 'server_final', request, parameters.url);
 								}
 							} catch(err) {
-								console.error('An error occured with live response:', err);
+								console.error('An error occured with succesful live response from:', err);
 								magistraal.console.error();
 							}
 						} else {
-							if(parameters.alwaysReturn) {
-								resolve(response);
-								if(typeof parameters.callback == 'function') {
-									parameters.callback(response, 'final', request, parameters.url);
+							try {
+								if(parameters.alwaysReturn) {
+									resolve(response);
+									if(typeof parameters.callback == 'function') {
+										parameters.callback(response, 'server_final', request, parameters.url);
+									}
 								}
+							} catch(err) {
+								console.error('An error occured with failed live response from:', err);
+								magistraal.console.error();
 							}
 						}
 					},
@@ -197,7 +202,7 @@ const magistraal = {
 								try {
 									resolve(cachedResponse);
 									if(typeof parameters.callback == 'function') {
-										parameters.callback(cachedResponse, 'final', undefined, parameters.url);
+										parameters.callback(cachedResponse, 'cache_final', undefined, parameters.url);
 									}
 								} catch(err) {
 									console.error('An error occured with cached response:', err);
@@ -212,7 +217,7 @@ const magistraal = {
 							if((isSet(response.responseJSON) && isSet(response.responseJSON.info)) || parameters.alwaysReturn) {
 								reject(response);
 								if(typeof parameters.callback == 'function') {
-									parameters.callback(response, 'final', undefined, parameters.url);
+									parameters.callback(response, 'cache_final', undefined, parameters.url);
 								}
 							} else {
 								magistraal.console.error();
@@ -430,7 +435,7 @@ const magistraal = {
 				}
 			}, 'appointment.end');
 
-			if(loadType == 'final') {
+			if(loadType == 'server_final') {
 				magistraal.console.success('console.success.appointment_attachments');
 			}
 		},
@@ -703,7 +708,7 @@ const magistraal = {
 			magistraal.sidebar.updateFeed(updateFeedWith, undefined);
 
 			// Stuur een bericht in de console
-			if(loadType == 'final') {
+			if(loadType == 'server_final') {
 				magistraal.console.success('console.success.message_content');
 			}
 		},
@@ -1216,6 +1221,8 @@ const magistraal = {
 			if(!isSet(parameters.page))          { return false; }
 			if(!isSet(parameters.source))        { parameters.source = null; }
 
+			console.log('loading page', parameters.page, parameters.data);
+
 			if(parameters.page.includes('?')) {
 				// Query string is embedded in page, extract it
 				[parameters.page, parameters.data] = parameters.page.split('?');
@@ -1238,25 +1245,28 @@ const magistraal = {
 					source = 'prefer_cache';
 					break;
 			}
-
+		
+			// Sluit popup(s)
+			magistraal.popup.close();
+				
 			// Wijzig de URL
-			magistraal.page.modifyLocation(parameters.page, parameters.data);
-						
-			// Sidebar leeg maken en sluiten
+			magistraal.page.modifyLocation(parameters.page, parameters.data, 'push');
+
+			// Maak de sidebar leeg en sluit deze
 			magistraal.sidebar.clearFeed();
 			magistraal.sidebar.close();
 
-			// Zoekbalk leegmaken
+			// Maak de zoekbalk leeg
 			magistraal.element.get('page-search').val('');
 
 			// Scroll pagina naar boven
 			magistraal.element.get('main').scrollTop(0);
 
-			// Geselecteerde item in navigatiebalk wijzigen
+			// Wijzig de geselecteerde knop in de navigatiebalk
 			$('.nav-item').removeClass('active');
 			magistraal.element.get(`nav-item-${parameters.page}`).addClass('active');
 			
-			// Pagina laden
+			// Laad de pagina
 			magistraal.page.get(parameters);
 		},
 
@@ -1271,13 +1281,14 @@ const magistraal = {
 				'settings/list': magistraal.settings.paintList
 			};
 
-			// Juiste callback kiezen
-			let callback = function() {};
-			if(isSet(callbacks[parameters.page])) {
-				callback = callbacks[parameters.page];
-			}
-
 			return new Promise((resolve, reject) => {
+				// Juiste callback kiezen
+				if(!isSet(callbacks[parameters.page])) {
+					reject();
+					return false;
+				}
+				const callback = callbacks[parameters.page];
+
 				magistraal.console.loading('console.loading.refresh');
 
 				magistraal.api.call({
@@ -1298,39 +1309,37 @@ const magistraal = {
 
 		getCallback: (response, loadType, request, page) => {
 			// Selecteer eerste item in lijst
-			let $li_first = magistraal.element.get('main').find('.list-item[data-interesting="true"]').first();
+			const $li_first = magistraal.element.get('main').find('.list-item[data-interesting="true"]').first();
 			magistraal.sidebar.selectFeed($li_first, false);
 
 			// Werk paginaknoppen bij
-			let $pageButtonsTemplate = magistraal.template.get(`page-buttons-${page}`);
-			let $pageButtonsContainer = magistraal.element.get('page-buttons-container');
+			const $pageButtonsTemplate = magistraal.template.get(`page-buttons-${page}`);
+			const $pageButtonsContainer = magistraal.element.get('page-buttons-container');
 			$pageButtonsContainer.html($pageButtonsTemplate.length >= 1 ? $pageButtonsTemplate.html() : '');
 
 			// Werk de paginatitel bij
-			// console.log('BB', loadType);
+			const $pageTitle = magistraal.element.get('page-title');
+			const pageTitle  = magistraal.locale.translate(`generic.page.${page}.title`);
+			$pageTitle.text(pageTitle);
+			document.title = `${pageTitle} | Magistraal`;
 
-			if(loadType == 'final') {
+			if(loadType == 'server_final') {
 				magistraal.console.success('console.success.refresh');
 			}
 		},
 
-		current: (ignoreQuery = false) => {
-			let page = trim(window.location.hash.substring(2), '/');
+		current: (ignoreQuery = false, ignoreActivity = true) => {
+			const page = trim(window.location.hash.substring(2), '/');
 			
 			if(ignoreQuery) {
 				return page.split('?')[0];
 			}
 
-			// Verwijder 'activity' parameter
-			if(page.includes('?')) {
-				const params = new URLSearchParams(page.split('?')[1]);
-				params.delete('activity');
-				page = page.split('?')[0] + params.toString();
-			}
-
-			console.log(page);
-
 			return page;
+		},
+
+		previous: () => {
+			return magistraalStorage.get('previousPage').value;
 		},
 		
 		setContent: ($html) => {
@@ -1338,7 +1347,13 @@ const magistraal = {
 		},
 
 		modifyLocation: (page, data = {}, method = 'push') => {
-			const currentHash = magistraal.page.current();
+			$.each(data, function(key, value) {
+				if(!isSet(value)) {
+					delete data[key];
+				}
+			})
+
+			const currentHash = magistraal.page.current(false, false);
 			const query       = new URLSearchParams(data).toString();
 			const seperator   = query.length > 0 
 									? page.includes('?')
@@ -1347,9 +1362,16 @@ const magistraal = {
 									: ''; 
 			const newHash     = page + seperator + query;
 
+			// Voor popstate event 
+			magistraalStorage.set('previousPage', magistraal.page.current());
+
 			// Verander url
 			if(currentHash != newHash) {
-				history.pushState(null, null, '#/' + newHash);
+				if(method == 'push') {
+					window.history.pushState(newHash, null, '#/' + newHash);
+				} else if(method == 'replace') {
+					window.history.replaceState(newHash, null, '#/' + newHash);
+				}
 			}
 		}
 	},
@@ -1377,8 +1399,9 @@ const magistraal = {
 	inputs: {
 		dialog: class {
 			constructor(parameters = {}) {
-				if(!isSet(parameters.title))       { parameters.title = ''; }
-				if(!isSet(parameters.description)) { parameters.description = ''; }
+				if(!isSet(parameters.title))         { parameters.title = ''; }
+				if(!isSet(parameters.description))   { parameters.description = ''; }
+				if(!isSet(parameters.defaultAnswer)) { parameters.defaultAnswer = 'no'; }
 
 				this.parameters = parameters;
 
@@ -1386,28 +1409,38 @@ const magistraal = {
 			}
 
 			open() {
-				this.$dialog = magistraal.template.get('dialog');
-
-				this.$dialog.find('.dialog-title').text(this.parameters.title);
-				this.$dialog.find('.dialog-description').text(this.parameters.description);
-
 				return new Promise((resolve, reject) => {
+					if($('.dialog:not([data-magistraal-template]').length > 0) {
+						reject();
+						return;
+					}
+
+					this.$dialog = magistraal.template.get('dialog');
+
+					this.$dialog.find('.dialog-title').text(this.parameters.title);
+					this.$dialog.find('.dialog-description').text(this.parameters.description);
+
+					window.history.pushState('preventDialogClose', null, '?prevDia');
+
 					this.$dialog.appendTo('body');
+					
 					setTimeout(() => {
 						this.$dialog.addClass('show');
-						magistraal.element.get('dialog-backdrop').addClass('show');
+					}, 1);
 
-						const dialog = this;
-							this.$dialog.find('[data-dialog-action]').on('click', function() {
-								if($(this).attr('data-dialog-action') == 'yes') {
-									resolve();
-								} else {
-									reject();
-								}
+					this.$dialog.find(`[data-dialog-action="${this.parameters.defaultAnswer}"]`).attr('data-selected', true);
+					magistraal.element.get('dialog-backdrop').addClass('show');
 
-								dialog.close();
-							})
-					}, 10);
+					const dialog = this;
+					this.$dialog.find('[data-dialog-action]').on('click', function() {
+						if($(this).attr('data-dialog-action') == 'yes') {
+							resolve();
+						} else {
+							reject();
+						}
+
+						dialog.close();
+					})
 				})
 			}
 
@@ -1416,12 +1449,13 @@ const magistraal = {
 					return false;
 				}
 
+				window.history.go(-1);
 				magistraal.element.get('dialog-backdrop').removeClass('show');
 
 				this.$dialog.removeClass('show');
 				setTimeout(() => {
 					this.$dialog.remove();
-				}, 5000);
+				}, 250);
 			}
 		},
 
@@ -1756,15 +1790,23 @@ const magistraal = {
 		},
 
 		open: () => {
+			if(magistraalStorage.get('sidebar_active').value === true) {
+				return false;
+			}
+			
+			if(window.innerWidth < 768) {
+				window.history.pushState('preventSidebarClose', null, null);
+			}
+
 			$('body').attr('data-sidebar-active', true);
 			magistraalStorage.set('sidebar_active', true);
-
-			if(window.innerWidth < 768) {
-				magistraal.page.modifyLocation(magistraal.page.current(), {activity: 'sidebar'});
-			}
 		},
 
 		close: () => {
+			if(magistraalStorage.get('sidebar_active').value === false) {
+				return false;
+			}
+
 			$('body').attr('data-sidebar-active', false);
 			magistraalStorage.set('sidebar_active', false);
 		},
@@ -1788,50 +1830,68 @@ const magistraal = {
 			if($popup.length === 0) {
 				return false;
 			}
-
-			magistraal.page.modifyLocation(magistraal.page.current(), {activity: 'popup'});
+			
+			window.history.pushState('preventPopupClose', null, null);
 
 			magistraal.element.get('popup-backdrop').addClass('show');
 			magistraal.popup.enable(selector);
 			$popup.addClass('show');
 		},
 
-		close: (selector  = undefined, showDialog = true) => {
+		close: (selector  = undefined, goBack = true) => {
 			if(!isSet(selector)) {
 				selector = $('[data-magistraal-popup].show').last().attr('data-magistraal-popup');
 			}
 
 			let $popup = magistraal.popup.get(selector);
 
-			return new Promise((resolve, reject) => {
-				if($popup.length === 0) {
-					resolve();
-				}
+			if($popup.length === 0) {
+				return false;
+			}
 
-				let $form = $popup.find('form').first();
-				if($form.length && $form.formHasChanges() && showDialog) {
-					// Toon een dialog aan de gebruiker
-					new magistraal.inputs.dialog({
-						title: magistraal.locale.translate(`generic.dialog.popup_close.${selector}.title`, magistraal.locale.translate('generic.dialog.popup_close.title')),
-						description: magistraal.locale.translate(`generic.dialog.popup_close.${selector}.description`, magistraal.locale.translate('generic.dialog.popup_close.description'))
-					}).then(() => {
-						resolve();
-						$form.formReset();
-						return magistraal.popup.closeCallback($popup, selector);
-					}).catch(() => {})
-				} else {
-					resolve();
-					$form.formReset();
-					return magistraal.popup.closeCallback($popup, selector);
-				}
-			})
-		},
-
-		closeCallback: ($popup, selector) => {	
 			magistraal.element.get('popup-backdrop').removeClass('show');
 			magistraal.popup.disable(selector);
 			$popup.removeClass('show');
+
+			if(goBack) {
+				window.history.back();
+			}
+
+			// return new Promise((resolve, reject) => {
+			// 	if($popup.length === 0) {
+			// 		resolve();
+			// 	}
+
+			// 	// let $form = $popup.find('form').first();
+			// 	// if($form.length && $form.formHasChanges() && showDialog) {
+			// 	// 	// Toon een dialog aan de gebruiker
+			// 	// 	new magistraal.inputs.dialog({
+			// 	// 		title: magistraal.locale.translate(`generic.dialog.popup_close.${selector}.title`, magistraal.locale.translate('generic.dialog.popup_close.title')),
+			// 	// 		description: magistraal.locale.translate(`generic.dialog.popup_close.${selector}.description`, magistraal.locale.translate('generic.dialog.popup_close.description')),
+			// 	// 		defaultAnswer: 'yes'
+			// 	// 	}).then(() => {
+			// 	// 		resolve();
+			// 	// 		$form.formReset();
+			// 	// 		return magistraal.popup.closeCallback($popup, selector);
+			// 	// 	}).catch(() => {
+			// 	// 		reject();
+			// 	// 	})
+			// 	// } else {
+			// 	// 	resolve();
+			// 	// 	$form.formReset();
+			// 	// 	return magistraal.popup.closeCallback($popup, selector);
+			// 	// }
+			// })
 		},
+
+		// closeCallback: ($popup, selector) => {
+		// 	magistraal.element.get('popup-backdrop').removeClass('show');
+		// 	magistraal.popup.disable(selector);
+		// 	$popup.removeClass('show');
+
+		// 	// Verwijder 'preventPopupClose' state
+		// 	window.history.back();
+		// },
 
 		enable: selector => {
 			let $popup = magistraal.popup.get(selector);

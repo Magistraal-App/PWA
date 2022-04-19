@@ -387,7 +387,7 @@ $(document).on('click', '[data-popup-action]', function(e) {
     
     switch(action) {
         case 'confirm':
-            magistraal.popup.close(popup, false);
+            magistraal.popup.close(popup);
             break;
         case 'cancel':
             magistraal.popup.close(popup);
@@ -401,19 +401,17 @@ $(document).ready(function() {
     });
 })
 
+$(window).on('popstate', function (e) {
+    if($('.popup.show').length > 0) {
+        magistraal.popup.close(undefined, false);
+    }
+       
+    magistraal.sidebar.close();
+});
+
 $(window).on('hashchange', function(e) {
-    const page = window.location.hash.substring(2);
-
-    if(!page.includes('activity=popup')) {
-        magistraal.popup.close();
-    }
-
-    if(!page.includes('activity=sidebar')) {
-        magistraal.sidebar.close();
-    }
-
     magistraal.page.load({
-        page: page
+        page: magistraal.page.current()
     });
 })
 

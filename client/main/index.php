@@ -24,6 +24,8 @@
             magistraal.page.load({
                 page: 'login'
             });
+
+            magistraal.settings.updateClient(<?php echo(json_encode(\Magistraal\User\Settings\get_all(\Magister\Session::$userUuid ?? null))); ?>);
         }
 
         $(document).ready(function() {
@@ -31,16 +33,23 @@
                 version: '<?php echo(VERSION); ?>',
                 doPreCache: true
             });
+
             magistraal.settings.get_all().then(settings => {
                 magistraal.settings.updateClient(settings, true);
             })
         })
 
         $(document).on('magistraal.ready', function() {
-            const currentPage = magistraal.page.current(true);
+            const currentPage = window.location.hash.substring(2);
             magistraal.page.load({
                 page: currentPage.length > 0 ? currentPage : 'appointments/list'
             });
+        })
+
+        $(window).on('load', function() {
+            if(!isSet(window.history.state)) {
+                window.history.replaceState('backPage', null, null);
+            }
         })
     </script>
 </head>
@@ -49,49 +58,49 @@
         <ul class="nav-items">
             <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'home'});" data-magistraal="nav-item-home">
                 <i class="fal fa-home"></i>
-                <span data-translation="page.home.title"></span>
+                <span data-translation="generic.page.home.title"></span>
             </li>
             <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'appointments/list'});" data-magistraal="nav-item-appointments/list">
                 <i class="fal fa-calendar-alt"></i>
-                <span data-translation="page.appointments/list.title"></span>
+                <span data-translation="generic.page.appointments/list.title"></span>
             </li>
             <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'grades/list'});" data-magistraal="nav-item-grades/list">
                 <i class="fal fa-award"></i>
-                <span data-translation="page.grades/list.title"></span>
+                <span data-translation="generic.page.grades/list.title"></span>
             </li>
             <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'absences/list'});" data-magistraal="nav-item-absences/list">
                 <i class="fal fa-calendar-times"></i>
-                <span data-translation="page.absences/list.title"></span>
+                <span data-translation="generic.page.absences/list.title"></span>
             </li>
             <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'sources'});" data-magistraal="nav-item-sources/list">
                 <i class="fal fa-folder"></i>
-                <span data-translation="page.sources/list.title"></span>
+                <span data-translation="generic.page.sources/list.title"></span>
             </li>
             <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'studyguides'});" data-magistraal="nav-item-studyguides/list">
                 <i class="fal fa-map-signs"></i>
-                <span data-translation="page.studyguides/list.title"></span>
+                <span data-translation="generic.page.studyguides/list.title"></span>
             </li>
             <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'tasks'});" data-magistraal="nav-item-tasks/list">
                 <i class="fal fa-pencil-alt"></i>
-                <span data-translation="page.tasks/list.title"></span>
+                <span data-translation="generic.page.tasks/list.title"></span>
             </li>
         </ul>
         <ul class="nav-items mt-auto">
             <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'messages/list'});" data-magistraal="nav-item-messages/list">
                 <i class="fal fa-envelope"></i>
-                <span data-translation="page.messages/list.title"></span>
+                <span data-translation="generic.page.messages/list.title"></span>
             </li>
             <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'account'});" data-magistraal="nav-item-account/list">
                 <i class="fal fa-user"></i>
-                <span data-translation="page.account/list.title"></span>
+                <span data-translation="generic.page.account/list.title"></span>
             </li>
             <li tabindex="0" class="nav-item text-inverse online-only" onclick="magistraal.page.load({page: 'settings/list'});" data-magistraal="nav-item-settings/list">
                 <i class="fal fa-cog"></i>
-                <span data-translation="page.settings/list.title"></span>
+                <span data-translation="generic.page.settings/list.title"></span>
             </li>
             <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'logout', {}, false);" data-magistraal="nav-item-logout">
                 <i class="fal fa-sign-out"></i>
-                <span data-translation="page.logout.title"></span>
+                <span data-translation="generic.page.logout.title"></span>
             </li>
         </ul>
     </nav>
