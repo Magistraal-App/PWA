@@ -404,6 +404,7 @@ $(document).ready(function() {
 $(window).on('popstate', function (e) {
     if($('.popup.show').length > 0) {
         magistraal.popup.close(undefined, false);
+        return;
     }
        
     magistraal.sidebar.close();
