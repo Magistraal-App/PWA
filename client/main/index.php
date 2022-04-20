@@ -502,8 +502,8 @@
     <div data-magistraal="popup-backdrop" class="popup-backdrop"></div>
     <div data-magistraal="dialog-backdrop" class="dialog-backdrop"></div>
     <div data-magistraal="page-search-no-matches" class="page-search-no-matches full-page">
-        <i class="fal fa-search fa-10x text-secondary"></i>
-        <h1 data-translation="tooltip.hint.search_no_matches" class="mt-4"></h1>
+        <i class="fal fa-search fa-8x text-secondary"></i>
+        <h2 data-translation="tooltip.hint.search_no_matches" class="mt-4 text-center"></h2>
     </div>
     <span data-magistraal="tooltip" style="display: none;"></span>
 </body>
