@@ -2,11 +2,11 @@
     :root {
         --MAIN-padding: 3vw;
         --SIDEBAR-width: 60vw;
-        --NAV-width: 3rem;
+        --NAV-width-normal: var(--btn-lg-height);
     }
 
     body {
-        grid-template-columns: var(--NAV-width) 1fr;
+        grid-template-columns: var(--NAV-width-normal) 1fr;
         grid-template-areas: 
             'nav    header'
             'nav    main'
@@ -51,7 +51,7 @@
     }
 
     [data-nav-active="false"] nav {
-        width: var(--NAV-width);
+        width: var(--NAV-width-normal);
     }
 
     [data-magistraal="sidebar"] {

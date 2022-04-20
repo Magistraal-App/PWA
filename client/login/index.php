@@ -34,8 +34,7 @@
                 <div class="col-12">
                     <h4 data-translation="login.hint.tenant"></h4>
                     <div class="input-search-wrapper">
-                        <input type="text" data-magistraal-search-target="tenants-list" data-translation="login.placeholder.tenant" name="tenant" id="tenant" class="form-control" data-error="login_incorrect_tenant field_empty.tenant">
-                        <div data-magistraal="tenants-list" class="input-search-results"></div>
+                        <input type="text" data-magistraal-search-api="tenants" data-translation="login.placeholder.tenant" name="tenant" id="tenant" class="form-control input-search" data-error="login_incorrect_tenant field_empty.tenant">
                     </div>
                 </div>
             </div>

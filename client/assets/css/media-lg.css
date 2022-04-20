@@ -4,11 +4,12 @@
         --spacing-md: 0.25rem;
 
         --btn-md-height: 2.25rem;
-        --SIDEBAR-width: 33vw;
+        --SIDEBAR-width-normal: 33vw;
+        --SIDEBAR-width-active: 33vw;
     }
 
     body {
-        grid-template-columns: var(--NAV-width) 1fr var(--SIDEBAR-width);
+        grid-template-columns: var(--NAV-width-normal) 1fr var(--SIDEBAR-width-normal);
         grid-template-areas:
             'nav    header header'
             'nav    main   sidebar'
@@ -16,7 +17,7 @@
     }
 
     header {
-        padding-right: var(--SIDEBAR-width);
+        padding-right: var(--SIDEBAR-width-normal);
     }
 
     nav {

@@ -98,7 +98,7 @@
                 <i class="fal fa-cog"></i>
                 <span data-translation="generic.page.settings/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'logout', {}, false);" data-magistraal="nav-item-logout">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'logout', cachable: false});" data-magistraal="nav-item-logout">
                 <i class="fal fa-sign-out"></i>
                 <span data-translation="generic.page.logout.title"></span>
             </li>
@@ -373,136 +373,138 @@
         </div>
     </div>
     <div data-magistraal="popups">
-          <!-- APPOINTMENTS -->
-            <!-- Create appointment popup -->
-            <div data-magistraal-popup="appointments_create_appointment" class="popup">
-                <form data-magistraal="form-appointments_create_appointment">
-                    <div class="popup-main">
-                        <input type="hidden" name="id">
-                        <h3 class="popup-title" data-translation="appointments.popup.create_appointment.title"></h3>
-                        <div class="popup-item">
-                            <h5 class="popup-item-key">
-                                <span data-translation="appointments.popup.create_appointment.item.date.title"></span>
-                            </h5>
-                            <div class="popup-item-value">
-                                <input name="date" type="date" class="form-control">
-                            </div>
+        <!-- APPOINTMENTS -->
+        <!-- Create appointment popup -->
+        <div data-magistraal-popup="appointments_create_appointment" class="popup">
+            <form data-magistraal="form-appointments_create_appointment">
+                <div class="popup-main">
+                    <input type="hidden" name="id">
+                    <h3 class="popup-title" data-translation="appointments.popup.create_appointment.title"></h3>
+                    <div class="popup-item">
+                        <h5 class="popup-item-key">
+                            <span data-translation="appointments.popup.create_appointment.item.date.title"></span>
+                        </h5>
+                        <div class="popup-item-value">
+                            <input name="date" type="date" class="form-control">
                         </div>
-                        <div class="popup-item">
-                            <h5 class="popup-item-key">
-                                <span data-translation="appointments.popup.create_appointment.item.time.title"></span>
-                            </h5>
-                            <div class="popup-item-value d-flex flex-row">
-                                <div class="form-check form-check-inline mr-0">
-                                    <input name="start" type="time" id="appointment-start-time" class="form-control w-auto" step="60" value="08:00">
-                                </div>
-                                <div class="form-check form-check-inline mr-0">
-                                    <label class="form-check-label mr-2" for="appointment-end-time" data-translation="appointments.popup.create_appointment.item.time_end.title"></label>
-                                    <input name="end" type="time" id="appointment-end-time" class="form-control w-auto" step="60" value="09:00">
-                                </div>
+                    </div>
+                    <div class="popup-item">
+                        <h5 class="popup-item-key">
+                            <span data-translation="appointments.popup.create_appointment.item.time.title"></span>
+                        </h5>
+                        <div class="popup-item-value d-flex flex-row">
+                            <div class="form-check form-check-inline mr-0">
+                                <input name="start" type="time" id="appointment-start-time" class="form-control w-auto" step="60" value="08:00">
                             </div>
-                        </div>
-                        <div class="popup-item">
-                            <h5 class="popup-item-key">
-                                <span data-translation="appointments.popup.create_appointment.item.facility.title"></span>
-                            </h5>
-                            <div class="popup-item-value">
-                                <input name="facility" data-translation="appointments.popup.create_appointment.item.facility.title" type="text" class="form-control">
-                            </div>
-                        </div>
-                        <div class="popup-item">
-                            <h5 class="popup-item-key">
-                                <span data-translation="appointments.popup.create_appointment.item.designation.title"></span>
-                            </h5>
-                            <div class="popup-item-value">
-                                <input name="designation" data-translation="appointments.popup.create_appointment.item.designation.title" type="text" class="form-control">
-                            </div>
-                        </div>
-                        <div class="popup-item">
-                            <h5 class="popup-item-key">
-                                <span data-translation="appointments.popup.create_appointment.item.content.title"></span>
-                            </h5>
-                            <div class="popup-item-value">
-                                <textarea name="content" data-translation="appointments.popup.create_appointment.item.content.title" class="rich-editor"></textarea>
+                            <div class="form-check form-check-inline mr-0">
+                                <label class="form-check-label mr-2" for="appointment-end-time" data-translation="appointments.popup.create_appointment.item.time_end.title"></label>
+                                <input name="end" type="time" id="appointment-end-time" class="form-control w-auto" step="60" value="09:00">
                             </div>
                         </div>
                     </div>
-                    <div class="popup-footer">
-                        <button type="button" class="btn btn-danger btn-with-icon" data-popup-action="cancel">
-                            <i class="btn-icon fal fa-times"></i>
-                            <span class="btn-text" data-translation="generic.action.cancel"></span>
-                        </button>
-                        <button type="button" class="btn btn-secondary btn-with-icon" data-popup-action="confirm" onclick="magistraal.appointments.create($(this).parents('form').formSerialize(), $(this).parents('form'));">
-                            <i class="btn-icon fal fa-check"></i>
-                            <span class="btn-text" data-translation="generic.action.save"></span>
-                        </button>
+                    <div class="popup-item">
+                        <h5 class="popup-item-key">
+                            <span data-translation="appointments.popup.create_appointment.item.facility.title"></span>
+                        </h5>
+                        <div class="popup-item-value">
+                            <input name="facility" data-translation="appointments.popup.create_appointment.item.facility.title" type="text" class="form-control">
+                        </div>
                     </div>
+                    <div class="popup-item">
+                        <h5 class="popup-item-key">
+                            <span data-translation="appointments.popup.create_appointment.item.designation.title"></span>
+                        </h5>
+                        <div class="popup-item-value">
+                            <input name="designation" data-translation="appointments.popup.create_appointment.item.designation.title" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="popup-item">
+                        <h5 class="popup-item-key">
+                            <span data-translation="appointments.popup.create_appointment.item.content.title"></span>
+                        </h5>
+                        <div class="popup-item-value">
+                            <textarea name="content" data-translation="appointments.popup.create_appointment.item.content.title" class="rich-editor"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="popup-footer">
+                    <button type="button" class="btn btn-danger btn-with-icon" data-popup-action="cancel">
+                        <i class="btn-icon fal fa-times"></i>
+                        <span class="btn-text" data-translation="generic.action.cancel"></span>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-with-icon" data-popup-action="confirm" onclick="magistraal.appointments.create($(this).parents('form').formSerialize(), $(this).parents('form'));">
+                        <i class="btn-icon fal fa-check"></i>
+                        <span class="btn-text" data-translation="generic.action.save"></span>
+                    </button>
                 </div>
             </form>
         </div>
         <!-- MESSAGES -->
-            <!-- Write message popup -->
-            <div data-magistraal-popup="messages_write_message" class="popup">
-                <form data-magistraal="form-messages_write_message">
-                    <div class="popup-main">
-                        <h3 class="popup-title" data-translation="messages.popup.write_message.title"></h3>
-                        <div class="popup-item">
-                            <h5 class="popup-item-key">
-                                <span data-translation="messages.popup.write_message.item.to.title"></span>
-                            </h4>
-                            <div class="popup-item-value">
-                                <input name="to" data-magistraal-search-api="people" data-translation="messages.popup.write_message.item.to.title" type="text" class="form-control input-search input-tags">
-                            </div>
-                        </div>
-                        <div class="popup-item">
-                            <h5 class="popup-item-key">
-                                <span data-translation="messages.popup.write_message.item.cc.title"></span>
-                            </h5>
-                            <div class="popup-item-value">
-                                <input name="cc" data-magistraal-search-api="people" data-translation="messages.popup.write_message.item.cc.title" type="text" class="form-control input-search input-tags" data-magistraal-search-api="people">
-                            </div>
-                        </div>
-                        <div class="popup-item">
-                            <h5 class="popup-item-key">
-                                <span data-translation="messages.popup.write_message.item.bcc.title"></span>
-                            </h5>
-                            <div class="popup-item-value">
-                                <input name="bcc" data-magistraal-search-api="people" data-translation="messages.popup.write_message.item.bcc.title" type="text" class="form-control input-search input-tags" data-magistraal-search-api="people">
-                            </div>
-                        </div>
-                        <div class="popup-item">
-                            <h5 class="popup-item-key">
-                                <span data-translation="messages.popup.write_message.item.subject.title"></span>
-                            </h5>
-                            <div class="popup-item-value">
-                                <input name="subject" data-translation="messages.popup.write_message.item.subject.title" type="text" class="form-control">
-                            </div>
-                        </div>
-                        <div class="popup-item">
-                            <h5 class="popup-item-key">
-                                <span data-translation="messages.popup.write_message.item.content.title"></span>
-                            </h5>
-                            <div class="popup-item-value">
-                                <textarea name="content" data-translation="messages.popup.write_message.item.content.title" class="rich-editor"></textarea>
-                            </div>
+        <!-- Write message popup -->
+        <div data-magistraal-popup="messages_write_message" class="popup">
+            <form data-magistraal="form-messages_write_message">
+                <div class="popup-main">
+                    <h3 class="popup-title" data-translation="messages.popup.write_message.title"></h3>
+                    <div class="popup-item">
+                        <h5 class="popup-item-key">
+                            <span data-translation="messages.popup.write_message.item.to.title"></span>
+                        </h4>
+                        <div class="popup-item-value">
+                            <input name="to" data-magistraal-search-api="people" data-translation="messages.popup.write_message.item.to.title" type="text" class="form-control input-search input-tags">
                         </div>
                     </div>
-                    <div class="popup-footer">
-                       <button type="button" class="btn btn-danger btn-with-icon" data-popup-action="cancel">
-                            <i class="btn-icon fal fa-times"></i>
-                            <span class="btn-text" data-translation="generic.action.cancel"></span>
-                        </button>
-                        <button type="button" class="btn btn-secondary btn-with-icon" data-popup-action="confirm" onclick="magistraal.messages.send($(this).parents('form').formSerialize(), $(this).parents('form'));">
-                            <i class="btn-icon fal fa-paper-plane"></i>
-                            <span class="btn-text" data-translation="generic.action.send"></span>
-                        </button>
+                    <div class="popup-item">
+                        <h5 class="popup-item-key">
+                            <span data-translation="messages.popup.write_message.item.cc.title"></span>
+                        </h5>
+                        <div class="popup-item-value">
+                            <input name="cc" data-magistraal-search-api="people" data-translation="messages.popup.write_message.item.cc.title" type="text" class="form-control input-search input-tags" data-magistraal-search-api="people">
+                        </div>
                     </div>
+                    <div class="popup-item">
+                        <h5 class="popup-item-key">
+                            <span data-translation="messages.popup.write_message.item.bcc.title"></span>
+                        </h5>
+                        <div class="popup-item-value">
+                            <input name="bcc" data-magistraal-search-api="people" data-translation="messages.popup.write_message.item.bcc.title" type="text" class="form-control input-search input-tags" data-magistraal-search-api="people">
+                        </div>
+                    </div>
+                    <div class="popup-item">
+                        <h5 class="popup-item-key">
+                            <span data-translation="messages.popup.write_message.item.subject.title"></span>
+                        </h5>
+                        <div class="popup-item-value">
+                            <input name="subject" data-translation="messages.popup.write_message.item.subject.title" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="popup-item">
+                        <h5 class="popup-item-key">
+                            <span data-translation="messages.popup.write_message.item.content.title"></span>
+                        </h5>
+                        <div class="popup-item-value">
+                            <textarea name="content" data-translation="messages.popup.write_message.item.content.title" class="rich-editor"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="popup-footer">
+                    <button type="button" class="btn btn-danger btn-with-icon" data-popup-action="cancel">
+                        <i class="btn-icon fal fa-times"></i>
+                        <span class="btn-text" data-translation="generic.action.cancel"></span>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-with-icon" data-popup-action="confirm" onclick="magistraal.messages.send($(this).parents('form').formSerialize(), $(this).parents('form'));">
+                        <i class="btn-icon fal fa-paper-plane"></i>
+                        <span class="btn-text" data-translation="generic.action.send"></span>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
     <div data-magistraal="popup-backdrop" class="popup-backdrop"></div>
     <div data-magistraal="dialog-backdrop" class="dialog-backdrop"></div>
+    <div data-magistraal="page-search-no-matches" class="page-search-no-matches full-page">
+        <h1 data-translation="poep" class="mb-5"></h1>
+        <i class="fal fa-search fa-10x text-secondary"></i>
+    </div>
     <span data-magistraal="tooltip" style="display: none;"></span>
 </body>
 </html>

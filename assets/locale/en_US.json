@@ -75,7 +75,7 @@
     "console.error.generic": "Something went wrong!",
     "console.error.internet_disconnected": "Internet disconnected",
     "console.error.login_field_empty.password": "Password incorrect!",
-    "console.error.login_field_empty.tenant": "Domain incorrect!",
+    "console.error.login_field_empty.tenant": "School incorrect!",
     "console.error.login_field_empty.username": "Username incorrect!",
     "console.error.login_field_incorrect.password": "Password incorrect!",
     "console.error.login_field_incorrect.tenant": "School not registered!",
@@ -114,7 +114,7 @@
     "login.placeholder.tenant": "School.magister.net",
     "login.placeholder.username": "Username",
     "login.placeholder.password": "Password",
-    "login.hint.tenant": "Domain",
+    "login.hint.tenant": "School",
     "login.hint.username": "Username",
     "login.hint.password": "Password",
 

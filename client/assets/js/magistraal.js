@@ -1051,14 +1051,13 @@ const magistraal = {
 
 				if(parameters?.doPreCache === true) {
 					// Laad absenties, afspraken, berichten etc. voor offlinegebruik
-					magistraal.api.call({url: 'absences/list', source: 'prefer_cache'});
-					magistraal.api.call({url: 'appointments/list', source: 'prefer_cache'});
-					magistraal.api.call({url: 'grades/list', source: 'prefer_cache'});
-					magistraal.api.call({url: 'messages/list', source: 'prefer_cache'});
-					magistraal.api.call({url: 'settings/list', source: 'prefer_cache'});
-					magistraal.api.call({url: 'settings/list', data: {category: 'appearance'}, source: 'prefer_cache'});
-					magistraal.api.call({url: 'settings/list', data: {category: 'system'}, source: 'prefer_cache'});
-
+					// magistraal.api.call({url: 'absences/list', source: 'prefer_cache'});
+					// magistraal.api.call({url: 'appointments/list', source: 'prefer_cache'});
+					// magistraal.api.call({url: 'grades/list', source: 'prefer_cache'});
+					// magistraal.api.call({url: 'messages/list', source: 'prefer_cache'});
+					// magistraal.api.call({url: 'settings/list', source: 'prefer_cache'});
+					// magistraal.api.call({url: 'settings/list', data: {category: 'appearance'}, source: 'prefer_cache'});
+					// magistraal.api.call({url: 'settings/list', data: {category: 'system'}, source: 'prefer_cache'});
 				}
 			});
 		} catch(err) {
@@ -1344,6 +1343,12 @@ const magistraal = {
 			} else if(loadType == 'cache_final') {
 				magistraal.console.clear();
 			}
+
+			// Filter de items als de gebruiker al een zoekterm heeft ingevuld
+			const $pageSearch = magistraal.element.get('page-search');
+			if($pageSearch.value().length > 0) {
+				$pageSearch.trigger('input');
+			}
 		},
 
 		current: (ignoreQuery = false, ignoreActivity = true) => {
@@ -1576,7 +1581,9 @@ const magistraal = {
 				}
 
 				this.$wrapper.on('click', e => {
-					this.eventFocus(e);
+					if($(e.target).closest('.input-search-results').length === 0) {
+						this.eventFocus(e);
+					}
 				});
 
 				$(document).on('click', e => {
@@ -1643,15 +1650,17 @@ const magistraal = {
 							text: text
 						}
 					});
-					this.$input.focus();
-					setTimeout(() => {
-						this.$wrapper.addClass('active');
-						this.$wrapper.find('.input-ghost')?.addClass('focus');
-					}, 50);
+					// this.$input.focus();
+					// setTimeout(() => {
+					// 	this.$wrapper.addClass('active');
+					// 	this.$wrapper.find('.input-ghost')?.addClass('focus');
+					// }, 50);
 				} else {
 					this.$input.val(text).attr('data-value', value);
 					this.$input.trigger('magistraal.change');
 				}
+			
+				this.$wrapper.removeClass('active');
 			}
 			
 			results = {
@@ -1690,6 +1699,17 @@ const magistraal = {
 								'value': person.id
 							});
 						});
+						break;
+
+					case 'tenants':
+						$.each(response.data, function(i, tenant) {
+							result.push({
+								'icon': 'fal fa-school',
+								'title': tenant.name,
+								'description': tenant.name,
+								'value': tenant.id
+							});
+						})
 						break;
 				}
 

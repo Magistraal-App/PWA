@@ -82,7 +82,7 @@
     "console.error.generic": "Er is iets misgegaan!",
     "console.error.internet_disconnected": "Internetverbinding verbroken.",
     "console.error.login_field_empty.password": "Wachtwoord onjuist!",
-    "console.error.login_field_empty.tenant": "Schooldomein onjuist!",
+    "console.error.login_field_empty.tenant": "School onjuist!",
     "console.error.login_field_empty.username": "Gebruikersnaam onjuist!",
     "console.error.login_field_incorrect.password": "Wachtwoord onjuist!",
     "console.error.login_field_incorrect.tenant": "School niet ingeschreven!",
@@ -118,10 +118,10 @@
     "grades.to_overview": "Naar cijferoverzicht",
     "grades.to_grade_calculator": "Welk cijfer moet ik halen?",
     
-    "login.placeholder.tenant": "School.magister.net",
+    "login.placeholder.tenant": "School",
     "login.placeholder.username": "Gebruikersnaam",
     "login.placeholder.password": "Wachtwoord",
-    "login.hint.tenant": "Schooldomein",
+    "login.hint.tenant": "School",
     "login.hint.username": "Gebruikersnaam",
     "login.hint.password": "Wachtwoord",
 

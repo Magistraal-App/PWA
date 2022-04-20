@@ -330,10 +330,11 @@ $(document).on('magistraal.ready', function() {
 })
 
 $(document).on('input', '[data-magistraal-search-target]', function() {
-    let $input         = $(this);
-    let $target        = magistraal.element.get($input.attr('data-magistraal-search-target'));
-    let $searchResults = $target.find('[data-search]');
-    let query          = $(this).val().toLowerCase();
+    const $input         = $(this);
+    const target         = $input.attr('data-magistraal-search-target');
+    const $target        = magistraal.element.get(target);
+    const $searchResults = $target.find('[data-search]');
+    const query          = $(this).val().toLowerCase();
 
     if(query.length == 0 && (typeof $input.attr('data-magistraal') == 'undefined' || $input.attr('data-magistraal') != 'page-search')) {
         $searchResults.hide();
@@ -341,9 +342,23 @@ $(document).on('input', '[data-magistraal-search-target]', function() {
     }
 
     $searchResults.each(function() {
-        let $searchResult = $(this);
-        $searchResult.attr('data-search').toLowerCase().includes(query) ? $searchResult.show() : $searchResult.hide();
+        const $searchResult = $(this);
+        $searchResult.attr('data-search').toLowerCase().includes(query) ? $searchResult.removeAttr('hidden') : $searchResult.attr('hidden', 'hidden');
+        
+        if(target == 'main') {
+            const $parent = $searchResult.parent();
+            $parent.children('[data-search]:not([hidden])').length > 0 ? $parent.show() : $parent.hide();
+        }
     });
+
+    if(target == 'main') {
+        // Er is geen enkele match gevonden
+        if($target.find('[data-search][hidden]').length == $searchResults.length) {
+            magistraal.element.get('page-search-no-matches').addClass('show');
+        } else {
+            magistraal.element.get('page-search-no-matches').removeClass('show');
+        }
+    }
 })
 
 

@@ -2,18 +2,18 @@
     namespace Magistraal\Tenants;
 
     function search($query) {
-        $tenants = @json_decode(@file_get_contents(ROOT.'/config/tenants.json'), true);
+        $response = \Magistraal\Browser\Browser::request("https://accounts.magister.net/challenges/tenant/search?key={$query}");
+        $result   = [];
 
-        $tenants = array_filter($tenants, function($tenant) use ($query) {
-            return (stripos($tenant['name'], $query) !== false);
-        });
-        
-        return array_values($tenants);
-    }
+        if(!is_array($response['body'])) {
+            return [];
+        }
+         
+        foreach ($response['body'] as $tenant) {
+            $result[] = ['name' => $tenant['displayName'], 'id' => $tenant['id']];
+        }
 
-    function get_all() {
-        $tenants = @json_decode(@file_get_contents(ROOT.'/config/tenants.json'), true);
-        return $tenants;
+        return $result;
     }
 
     function get($tenant_id) {
