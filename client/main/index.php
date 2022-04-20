@@ -108,7 +108,7 @@
         <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="nav-toggler" onclick="magistraal.nav.open();">
             <i class="fal fa-bars"></i>
         </button>
-        <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="page-back-button" onclick="magistraal.sidebar.close();">
+        <button class="btn btn-square btn-lg btn-secondary d-md-none col px-0" data-magistraal="page-back-button" onclick="magistraal.page.back();">
             <i class="fal fa-arrow-left"></i>
         </button>
         <h2 data-magistraal="page-title" class="col px-1"></h2>

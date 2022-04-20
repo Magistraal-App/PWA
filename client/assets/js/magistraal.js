@@ -109,6 +109,8 @@ const magistraal = {
 								if(typeof parameters.callback == 'function') {
 									parameters.callback(cachedResponse, 'cache_final', undefined, parameters.url);
 								}
+
+								return;
 							} catch(err) {
 								console.error('An error occured with cached response:', err);
 								magistraal.console.error();
@@ -776,7 +778,7 @@ const magistraal = {
 					$content.find('.bullet:last-child').remove();
 
 					$item.find('.setting-category-content').html($content.html());
-					$item.attr('onclick', `magistraal.page.load({page: 'settings/list', data: {'category': '${itemNamespace}'}, source: 'prefer_cache'});`);
+					$item.attr('onclick', `magistraal.page.load({page: 'settings/list', data: {'category': '${itemNamespace}'}, showBack: true});`);
 				
 				// Als item een instelling is
 				} else {
@@ -967,6 +969,11 @@ const magistraal = {
 			return magistraal.console.send(message, 'loading', -1);
 		},
 
+		clear: () => {
+			$('.console-message').remove();
+			return;
+		},
+
 		send: (message, type = 'success', duration = 1500) => {
 			message = magistraal.locale.translate(message, magistraal.locale.translate(`console.${type}.generic`, message));
 			let messageId = Date.now();
@@ -1043,12 +1050,15 @@ const magistraal = {
 				}).catch(() => {});
 
 				if(parameters?.doPreCache === true) {
-					// Pre-load absences, appointments, grades, messages, etc. for offline use
+					// Laad absenties, afspraken, berichten etc. voor offlinegebruik
 					magistraal.api.call({url: 'absences/list', source: 'prefer_cache'});
 					magistraal.api.call({url: 'appointments/list', source: 'prefer_cache'});
 					magistraal.api.call({url: 'grades/list', source: 'prefer_cache'});
 					magistraal.api.call({url: 'messages/list', source: 'prefer_cache'});
 					magistraal.api.call({url: 'settings/list', source: 'prefer_cache'});
+					magistraal.api.call({url: 'settings/list', data: {category: 'appearance'}, source: 'prefer_cache'});
+					magistraal.api.call({url: 'settings/list', data: {category: 'system'}, source: 'prefer_cache'});
+
 				}
 			});
 		} catch(err) {
@@ -1216,12 +1226,13 @@ const magistraal = {
 
 	page: {
 		load: (parameters) => {
+			console.log('loading page', {...parameters});
 			if(!isSet(parameters.cachable))      { parameters.cachable = null; }
 			if(!isSet(parameters.data))          { parameters.data = {}; }
 			if(!isSet(parameters.page))          { return false; }
 			if(!isSet(parameters.source))        { parameters.source = null; }
+			if(!isSet(parameters.showBack))      { parameters.showBack = false; }
 
-			console.log('loading page', parameters.page, parameters.data);
 
 			if(parameters.page.includes('?')) {
 				// Query string is embedded in page, extract it
@@ -1242,7 +1253,7 @@ const magistraal = {
 					return;
 				
 				case 'settings/list':
-					source = 'prefer_cache';
+					parameters.source = 'prefer_cache';
 					break;
 			}
 		
@@ -1250,7 +1261,12 @@ const magistraal = {
 			magistraal.popup.close();
 				
 			// Wijzig de URL
-			magistraal.page.modifyLocation(parameters.page, parameters.data, 'push');
+			if(parameters.showBack) {
+				magistraal.page.pushState('backBtn', null, null);
+				magistraal.page.modifyLocation(parameters.page, parameters.data, 'replace');
+			} else {
+				magistraal.page.modifyLocation(parameters.page, parameters.data, 'push');
+			}
 
 			// Maak de sidebar leeg en sluit deze
 			magistraal.sidebar.clearFeed();
@@ -1325,6 +1341,8 @@ const magistraal = {
 
 			if(loadType == 'server_final') {
 				magistraal.console.success('console.success.refresh');
+			} else if(loadType == 'cache_final') {
+				magistraal.console.clear();
 			}
 		},
 
@@ -1344,6 +1362,16 @@ const magistraal = {
 		
 		setContent: ($html) => {
 			$('main').empty().append($html.children());
+		},
+
+		pushState: (data, unused, string) => {
+			window.history.pushState(data, unused, string);
+			$('body').attr('data-history', 'true');
+		},
+
+		back: () => {
+			window.history.back();
+			$('body').removeAttr('data-history');
 		},
 
 		modifyLocation: (page, data = {}, method = 'push') => {
@@ -1795,7 +1823,7 @@ const magistraal = {
 			}
 			
 			if(window.innerWidth < 768) {
-				window.history.pushState('preventSidebarClose', null, null);
+				magistraal.page.pushState('preventSidebarClose', null, null);
 			}
 
 			$('body').attr('data-sidebar-active', true);

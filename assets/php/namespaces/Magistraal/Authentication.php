@@ -49,13 +49,41 @@
             $response = $db->q("UPDATE magistraal_tokens 
                                 SET access_token='{$access_token}', access_token_expires='{$args['access_token_expires']}', refresh_token='{$refresh_token}' 
                                 WHERE token_id='{$token_id}'");
+
+            if($response > 0) {
+                if(\Magistraal\Config\get('production') === false) {
+                    file_put_contents(ROOT.'/log.txt', '['.date('Y-m-d H:i:s').'] '.
+                        "UPDATED token {$token_id}\n    access_token={$args['access_token']}\n    access_token_expires={$args['access_token_expires']}\n    refresh_token={$args['refresh_token']}\n",
+                    FILE_APPEND);
+                }
+            } else {
+                if(\Magistraal\Config\get('production') === false) {
+                    file_put_contents(ROOT.'/log.txt', '['.date('Y-m-d H:i:s').'] '.
+                        "FAILED to update token {$token_id}\n    access_token={$args['access_token']}\n    access_token_expires={$args['access_token_expires']}\n    refresh_token={$args['refresh_token']}\n",
+                    FILE_APPEND);
+                }
+            }
         } else {
             $token_id      = \Magistraal\Authentication\random_token_id();
-            $token_expires = time() + 900; // Token will expire in 15 minutes
+            $token_expires = time() + 2700; // Token will expire in 45 minutes
 
             $response = $db->q("INSERT INTO magistraal_tokens 
                 (token_id,      token_expires,      tenant,              access_token,      access_token_expires,              refresh_token,      ip_address) VALUES 
                 ('{$token_id}', '{$token_expires}', '{$args['tenant']}', '{$access_token}', '{$args['access_token_expires']}', '{$refresh_token}', '{$ip_address}')");
+        
+            if($response > 0) {
+                    if(\Magistraal\Config\get('production') === false) {
+                        file_put_contents(ROOT.'/log.txt', '['.date('Y-m-d H:i:s').'] '.
+                            "CREATED token {$token_id}\n    access_token={$args['access_token']}\n    access_token_expires={$args['access_token_expires']}\n    refresh_token={$args['refresh_token']}\n",
+                        FILE_APPEND);
+                    }
+            } else {
+                if(\Magistraal\Config\get('production') === false) {
+                    file_put_contents(ROOT.'/log.txt', '['.date('Y-m-d H:i:s').'] '.
+                        "FAILED to create token {$token_id}\n    access_token={$args['access_token']}\n    access_token_expires={$args['access_token_expires']}\n    refresh_token={$args['refresh_token']}\n",
+                    FILE_APPEND);
+                }
+            }
         }
         
         if($response) {
@@ -78,6 +106,12 @@
         $token_data['refresh_token'] = \Magistraal\Encryption\decrypt($token_data['refresh_token']);
 
         if(time() > $token_data['token_expires']) {
+            if(\Magistraal\Config\get('production') === false) {
+                file_put_contents(ROOT.'/log.txt', '['.date('Y-m-d H:i:s').'] '.
+                    "Token {$token_id} has expired.\n",
+                FILE_APPEND);
+            }
+
             // Delete old token
             \Magistraal\Authentication\token_delete($token_id);
 
@@ -100,8 +134,18 @@
     function token_delete($token_id) {
         $db = \Magistraal\Database\connect();
         $response = $db->q("DELETE FROM magistraal_tokens WHERE token_id='{$token_id}';");
+
+        if($response > 0) {
+            file_put_contents(ROOT.'/log.txt', '['.date('Y-m-d H:i:s').'] '.
+                "DELETED token {$token_id}\n",
+            FILE_APPEND);
+        } else {
+            file_put_contents(ROOT.'/log.txt', '['.date('Y-m-d H:i:s').'] '.
+                "FAILED to delete token {$token_id}\n",
+            FILE_APPEND);
+        }
         
-        return $response;
+        return ($response > 0);
     }
 
     function random_token_id($length= 64) {

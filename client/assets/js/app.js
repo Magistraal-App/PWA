@@ -402,6 +402,8 @@ $(document).ready(function() {
 })
 
 $(window).on('popstate', function (e) {
+    $('body').removeAttr('data-history');
+
     if($('.popup.show').length > 0) {
         magistraal.popup.close(undefined, false, true);
         return;

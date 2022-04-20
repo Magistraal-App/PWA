@@ -704,9 +704,10 @@ textarea {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    width: min(90vw, 60rem);
-    max-width: 90vw;
-    max-height: 90vh;
+    height: min(95vh, 30rem);
+    max-height: 95vh;
+    width: 95vw;
+    max-width: 95vw;
 }
 
 .popup > form {
@@ -732,6 +733,8 @@ textarea {
     overflow-y: auto;
     position: relative;
     padding: var(--spacing-lg);
+    height: 100%;
+    flex: 1;
 }
 
 .dialog-description {
@@ -785,6 +788,10 @@ textarea {
     pointer-events: all;
 }
 
+.popup-title {
+    padding-left: var(--spacing-sm);
+}
+
 .popup-item {
     display: flex;
     flex-direction: column;
@@ -809,6 +816,7 @@ textarea {
     display: none; /* media-md: flex */
     margin-bottom: 0;
     max-height: 2.175rem;
+    padding-left: var(--spacing-sm);
 }
 
 
@@ -875,11 +883,11 @@ body[data-sidebar-active="true"] [data-magistraal="page-search"] {
     pointer-events: none;
 }
 
-body[data-sidebar-active="true"] [data-magistraal="nav-toggler"] { /* Hide nav toggler, show sidebar toggler button */
+body[data-history="true"] [data-magistraal="nav-toggler"] { /* Hide nav toggler, show back button */
     display: none;
 }
 
-body[data-sidebar-active="true"] [data-magistraal="page-back-button"] {
+body[data-history="true"] [data-magistraal="page-back-button"] { /* Hide nav toggler, show back button */
     display: block;
 }
 

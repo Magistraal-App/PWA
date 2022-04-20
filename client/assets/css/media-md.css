@@ -31,10 +31,6 @@
         display: flex;
     }
 
-    .popup-divider {
-        display: block;
-    }
-
     [data-magistraal="sidebar"] {
         background-color: var(--primary);
     }
