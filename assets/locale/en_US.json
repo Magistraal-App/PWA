@@ -186,5 +186,6 @@
     "tooltip.hint.appointment_join_ms_teams": "Join online meeting",
     "tooltip.hint.message_delete": "Delete message",
     "tooltip.hint.message_reply": "Reply",
-    "tooltip.hint.message_forward": "Doorsturen"
+    "tooltip.hint.message_forward": "Forward",
+    "tooltip.hint.search_no_matches": "No matches found!"
 }

@@ -192,6 +192,7 @@
     "tooltip.hint.appointment_finish": "Afspraak afronden",
     "tooltip.hint.appointment_join_ms_teams": "Deelnemen aan online vergadering",
     "tooltip.hint.message_delete": "Bericht verwijderen",
+    "tooltip.hint.message_forward": "Doorsturen",
     "tooltip.hint.message_reply": "Beantwoorden",
-    "tooltip.hint.message_forward": "Doorsturen"
+    "tooltip.hint.search_no_matches": "Geen resultaten gevonden!"
 }
