@@ -710,7 +710,7 @@ const magistraal = {
 			magistraal.sidebar.updateFeed(updateFeedWith, undefined);
 
 			// Stuur een bericht in de console
-			if(loadType == 'server_final') {
+			if(loadType == 'server_final' || loadType == 'cache_final') {
 				magistraal.console.success('console.success.message_content');
 			}
 		},
