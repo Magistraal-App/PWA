@@ -1275,7 +1275,7 @@ const magistraal = {
 			magistraal.element.get('page-search').val('');
 
 			// Verberg het "Geen resultaten gevonden!" bericht
-			magistraal.element.get('page-search-no-results').removeClass('show');
+			magistraal.element.get('page-search-no-matches').removeClass('show');
 
 			// Scroll pagina naar boven
 			magistraal.element.get('main').scrollTop(0);
