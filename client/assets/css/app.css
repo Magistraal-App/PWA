@@ -22,7 +22,7 @@
     --NAV-width-normal: 0px;
     --NAV-width-active: 12rem;
     --SIDEBAR-width-normal: 0px;
-    --SIDEBAR-WIDTH-active: 100%;
+    --SIDEBAR-width-active: 100%;
 }
 
 @font-face {
@@ -850,8 +850,8 @@ textarea {
     top: var(--HEADER-height);
     right: 0;
     bottom: var(--FOOTER-height);
-    min-width: var(--SIDEBAR-width--active);
-    max-width: var(--SIDEBAR-width--active);
+    min-width: var(--SIDEBAR-width-active);
+    max-width: var(--SIDEBAR-width-active);
     transform: translateX(100%);
     transition: var(--animation-duration) transform;
     z-index: 25;
