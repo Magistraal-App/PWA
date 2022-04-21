@@ -1,4 +1,0 @@
-[2022-04-20 15:56:06] Token oFfYvLC_uveR7rII1hiFpkXyIWZ7zfQLxwOvm5wcrkduZ5jijsJ00h3717J37aVy was created:
-    access_token=
-    access_token_expires=,
-    refresh_token=
