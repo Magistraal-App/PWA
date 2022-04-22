@@ -1,1 +1,1 @@
-@media(min-width:576px){:root{--font-size:.9rem}.popup{width:min(90vw,60rem);max-width:90vw;height:auto;max-height:90vh}}
+@media(min-width:576px){.popup{width:min(90vw,60rem);max-width:90vw;height:auto;max-height:90vh}}
