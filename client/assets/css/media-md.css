@@ -3,7 +3,6 @@
         --MAIN-padding: 3vw;
         --SIDEBAR-width-active: 60vw;
         --NAV-width-normal: var(--btn-lg-height);
-        --font-size: 1rem;
     }
 
     body {

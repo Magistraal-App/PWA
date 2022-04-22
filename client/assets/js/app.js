@@ -336,7 +336,7 @@ $(document).on('input', '[data-magistraal-search-target]', function() {
     const $searchResults = $target.find('[data-search]');
     const query          = $(this).val().toLowerCase();
 
-    if(query.length == 0 && (typeof $input.attr('data-magistraal') == 'undefined' || $input.attr('data-magistraal') != 'page-search')) {
+    if(typeof $input.attr('data-magistraal') == 'undefined' || $input.attr('data-magistraal') != 'page-search') {
         $searchResults.hide();
         return false;
     }

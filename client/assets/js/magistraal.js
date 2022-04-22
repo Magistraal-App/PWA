@@ -1029,11 +1029,14 @@ const magistraal = {
 			$html = $('<div></div>');
 
 			$.each(response.data, function(i, source) {
-				const $source = magistraal.template.get('source-list-item');
-				const icon    = magistraal.mapping.icons('file_icons', source.type == 'file' ? source.content_type : source.type);
-
+				const $source     = magistraal.template.get('source-list-item');
+				const icon        = magistraal.mapping.icons('file_icons', source.type == 'file' ? source.content_type : source.type);
+				const description = magistraal.mapping.translations('file_types', source.type == 'file' ? source.content_type : source.type);
+				
 				$source.find('.list-item-title').text(source.name);
+				$source.find('.list-item-content').text(description);
 				$source.find('.list-item-icon').html(`<i class="fal fa-${icon}"></i>`);
+				$source.attr('data-search', source.name);
 
 				if(source.type == 'folder') {
 					$source.attr('onclick', `magistraal.page.load({page: 'sources/list', data: {parent_id: '${source.id}'}, showBack: true});`);
@@ -2094,7 +2097,7 @@ const magistraal = {
 	},
 	
 	mapping: {
-		icons(category = '', selector = '') {
+		icons: (category = '', selector = '') => {
 			switch(category) {
 				case 'file_icons':
 					if(selector == 'application/msword' || selector == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
@@ -2123,6 +2126,37 @@ const magistraal = {
 			}
 
 			return 'fal fa-question';
+		},
+
+		translations: (category = '', selector = '') => {
+			switch(category) {
+				case 'file_types':
+					if(selector == 'application/msword' || selector == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+						return magistraal.locale.translate('generic.file_type.word');
+					} else if(selector == 'application/vnd.ms-powerpoint' || selector == 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+						return magistraal.locale.translate('generic.file_type.powerpoint');
+					} else if(selector == 'application/vnd.ms-excel' || selector == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+						return magistraal.locale.translate('generic.file_type.excel');
+					} else if(selector == 'application/pdf') {
+						return magistraal.locale.translate('generic.file_type.pdf');
+					} else if(selector.includes('image/')) {
+						return magistraal.locale.translate('generic.file_type.image');
+					} else if(selector.includes('video/')) {
+						return magistraal.locale.translate('generic.file_type.video');
+					} else if(selector.includes('audio/')) {
+						return magistraal.locale.translate('generic.file_type.audio');
+					} else if(selector.includes('text/')) {
+						return magistraal.locale.translate('generic.file_type.text');
+					} else if(selector == 'application/zip' || selector == 'application/x-zip-compressed' || selector == 'application/x-7z-compressed' || selector == 'application/vnd.rar' || selector == 'application/x-bzip' || selector == 'application/x-bzip2') {
+						return magistraal.locale.translate('generic.file_type.archive');
+					} else if(selector == 'folder') {
+						return magistraal.locale.translate('generic.file_type.folder');
+					} else {
+						return magistraal.locale.translate('generic.file_type.file');
+					}
+			}
+
+			return '';
 		}
 	}
 };

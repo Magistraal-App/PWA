@@ -47,6 +47,18 @@
     "generic.page.account/list.title": "Account",
     "generic.page.settings/list.title": "Settings",
     "generic.page.logout.title": "Sign out",
+
+    "generic.file_type.word": "Word document",
+    "generic.file_type.excel": "Excel workbook",
+    "generic.file_type.powerpoint": "PowerPoint slideshow",
+    "generic.file_type.text": "Text file",
+    "generic.file_type.file": "File",
+    "generic.file_type.image": "Image",
+    "generic.file_type.audio": "Audio",
+    "generic.file_type.video": "Video",
+    "generic.file_type.folder": "File folder",
+    "generic.file_type.pdf": "PDF file",
+    "generic.file_type.archive": "Compressed file",
     
     "appointments.popup.create_appointment.item.content.title": "Content",
     "appointments.popup.create_appointment.item.date.title": "Date",

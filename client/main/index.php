@@ -325,6 +325,7 @@
             <div data-magistraal-template="source-list-item" tabindex="0" class="source-list-item list-item">
                 <div class="list-item-icon"></div>
                 <p class="list-item-title"></p>
+                <p class="list-item-content text-muted"></p>
             </div>
 
         <!-- SIDEBAR -->
