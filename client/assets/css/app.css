@@ -1,7 +1,7 @@
 :root {
     --font-main: 'Rubik', 'Arial', sans-serif !important; 
     --font-heading: 'Patua One', 'Open Sans', sans-serif !important;
-    --font-size: 0.9rem;
+    --font-size: 0.8rem;
 
     --spacing-sm: 0.15rem;
     --spacing-md: 0.3rem;
@@ -23,6 +23,8 @@
     --NAV-width-active: 12rem;
     --SIDEBAR-width-normal: 0px;
     --SIDEBAR-width-active: 100%;
+
+    font-size: var(--font-size) !important;
 }
 
 @font-face {
@@ -86,7 +88,6 @@ body {
     font-family: var(--font-main) !important;
     overflow: hidden !important;
     position: fixed;
-    font-size: var(--font-size);
 }
 
 header {
@@ -517,6 +518,11 @@ textarea {
     --list-item-background: var(--list-item-border-color);
 }
 
+.list-item[disabled]:not([disabled="false"]) {
+    opacity: 0.75;
+    pointer-events: none;
+}
+
 
 
 /* ============================ */
@@ -634,22 +640,59 @@ textarea {
     --list-item-icon-color: var(--text-muted-inverse);
 }
 
-.grades-overview {
+/* ============================ */
+/*        Grades overview       */
+/* ============================ */
+
+.grade-overview {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    grid-template-rows: 4rem 1fr;
+    grid-template-areas: 
+        'go-none     go-terms'
+        'go-subjects go-main';
+    width: 100%;
+    background: blue;
+}
+
+.grade-overview-subjects {
+    grid-area: go-subjects;
+    background: green;
+    height: 100%;
+}
+
+.grade-overview-subject {
+    height: var(--btn-lg-height);
+    line-height: var(--btn-lg-height);
+    padding: 0 var(--spacing-lg);
+}
+
+.grade-overview-terms {
+    grid-area: go-terms;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+}
+
+.grade-overview-term {
+    flex: 1 1 0px;
+    background: purple;
+}
+
+.grade-overview-term-header {
+    background: red;
+    display: block;
+    text-align: center;
     width: 100%;
 }
 
-.grades-overview:not([data-id-focused]) .grades-overview-main-row {
-    display: none;
+.grade-overview-column {
+    width: var(--btn-lg-height);
+    background: yellow;
 }
 
-.grades-overview[data-id-focused] {
-    display: grid;
-    grid-template-columns: auto 4rem;
-    grid-template-rows: auto;
-    grid-template-areas:
-        'go-side go-main';
+.grade-overview-main-cell {
+    background: orange;
+    height: 
 }
 
 .grade-list-item[data-counts="false"] .grade-value {
@@ -699,6 +742,7 @@ textarea {
 .setting {
     margin-bottom: var(--spacing-lg);
 }
+
 
 
 /* ============================ */
@@ -1103,6 +1147,7 @@ footer {
     height: var(--btn-height);
     min-height: var(--btn-height);
     max-height: var(--btn-height);
+    white-space: nowrap;
 }
 
 .btn.btn-lg {

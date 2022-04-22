@@ -87,22 +87,25 @@ const magistraalPersistentStorage = {
 const magistraal = {
 	api: {
 		call: (parameters = {}) => {
-			if(!isSet(parameters.callback ))    { parameters.callback = function() {}; }
-			if(!isSet(parameters.source))       { parameters.source = 'both'; }
-			if(!isSet(parameters.scope))        { parameters.scope = undefined; }
-			if(!isSet(parameters.url))          { return false; }
-			if(!isSet(parameters.data))         { parameters.data = {}; }
-			if(!isSet(parameters.cachable))     { parameters.cachable = (parameters.source != 'server_only'); }
-			if(!isSet(parameters.xhrFields))    { parameters.xhrFields = {}; }
-			if(!isSet(parameters.alwaysReturn)) { parameters.alwaysReturn = {}; }
+			if(!isSet(parameters.callback ))        { parameters.callback = function() {}; }
+			if(!isSet(parameters.source))           { parameters.source = 'both'; }
+			if(!isSet(parameters.scope))            { parameters.scope = magistraal.page.current(); }
+			if(!isSet(parameters.url))              { return false; }
+			if(!isSet(parameters.data))             { parameters.data = {}; }
+			if(!isSet(parameters.cachable))         { parameters.cachable = (parameters.source != 'server_only'); }
+			if(!isSet(parameters.xhrFields))        { parameters.xhrFields = {}; }
+			if(!isSet(parameters.alwaysReturn))     { parameters.alwaysReturn = {}; }
+			if(!isSet(parameters.cacheMaxLifetime)) { parameters.cacheMaxLifetime = 3*24*60*60; }
 
 			return new Promise((resolve, reject) => {
 				if(parameters.cachable) {
 					// Laad response voor uit cache, maar alleen als er een callback is opgegeven
-					const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`).value;
+					const cache = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`);
+					const cachedResponse = cache.value;
+
 					if(isSet(cachedResponse)) {
-						// Beantwoord request met response uit cache
-						if(parameters.source == 'prefer_cache') {
+						// Beantwoord request met response uit cache als deze niet te oud is
+						if(parameters.source == 'prefer_cache' && (Date.now() - cache.storedAt) <= parameters.cacheMaxLifetime*1000) {
 							// Stuur geen meer request naar de server
 							try {
 								resolve(cachedResponse);
@@ -142,7 +145,8 @@ const magistraal = {
 					xhrFields: parameters.xhrFields,
 					cache: false,
 					success: function(response, textStatus, request) {
-						if(isSet(parameters.scope) && parameters.scope != magistraal.page.current(true)) {
+						// Als de pagina niet meer hetzelfde is, verwerp de response
+						if(isSet(parameters.scope) && parameters.scope != magistraal.page.current()) {
 							return;
 						}
 
@@ -236,7 +240,7 @@ const magistraal = {
 	/*         Absences         */
 	/* ============================ */
 	absences: {
-		paintList: (response) => {
+		paintList: response => {
 			let $html = $('<div></div>');
 
 			$.each(response.data, function (month, data) {
@@ -255,22 +259,22 @@ const magistraal = {
 					let $absence = magistraal.template.get('absence-list-item');
 
 					// Informatie
-					$absence.find('.list-item-title').html(absence.appointment.designation + '<span class="bullet"></span>' + magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'Hi'));
+					$absence.find('.list-item-title').html(absence.appointment.description + '<span class="bullet"></span>' + magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'Hi'));
 					$absence.find('.list-item-icon').text(absence.lesson || absence.abbr);
-					$absence.find('.list-item-content').text(absence.designation);
+					$absence.find('.list-item-content').text(absence.description);
 					
 					// Attributen
 					$absence.attr({
 						'data-interesting': true,
 						'data-permitted': absence.permitted,
-						'data-search': absence.designation,
+						'data-search': absence.description,
 						'data-type': absence.type
 					});
 
 					// Maak een sidebar feed
 					magistraal.sidebar.addFeed($absence, {
-						'title': absence.appointment.designation,
-						'subtitle': absence.designation,
+						'title': absence.appointment.description,
+						'subtitle': absence.description,
 						'table': {
 							'absence.date': capitalizeFirst(magistraal.locale.formatDate(absence.appointment.start.time, 'ldFY')),
 							'absence.time': magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'Hi'),
@@ -296,7 +300,7 @@ const magistraal = {
 	/*         Appointments         */
 	/* ============================ */
 	appointments: {
-		paintList: (response) => {
+		paintList: response => {
 			let $html = $('<div></div>');
 			
 			$.each(response.data, function (day, data) {
@@ -324,10 +328,11 @@ const magistraal = {
 						'data-finished': appointment.finished,
 						'data-has-attachments': appointment.has_attachments,
 						'data-has-meeting-link': appointment.has_meeting_link,
+						'data-meeting-link': appointment.meeting_link,
 						'data-id': appointment.id,
 						'data-info-type': appointment.info_type,
 						'data-interesting': (appointment.status != 'canceled'),
-						'data-search': `${appointment.subjects.join(', ')} ${appointment.designation} ${appointment.content_text}`.trim(),
+						'data-search': `${appointment.subjects.join(', ')} ${appointment.description} ${appointment.content_text}`.trim(),
 						'data-status': appointment.status,
 						'data-type': appointment.type
 					});
@@ -356,7 +361,7 @@ const magistraal = {
 
 					// Informatie (tijd, omschrijving en inhoud)
 					$appointment.find('.appointment-time').text(magistraal.locale.formatDate(appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(appointment.end.time, 'Hi')); // Set designation
-					$appointment.find('.appointment-designation').text(appointment.facility == '' ? appointment.designation : `${appointment.designation} (${appointment.facility})`); // Set content
+					$appointment.find('.appointment-designation').text(appointment.facility == '' ? appointment.description : `${appointment.description} (${appointment.facility})`); // Set content
 					$appointment.find('.list-item-content').html(appointment['content_text']); // Set type
 
 					// Infotype
@@ -365,7 +370,7 @@ const magistraal = {
 					
 					// Maak een sidebar feed
 					let sidebarFeed = {
-						title: appointment['designation'],
+						title: appointment['description'],
 						subtitle: `${magistraal.locale.formatDate(appointment.start.time, 'Hi')} - ${magistraal.locale.formatDate(appointment.end.time, 'Hi')}`,
 						table: {
 							'appointment.facility': appointment.facility,
@@ -382,7 +387,7 @@ const magistraal = {
 					if(appointment.editable) {
 						sidebarFeed.actions = {
 							edit: {
-								handler: `magistraal.appointments.edit({id: '${appointment.id}', start: '${appointment.start.time}', end: '${appointment.end.time}', facility: '${escapeQuotes(appointment.facility)}', designation: '${escapeQuotes(appointment.designation)}', content: '${escapeQuotes(appointment.content)}'})`, 
+								handler: `magistraal.appointments.edit({id: '${appointment.id}', start: '${appointment.start.time}', end: '${appointment.end.time}', facility: '${escapeQuotes(appointment.facility)}', designation: '${escapeQuotes(appointment.description)}', content: '${escapeQuotes(appointment.content)}'})`, 
 								icon: 'fal fa-pencil-alt'
 							},
 							delete: {
@@ -440,6 +445,10 @@ const magistraal = {
 			if(loadType == 'server_final') {
 				magistraal.console.success('console.success.appointment_attachments');
 			}
+		},
+
+		joinMeeting: (meeting) => {
+			window.open(meeting, '_blank', 'noopener');
 		},
 
 		finish: (id, finished) => {
@@ -505,7 +514,7 @@ const magistraal = {
 			$form.find('[name="start"]').value(appointment.start);
 			$form.find('[name="end"]').value(appointment.end);
 			$form.find('[name="facility"]').value(appointment.facility);
-			$form.find('[name="designation"]').value(appointment.designation);
+			$form.find('[name="description"]').value(appointment.description);
 			$form.find('[name="content"]').value(appointment.content);
 			
 			magistraal.popup.open(popup);
@@ -538,14 +547,20 @@ const magistraal = {
 	files: {
 		download: (location) => {
 			magistraal.console.loading('console.loading.download');
-			magistraal.api.call({
-				url: 'files/download', 
-				data: {location: location},
-				source: 'server_only',
-				callback: magistraal.files.downloadCallback,
-				xhrFields: { responseType: 'arraybuffer'},
-				alwaysReturn: true
-			});
+			return new Promise((resolve, reject) => {
+				magistraal.api.call({
+					url: 'files/download', 
+					data: {location: location},
+					source: 'server_only',
+					callback: magistraal.files.downloadCallback,
+					xhrFields: { responseType: 'arraybuffer'},
+					alwaysReturn: true
+				}).then(response => {
+					resolve();
+				}).catch(response => {
+					resolve();
+				})
+			})
 		},
 
 		downloadCallback(arrayBuffer, loadType, request, page) {
@@ -564,7 +579,7 @@ const magistraal = {
 	/*            Grades            */
 	/* ============================ */
 	grades: {
-		paintList: (response) => {
+		paintList: response => {
 			let $html = $('<div></div>');
 			
 			$.each(response.data, function (i, grade) {
@@ -605,6 +620,53 @@ const magistraal = {
 			});
 
 			magistraal.page.setContent($html);
+		},
+
+		paintOverview: response => {
+			const $overview         = magistraal.template.get('grade-overview');
+			const $overviewTerms    = $overview.find('.grade-overview-terms');
+            const $overviewSubjects = $overview.find('.grade-overview-subjects');
+            const $overviewMain     = $overview.find('.grade-overview-main');
+            
+            $.each(response.data, function(courseId, course) {
+				if(!course.active) {
+					return true;
+				}
+
+				$.each(course.terms, function(i, term) {
+					const $overviewTerm = magistraal.template.get('grade-overview-term');
+					$overviewTerm.attr('data-id', term.id);
+					$overviewTerm.find('.grade-overview-term-header').text(term.name);
+
+					$overviewTerm.appendTo($overviewTerms);
+				})
+
+				$.each(course.columns, function(i, column) {
+					const $overviewTerm = $overview.find(`.grade-overview-term[data-id="${column.term.id}"]`);
+
+					// Sla deze kolom over als deze periode niet bestaat of als de kolom al bestaat
+					if($overviewTerm.length === 0 || $overviewTerm.find(`.grade-overview-term-column[data-number="${column.number}"][data-variant="${column.variant}"]`).length > 0) {
+						return true;
+					}
+
+					const $overviewColumn = magistraal.template.get('grade-overview-term-column');
+					$overviewColumn.find('.grade-overview-term-column-name').text(column.name);
+					$overviewColumn.attr({
+						'data-id':      column.id,
+						'data-number':  column.number,
+						'data-variant': column.variant
+					});
+					$overviewColumn.appendTo($overviewTerm.find('.grade-overview-term-columns'));
+				})
+
+                $.each(course.subjects, function(i, subject) {
+                    const $overviewSubject = magistraal.template.get('grade-overview-subject');
+                    $overviewSubject.attr('data-id', subject.id).text(subject.description);
+                    $overviewSubject.appendTo($overviewSubjects);
+                })
+			})
+
+            magistraal.page.setContent($overview, false);
 		}
 	},
 
@@ -612,7 +674,7 @@ const magistraal = {
 	/*           Messages           */
 	/* ============================ */
 	messages: {
-		paintList: (response) => {
+		paintList: response => {
 			// Laad de drie nieuwste berichten
 			magistraal.api.call({url: 'messages/info', data: {id: String(response.data[0].id)}, source: 'prefer_cache'});
 			magistraal.api.call({url: 'messages/info', data: {id: String(response.data[1].id)}, source: 'prefer_cache'});
@@ -672,15 +734,22 @@ const magistraal = {
 				data: {id: id},
 				callback: magistraal.messages.viewCallback,
 				source: 'prefer_cache'
-			});
-
-			// Markeer het bericht als gelezen als dit nog niet het geval is
-			if(!read) {
-				magistraal.api.call({
-					url: 'messages/info', 
-					data: {id: id, read: true}
-				});
-			}
+			}).then(response => {
+				// Markeer het bericht als gelezen als dit nog niet het geval is
+				if(!read) {
+					magistraal.api.call({
+						url: 'messages/read', 
+						data: {id: id, read: true},
+						source: 'server_only'
+					}).then(response => {
+						magistraal.page.load({
+							page: 'messages/list',
+							unobtrusive: true,
+							source: 'server_only'
+						});
+					})
+				}
+			})
 		},
 
 		viewCallback: (response, loadType) => {
@@ -952,6 +1021,33 @@ const magistraal = {
 		}
 	},
 
+	/* ============================ */
+	/*            Sources           */
+	/* ============================ */
+	sources: {
+		paintList: response => {
+			$html = $('<div></div>');
+
+			$.each(response.data, function(i, source) {
+				const $source = magistraal.template.get('source-list-item');
+				const icon    = magistraal.mapping.icons('file_icons', source.type == 'file' ? source.content_type : source.type);
+
+				$source.find('.list-item-title').text(source.name);
+				$source.find('.list-item-icon').html(`<i class="fal fa-${icon}"></i>`);
+
+				if(source.type == 'folder') {
+					$source.attr('onclick', `magistraal.page.load({page: 'sources/list', data: {parent_id: '${source.id}'}, showBack: true});`);
+				} else {
+					$source.attr('onclick', `$(this).attr('disabled', 'disabled'); magistraal.files.download('${source.location}').then(response => { $(this).removeAttr('disabled'); });`);
+				}
+
+				$source.appendTo($html);
+			})
+
+			magistraal.page.setContent($html);
+		}
+	},
+
 	console: {
 		info: message => {
 			return magistraal.console.send(message, 'info', 2500);
@@ -1080,7 +1176,7 @@ const magistraal = {
 		},
 
 		loadCallback: (response, source) => {
-			magistraalStorage.set('translations', response);
+			magistraalStorage.set('translations', response.data);
 			$('[data-translation]').each(function () {
 				if(this.tagName.toLowerCase() === 'input' || this.tagName.toLowerCase() === 'textarea') {
 					// Set placeholder on input or textarea elements
@@ -1094,7 +1190,7 @@ const magistraal = {
 
 		translate: (key, fallback = undefined) => {
 			fallback = fallback || key;
-			let translations = magistraalStorage.get('translations').value.data;
+			let translations = magistraalStorage.get('translations').value;
 
 			if(!isSet(translations) || !isSet(translations[key])) {
 				return fallback;
@@ -1225,13 +1321,12 @@ const magistraal = {
 
 	page: {
 		load: (parameters) => {
-			console.log('loading page', {...parameters});
-			if(!isSet(parameters.cachable))      { parameters.cachable = null; }
-			if(!isSet(parameters.data))          { parameters.data = {}; }
-			if(!isSet(parameters.page))          { return false; }
-			if(!isSet(parameters.source))        { parameters.source = null; }
-			if(!isSet(parameters.showBack))      { parameters.showBack = false; }
-
+			if(!isSet(parameters.cachable))    { parameters.cachable = null; }
+			if(!isSet(parameters.data))        { parameters.data = {}; }
+			if(!isSet(parameters.page))        { return false; }
+			if(!isSet(parameters.source))      { parameters.source = null; }
+			if(!isSet(parameters.showBack))    { parameters.showBack = false; }
+			if(!isSet(parameters.unobtrusive)) { parameters.unobtrusive = false; }
 
 			if(parameters.page.includes('?')) {
 				// Query string is embedded in page, extract it
@@ -1267,18 +1362,20 @@ const magistraal = {
 				magistraal.page.modifyLocation(parameters.page, parameters.data, 'push');
 			}
 
-			// Maak de sidebar leeg en sluit deze
-			magistraal.sidebar.clearFeed();
-			magistraal.sidebar.close();
+			if(!parameters.unobtrusive) {
+				// Maak de sidebar leeg en sluit deze
+				magistraal.sidebar.clearFeed();
+				magistraal.sidebar.close();
 
-			// Maak de zoekbalk leeg
-			magistraal.element.get('page-search').val('');
+				// Maak de zoekbalk leeg
+				magistraal.element.get('page-search').val('');
 
-			// Verberg het "Geen resultaten gevonden!" bericht
-			magistraal.element.get('page-search-no-matches').removeClass('show');
+				// Verberg het "Geen resultaten gevonden!" bericht
+				magistraal.element.get('page-search-no-matches').removeClass('show');
 
-			// Scroll pagina naar boven
-			magistraal.element.get('main').scrollTop(0);
+				// Scroll pagina naar boven
+				magistraal.element.get('main').scrollTop(0);
+			}
 
 			// Wijzig de geselecteerde knop in de navigatiebalk
 			$('.nav-item').removeClass('active');
@@ -1291,12 +1388,14 @@ const magistraal = {
 		get: (parameters) => {
 			// Lijst van callbacks
 			const callbacks = {
-				'absences/list': magistraal.absences.paintList,
+				'absences/list':     magistraal.absences.paintList,
 				'appointments/list': magistraal.appointments.paintList,
-				'grades/list': magistraal.grades.paintList,
-				'messages/list': magistraal.messages.paintList,
-				'logout': magistraal.logout.logout,
-				'settings/list': magistraal.settings.paintList
+				'grades/list':       magistraal.grades.paintList,
+				'grades/overview':   magistraal.grades.paintOverview,
+				'messages/list':     magistraal.messages.paintList,
+				'logout':            magistraal.logout.logout,
+				'settings/list':     magistraal.settings.paintList,
+				'sources/list':      magistraal.sources.paintList
 			};
 
 			return new Promise((resolve, reject) => {
@@ -1314,7 +1413,6 @@ const magistraal = {
 					data: parameters.data, 
 					source: parameters.source,
 					cachable: parameters.cachable, 
-					scope: parameters.page,
 					callback: function(response, loadType, request, page) {
 						callback(response, loadType, request, page);
 						magistraal.page.getCallback(response, loadType, request, page);
@@ -1365,11 +1463,11 @@ const magistraal = {
 		},
 
 		previous: () => {
-			return magistraalStorage.get('previousPage').value;
+			return magistraalStorage.get('previousPage').value || '';
 		},
 		
-		setContent: ($html) => {
-			$('main').empty().append($html.children());
+		setContent: ($el, useChildren = true) => {
+			$('main').empty().append(useChildren ? $el.children() : $el);
 		},
 
 		pushState: (data, unused, string) => {
@@ -1377,8 +1475,16 @@ const magistraal = {
 			$('body').attr('data-history', 'true');
 		},
 
-		back: () => {
-			window.history.back();
+		back: (goBack = true) => {
+			if(goBack) {
+				window.history.back();
+			}
+
+			const previousPage = magistraal.page.previous();
+			if(magistraal.page.previous().includes(magistraal.page.current(true)) && magistraal.page.current().includes('?')) {
+				return true;
+			}
+
 			$('body').removeAttr('data-history');
 		},
 
@@ -1988,13 +2094,15 @@ const magistraal = {
 	},
 	
 	mapping: {
-		icons(category, selector) {
+		icons(category = '', selector = '') {
 			switch(category) {
 				case 'file_icons':
 					if(selector == 'application/msword' || selector == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
 						return 'fal fa-file-word';
 					} else if(selector == 'application/vnd.ms-powerpoint' || selector == 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
 						return 'fal fa-file-powerpoint';
+					} else if(selector == 'application/vnd.ms-excel' || selector == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+						return 'fal fa-file-excel';
 					} else if(selector == 'application/pdf') {
 						return 'fal fa-file-pdf';
 					} else if(selector.includes('image/')) {
@@ -2007,6 +2115,8 @@ const magistraal = {
 						return 'fal fa-file-alt';
 					} else if(selector == 'application/zip' || selector == 'application/x-zip-compressed' || selector == 'application/x-7z-compressed' || selector == 'application/vnd.rar' || selector == 'application/x-bzip' || selector == 'application/x-bzip2') {
 						return 'fal fa-file-archive';
+					} else if(selector == 'folder') {
+						return 'fal fa-folder';
 					} else {
 						return 'fal fa-file';
 					}

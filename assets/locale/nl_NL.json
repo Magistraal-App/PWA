@@ -57,7 +57,7 @@
 
     "appointments.popup.create_appointment.item.content.title": "Inhoud",
     "appointments.popup.create_appointment.item.date.title": "Datum",
-    "appointments.popup.create_appointment.item.designation.title": "Omschrijving",
+    "appointments.popup.create_appointment.item.description.title": "Omschrijving",
     "appointments.popup.create_appointment.item.facility.title": "Locatie",
     "appointments.popup.create_appointment.item.time_end.title": "tot",
     "appointments.popup.create_appointment.item.time.title": "Tijd",
@@ -75,7 +75,7 @@
 
     "console.error.appointment_field_empty.content": "Je hebt geen inhoud ingevuld.",
     "console.error.appointment_field_empty.date": "Je hebt geen datum ingevuld.",
-    "console.error.appointment_field_empty.designation": "Je hebt geen omschrijving ingevuld.",
+    "console.error.appointment_field_empty.description": "Je hebt geen omschrijving ingevuld.",
     "console.error.appointment_field_empty.end": "Je hebt geen eindtijd ingevuld.",
     "console.error.appointment_field_empty.start": "Je hebt geen begintijd ingevuld.",
     "console.error.appointment_field_invalid.time": "Ongeldige begin- of eindtijd.",
@@ -114,8 +114,8 @@
     "grades.grade.info.weight": "Weging",
     "grades.grade.info.entered_at": "Ingevoerd op",
     "grades.grade.info.subject_average": "Gemiddelde",
-    "grades.to_list": "Naar cijferlijst",
-    "grades.to_overview": "Naar cijferoverzicht",
+    "grades.list": "Cijferlijst",
+    "grades.overview": "Cijferoverzicht",
     "grades.to_grade_calculator": "Welk cijfer moet ik halen?",
     
     "login.placeholder.tenant": "School",
@@ -162,7 +162,7 @@
     "sidebar.table.info.absence.lesson": "Lesuur",
     "sidebar.table.info.absence.permitted": "Geoorloofd",
     "sidebar.table.info.absence.time": "Tijd",
-    "sidebar.table.info.appointment.designation": "Omschrijving",
+    "sidebar.table.info.appointment.description": "Omschrijving",
     "sidebar.table.info.appointment.end": "Einde",
     "sidebar.table.info.appointment.facility": "Locatie",
     "sidebar.table.info.appointment.info_type.test_oral": "Mondelinge overhoring",

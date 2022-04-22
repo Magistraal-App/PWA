@@ -72,7 +72,7 @@
                 <i class="fal fa-calendar-times"></i>
                 <span data-translation="generic.page.absences/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'sources'});" data-magistraal="nav-item-sources/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'sources/list'});" data-magistraal="nav-item-sources/list">
                 <i class="fal fa-folder"></i>
                 <span data-translation="generic.page.sources/list.title"></span>
             </li>
@@ -229,7 +229,7 @@
                           onclick="event.stopPropagation(); magistraal.appointments.finish($(this).parents('.appointment').attr('data-id'), ($(this).parents('.appointment').attr('data-finished') != 'true'));">
                     </span>
                     <a class="list-item-action list-item-action-square appointment-meeting-link" 
-                       onclick="event.stopPropagation(); magistraal.appointments.joinMeeting($(this).parents('.appointment').attr('data-id'));"
+                       onclick="event.stopPropagation(); magistraal.appointments.joinMeeting($(this).parents('.appointment').attr('data-meeting'));"
                        data-magistraal-tooltip="appointment_join_ms_teams"
                        target="_blank" 
                        rel="noopener norefferer nofollow">
@@ -256,21 +256,28 @@
                 </div>
             </div>
 
-            <!-- Grades overview -->
-            <div data-magistraal-template="grades-overview" data-magistraal="grades-overview" class="grades-overview">
-                <div class="grades-overview-header"></div>
-                <div class="grades-overview-header-side"></div>
-                <div class="grades-overview-side"></div>
-                <div class="grades-overview-main"></div>
+            <!-- Grade overview -->
+            <div data-magistraal-template="grade-overview" data-magistraal="grade-overview" class="grade-overview">
+                <div class="grade-overview-terms"></div>
+                <div class="grade-overview-subjects"></div>
+                <div class="grade-overview-main"></div>
             </div>
 
-            <!-- Grades overview side item -->
-            <div data-magistraal-template="grades-overview-side-item" class="grades-overview-side-item" onclick="$('.grades-overview').attr('data-id-focused', $(this).attr('data-id'));"></div>
+            <!-- Grade overview subject -->
+            <div data-magistraal-template="grade-overview-subject" class="grade-overview-subject text-ellipsis"></div>
 
-            <!-- Grades overview term header -->
-            <div data-magistraal-template="grades-overview-term-header" class="grades-overview-term-header">
-                <span class="grades-overview-term-header-title"></span>
-                <div class="grades-overview-term-header-columns"></div>
+             <!-- Grade overview main row -->
+            <div data-magistraal-template="grade-overview-main-row" class="grade-overview-main-row d-flex flex-row flex-nowrap"></div>
+
+            <!-- Grade overview term header -->
+            <div data-magistraal-template="grade-overview-term" class="grade-overview-term">
+                <span class="grade-overview-term-header"></span>
+                <div class="grade-overview-term-columns"></div>
+            </div>
+
+            <!-- Grade overview column -->
+            <div data-magistraal-template="grade-overview-term-column" class="grade-overview-term-column">
+                <span class="grade-overview-term-column-name"></span>
             </div>
 
         <!-- MESSAGES -->
@@ -306,11 +313,18 @@
                 <p class="list-item-content setting-category-content text-muted"></p>
             </div>
 
-            <!-- Setting -->
+            <!-- Setting list item -->
             <div data-magistraal-template="setting-list-item" class="list-item list-item-with-input setting-list-item">
                 <div class="list-item-icon"></div>
                 <p class="list-item-title"></p>
                 <div class="list-item-content text-muted" style="white-space: normal;"></div>
+            </div>
+
+        <!-- SOURCES -->
+            <!-- Source list item -->
+            <div data-magistraal-template="source-list-item" tabindex="0" class="source-list-item list-item">
+                <div class="list-item-icon"></div>
+                <p class="list-item-title"></p>
             </div>
 
         <!-- SIDEBAR -->
@@ -353,11 +367,14 @@
 
             <!-- Grades list -->
             <div data-magistraal-template="page-buttons-grades/list">
-                <!-- <button class="btn btn-secondary" data-translation="grades.to_overview" onclick="magistraal.page.load({page: 'gradesoverview');"></button> -->
+                <!-- <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/overview'});">
+                    <i class="btn-icon fal fa-table"></i>
+                    <span class="btn-text" data-translation="grades.overview" ></span>
+                </button> -->
                 <!-- <button class="btn btn-secondary" data-translation="grades.to_grade_calculator"></button> -->
             </div>
 
-            <!-- Grades overview -->
+            <!-- Grade overview -->
             <div data-magistraal-template="page-buttons-grades/overview">
                 <!-- <button class="btn btn-secondary" data-translation="grades.to_list" onclick="magistraal.page.load({page: 'grades');"></button> -->
                 <!-- <button class="btn btn-secondary" data-translation="grades.to_grade_calculator"></button> -->
@@ -412,10 +429,10 @@
                     </div>
                     <div class="popup-item">
                         <h5 class="popup-item-key">
-                            <span data-translation="appointments.popup.create_appointment.item.designation.title"></span>
+                            <span data-translation="appointments.popup.create_appointment.item.description.title"></span>
                         </h5>
                         <div class="popup-item-value">
-                            <input name="designation" data-translation="appointments.popup.create_appointment.item.designation.title" type="text" class="form-control">
+                            <input name="description" data-translation="appointments.popup.create_appointment.item.description.title" type="text" class="form-control">
                         </div>
                     </div>
                     <div class="popup-item">

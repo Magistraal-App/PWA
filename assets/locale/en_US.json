@@ -50,7 +50,7 @@
     
     "appointments.popup.create_appointment.item.content.title": "Content",
     "appointments.popup.create_appointment.item.date.title": "Date",
-    "appointments.popup.create_appointment.item.designation.title": "Description",
+    "appointments.popup.create_appointment.item.description.title": "Description",
     "appointments.popup.create_appointment.item.facility.title": "Facility",
     "appointments.popup.create_appointment.item.time_end.title": "to",
     "appointments.popup.create_appointment.item.time.title": "Time",
@@ -68,7 +68,7 @@
 
     "console.error.appointment_field_empty.content": "You have not entered any content.",
     "console.error.appointment_field_empty.date": "You have not entered a date.",
-    "console.error.appointment_field_empty.designation": "You have not entered a description.",
+    "console.error.appointment_field_empty.description": "You have not entered a description.",
     "console.error.appointment_field_empty.end": "You have not entered an end time.",
     "console.error.appointment_field_empty.start": "You have not entered a start time",
     "console.error.appointment_field_invalid.time": "Invalid start or end time.",
@@ -155,7 +155,7 @@
     "sidebar.table.info.absence.lesson": "Period",
     "sidebar.table.info.absence.permitted": "Permitted",
     "sidebar.table.info.absence.time": "Time",
-    "sidebar.table.info.appointment.designation": "Description",
+    "sidebar.table.info.appointment.description": "Description",
     "sidebar.table.info.appointment.end": "End",
     "sidebar.table.info.appointment.facility": "Facility",
     "sidebar.table.info.appointment.info_type.test_oral": "Oral test",

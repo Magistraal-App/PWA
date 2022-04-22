@@ -16,7 +16,11 @@
         return base64_decode(str_replace(['-', '_'], ['+', '/'], $str));
     }
 
-    function date_iso($unix) {
+    function date_iso($unix = null) {
+        if(!isset($unix)) {
+            $unix = time();
+        }
+
         $datetime = new DateTime();
         $datetime->setTimestamp($unix);
         return $datetime->format(DateTime::ATOM); 
@@ -47,6 +51,16 @@
                 return $value;
             }
         }
+    }
+    
+    function array_item_sibling($ref_key, $ref_value, $req_key, $context) {
+        foreach ($context as $key => $value) {
+            if(isset($value[$ref_key]) && $value[$ref_key] == $ref_value) {
+                return $value[$req_key] ?? null;
+            }
+        }
+
+        return null;
     }
 
     function str_split_pos($str, $pos) {

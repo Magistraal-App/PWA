@@ -1,6 +1,6 @@
 <?php 
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
-    $Magister->loginHeaderToken();
+    \Magister\Session::start();
 
-    \Magister\Response\success($Magister->gradesOverview());
+    \Magistraal\Response\success(\Magistraal\Courses\get_all());
 ?>

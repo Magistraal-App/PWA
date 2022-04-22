@@ -40,7 +40,7 @@
             'content_length'   => $content_length ?? 0,
             'content_text'     => strip_tags(str_replace(['<br>', '</p>'], [' ', '</p> '], $content)) ?? '',
             'content'          => $content ?? '',
-            'designation'      => $appointment['Omschrijving'] ?? '',
+            'description'      => $appointment['Omschrijving'] ?? '',
             'duration'         => [
                 'seconds'           => (strtotime($appointment['Einde']) - strtotime($appointment['Start'])),
                 'lessons'           => ($appointment['LesuurTotMet']+1 ?? 0) - ($appointment['LesuurVan'] ?? 0) 
@@ -87,7 +87,7 @@
             'Lokatie'      => $formatted['facility'] ?? '',
             'Start'        => $formatted['start'] ?? null,
             'Einde'        => $formatted['end'] ?? null,
-            'Omschrijving' => $formatted['designation'] ?? '',
+            'Omschrijving' => $formatted['description'] ?? '',
             'Inhoud'       => $formatted['content'] ?? '',
             'Type'         => 1,
             'Status'       => 2,

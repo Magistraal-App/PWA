@@ -5,16 +5,6 @@
         return \Magistraal\Grades\format_all(\Magister\Session::gradeList($top));
     }
 
-    function format_all($grades) {
-        $formatted = [];
-
-        foreach ($grades as $grade) {
-            $formatted[] = \Magistraal\Grades\format($grade);
-        }
-
-        return $formatted;
-    }
-
     function format($grade) {
         return [
             'column_id'   => $grade['kolomId'],
@@ -32,6 +22,58 @@
             'value'       => \Magistraal\Grades\grade_str_to_float($grade['waarde']),
             'weight'      => $grade['weegfactor']
         ];
+    }
+
+    function format_overview($grade) {
+        return [
+            'id'            => $grade['CijferId'] ?? null,
+            'term'          => [
+                'id'            => $grade['CijferPeriode']['Id'] ?? null,
+                'name'          => $grade['CijferPeriode']['Naam'] ?? null
+            ],
+            'subject'       => [
+                'id'            => $grade['Vak']['Id'] ?? null,
+                'abbr'          => $grade['Vak']['Afkorting'],
+                'name'          => $grade['Vak']['Omschrijving'] ?? ''
+            ],
+            'is_sufficient' => $grade['IsVoldoende'] ?? null,
+            'entered_by'    => $grade['IngevoerdDoor'] ?? '',
+            'entered_at'    => $grade['DatumIngevoerd'] ?? date_iso(),
+            'retake'        => $grade['Inhalen'] ?? null,
+            'exemption'     => $grade['Vrijstelling'] ?? null,
+            'counts'        => $grade['TeltMee'] ?? null,
+            'value'         => \Magistraal\Grades\grade_str_to_float($grade['CijferStr']),
+            'value_str'     => $grade['CijferStr'],
+            'column'        => [
+                'id'            => $grade['CijferKolom']['Id'] ?? null,
+                'name'          => $grade['CijferKolom']['KolomKop'] ?? '',
+                'number'        => $grade['CijferKolom']['KolomNummer'] ?? null,
+                'order'         => $grade['CijferKolom']['KolomVolgNummer'] ?? null,
+                'description'   => $grade['CijferKolom']['KolomNaam'] ?? '',
+                'type'          => $grade['CijferKolom']['KolomSoort'] ?? null,
+                'variant'       => $grade['CijferKolom']['IsPTAKolom'] ? 'pta' : 'normal'
+            ]
+        ];
+    }
+ 
+    function format_all($grades) {
+        $formatted = [];
+
+        foreach ($grades as $grade) {
+            $formatted[] = \Magistraal\Grades\format($grade);
+        }
+
+        return $formatted;
+    }
+
+    function format_all_overview($grades) {
+        $formatted = [];
+
+        foreach ($grades as $grade) {
+            $formatted[] = \Magistraal\Grades\format_overview($grade);
+        }
+
+        return $formatted;
     }
 
     function grade_str_to_float($str) {

@@ -14,8 +14,8 @@
         \Magistraal\Response\error('appointment_field_invalid.time');
     }
 
-    if(!isset($_POST['designation']) || empty($_POST['designation'])) {
-        \Magistraal\Response\error('appointment_field_empty.designation');
+    if(!isset($_POST['description']) || empty($_POST['description'])) {
+        \Magistraal\Response\error('appointment_field_empty.description');
     }
 
     if(!isset($_POST['content']) || empty($_POST['content'])) {
@@ -30,7 +30,7 @@
         'id'          => $_POST['id'] ?? 0,
         'start'       => $_POST['start'],
         'end'         => $_POST['end'],
-        'designation' => $_POST['designation'] ?? '',
+        'description' => $_POST['description'] ?? '',
         'facility'    => $_POST['facility'] ?? '',
         'content'     => $_POST['content'] ?? ''
     ]);

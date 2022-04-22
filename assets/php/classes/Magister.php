@@ -134,9 +134,6 @@
                 ]);
             }
 
-            // var_dump($token_data);
-            // var_dump($token_id);
-
             \Magister\Session::$tokenId            = $token_id ?? \Magister\Session::$tokenId;
             \Magister\Session::$accessToken        = $bearer['access_token'] ?? \Magistraal\Response\error('failed_to_obtain_access_token');
             \Magister\Session::$accessToken        = $bearer['access_token'] ?? \Magistraal\Response\error('failed_to_obtain_access_token');
@@ -203,9 +200,6 @@
 
             if(isset($bearer) && is_array($bearer) && isset($bearer['access_token']) && isset($bearer['refresh_token'])) {
                 $bearer['access_token_expires'] = time() + $bearer['expires_in'];
-
-                // echo('RETURNING BEARER');
-                // var_dump($bearer);
 
                 return $bearer;
             }
@@ -341,6 +335,37 @@
             ]);
             return ['success' => $response['info']['success'], 'data' => $response['body']];
         }
+
+        /* ============================ */
+        /*           Courses            */
+        /* ============================ */
+
+        public static function courseList() {
+            $result = [];
+
+            $from_date = '2012-01-01';
+            $end_date  = date('Y-m-d', strtotime('+1 year'));
+
+            $courses = \Magistraal\Api\call(\Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId."/aanmeldingen/?begin={$from_date}&einde={$end_date}")['body']['items'] ?? \Magistraal\Response\error('error_obtaining_courses');
+
+            foreach ($courses as $course) {
+                $result[$course['id']] = $course;
+
+                // Load terms for this course
+                $terms = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/aanmeldingen/{$course['id']}/cijfers/cijferperiodenvooraanmelding")['body']['Items'] ?? \Magistraal\Response\error('error_getting_terms');
+                $result[$course['id']]['terms'] = $terms;
+
+                // Load subjects for this course
+                $subjects = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/aanmeldingen/{$course['id']}/vakken")['body'] ?? \Magistraal\Response\error('error_getting_subjects');
+                $result[$course['id']]['subjects'] = $subjects;
+
+                // Load grades for this course
+                $grades = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/aanmeldingen/{$course['id']}/cijfers/cijferoverzichtvooraanmelding?actievePerioden=false&alleenBerekendeKolommen=false&alleenPTAKolommen=false")['body']['Items'] ?? \Magistraal\Response\error('error_getting_grades');
+                $result[$course['id']]['grades'] = $grades;
+            }
+
+            return $result;
+        }
         
         /* ============================ */
         /*            Files             */
@@ -445,6 +470,15 @@
             }
 
             return $response['body']['items'];
+        }
+
+        /* ============================ */
+        /*            Sources           */
+        /* ============================ */
+
+        public static function sourceList($parent_id = -1) {
+            $sources = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/bronnen?parentId={$parent_id}&nocache=".time())['body']['Items'] ?? \Magistraal\Response\error('error_getting_sources');
+            return $sources;
         }
 
         // public function accountList() {
@@ -656,22 +690,27 @@
         //     return $formatted;
         // }
 
-        // private function obtainEnrollments() {
-        //     $this->requireAuth('bearer', 'user_info');
+        // public static function obtainCourses() {
+        //     $from_date = '2012-01-01';
+        //     $end_date  = date('Y-m-d', strtotime('+1 year'));
 
-        //     $request_url = "https://{$this->tenant_domain}/api/leerlingen/{$this->user['id']}/aanmeldingen/";
+        //     $courses = \Magistraal\Api\call(\Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId."/aanmeldingen/?begin={$from_date}&einde={$end_date}")['body']['items'] ?? \Magistraal\Response\error('error_obtaining_courses');
 
-        //     $request_body = $this->visitUrl($request_url)['body'];
+        //     $formatted = [];
 
-        //     if(!($enrollments = @json_decode($request_body, true))) {
-        //         \Magistraal\Response\error('Failed to load enrollments.', 'enrollments_loading_failed');
+        //     foreach ($courses as $course) {
+        //         $formatted[$course['id']] = [
+        //             'id'    => $course['id'],
+        //             'start' => [
+        //                 'unix' => strtotime($course['begin'])
+        //             ],
+        //             'end'   => [
+        //                 'unix' => strtotime($course['einde'])
+        //             ]
+        //         ];
         //     }
 
-        //     if(!isset($enrollments['items'])) {
-        //         \Magistraal\Response\error('Failed to load enrollments.', 'enrollments_loading_failed');
-        //     }
-
-        //     $this->enrollments = $this->obtainEnrollmentsFormat($enrollments['items']);
+        //     \Magister\Session::$courses = $formatted;
         // }
 
         // private function obtainEnrollmentsFormat($enrollments) {

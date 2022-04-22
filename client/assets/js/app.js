@@ -417,7 +417,7 @@ $(document).ready(function() {
 })
 
 $(window).on('popstate', function (e) {
-    $('body').removeAttr('data-history');
+    magistraal.page.back(false);
 
     if($('.popup.show').length > 0) {
         magistraal.popup.close(undefined, false, true);

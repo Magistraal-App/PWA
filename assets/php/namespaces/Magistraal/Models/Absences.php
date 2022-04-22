@@ -40,7 +40,7 @@
         return [
             'abbr'        => $absence['Code'],
             'appointment' => \Magistraal\Appointments\format($absence['Afspraak']),
-            'designation' => trim($absence['Omschrijving']),
+            'description' => trim($absence['Omschrijving']),
             'id'          => $absence['Id'],
             'lesson'      => $absence['Lesuur'],
             'type'        => \Magistraal\Absences\remap_type($absence['Verantwoordingtype']),

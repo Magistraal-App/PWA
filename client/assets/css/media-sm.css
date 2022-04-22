@@ -1,4 +1,8 @@
 @media(min-width: 576px) {
+    :root {
+        --font-size: 0.9rem;
+    }
+
     .popup {
         width: min(90vw, 60rem);
         max-width: 90vw;
