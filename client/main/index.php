@@ -136,7 +136,7 @@
     <div data-magistraal="templates" class="d-none" aria-hidden="true">
         <!-- ABSENCES -->
             <!-- Group -->
-            <div data-magistraal-template="absences-group" class="absences-group">
+            <div data-magistraal-template="absences-group" class="absences-group list-item-group">
                 <h4 class="absences-group-title"></h4>
             </div>
 
@@ -206,7 +206,7 @@
 
         <!-- APPOINTMENTS -->
             <!-- Group -->
-            <div data-magistraal-template="appointments-group" class="appointments-group">
+            <div data-magistraal-template="appointments-group" class="appointments-group list-item-group">
                 <h4 class="appointments-group-title"></h4>
             </div>
 

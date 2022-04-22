@@ -346,7 +346,7 @@ $(document).on('input', '[data-magistraal-search-target]', function() {
         $searchResult.attr('data-search').toLowerCase().includes(query) ? $searchResult.removeAttr('hidden') : $searchResult.attr('hidden', 'hidden');
         
         if(target == 'main') {
-            const $parent = $searchResult.parent();
+            const $parent = $searchResult.parent('.list-item-group');
             $parent.children('[data-search]:not([hidden])').length > 0 ? $parent.show() : $parent.hide();
         }
     });
