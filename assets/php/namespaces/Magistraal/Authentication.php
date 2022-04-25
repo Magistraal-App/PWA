@@ -72,7 +72,7 @@
             }
         }
         
-        if($response) {
+        if($response > 0) {
             return $token_id;
         }
 
