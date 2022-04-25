@@ -212,11 +212,7 @@
 
             <!-- List item -->
             <div data-magistraal-template="appointment" tabindex="0" class="appointment-list-item list-item" onclick="magistraal.sidebar.selectFeed($(this)); magistraal.appointments.view($(this).attr('data-id'));">
-                <div 
-                    data-magistraal-tooltip="appointment_finish"
-                    onclick="event.stopPropagation(); if(!magistraalStorage.get('nav_open')) { magistraal.appointments.finish($(event.target).parents('.appointment').attr('data-id'), ($(event.target).parents('.appointment').attr('data-finished') != 'true')); }"
-                    class="list-item-icon font-heading">
-                </div>
+                <div class="list-item-icon font-heading"></div>
                 <p class="list-item-title">
                     <span class="appointment-designation"></span>
                     <span class="bullet"></span>
@@ -224,15 +220,8 @@
                 </p>
                 <span class="list-item-content text-muted"></span>
                 <div class="list-item-actions">
-                    <span class="list-item-action list-item-action-primary appointment-info-type" 
-                          data-magistraal-tooltip="appointment_finish"
-                          onclick="event.stopPropagation(); magistraal.appointments.finish($(this).parents('.appointment').attr('data-id'), ($(this).parents('.appointment').attr('data-finished') != 'true'));">
-                    </span>
-                    <a class="list-item-action list-item-action-square appointment-meeting-link" 
-                       onclick="event.stopPropagation(); magistraal.appointments.joinMeeting($(this).parents('.appointment').attr('data-meeting'));"
-                       data-magistraal-tooltip="appointment_join_ms_teams"
-                       target="_blank" 
-                       rel="noopener norefferer nofollow">
+                    <span class="list-item-action list-item-action-primary appointment-info-type"></span>
+                    <a class="list-item-action list-item-action-square appointment-meeting-link">
                         <img src="../assets/images/join_ms_teams_meeting.svg" alt="Online les in Microsoft Teams">
                     </a>
                 </div>

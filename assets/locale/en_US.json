@@ -24,11 +24,13 @@
     "generic.action.delete": "Delete",
     "generic.action.download": "Download",
     "generic.action.edit": "Edit",
+    "generic.action.finish": "Afronden",
+    "generic.action.join_meeting": "Join",
     "generic.action.login": "Sign in",
     "generic.action.save": "Save",
     "generic.action.search": "Search...",
     "generic.action.send": "Send",
-    
+
     "generic.date_time_seperator": "at",
 
     "generic.bool.true": "Yes",

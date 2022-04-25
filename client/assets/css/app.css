@@ -1236,13 +1236,13 @@ h1, h2, h3, h4, h5, h6, .btn, .font-heading {
 
 .btn.btn-danger {
     background-color: var(--danger) !important;
-    color: var(--text);
+    color: var(--text-inverse);
     border-color: var(--danger) !important;
 }
 
 .btn.btn-primary {
     background-color: var(--primary) !important;
-    color: var(--text);
+    color: var(--text-inverse);
     border-color: var(--primary) !important;
 }
 
@@ -1256,6 +1256,12 @@ h1, h2, h3, h4, h5, h6, .btn, .font-heading {
     background-color: var(--success) !important;
     color: var(--text-inverse);
     border-color: var(--success) !important;
+}
+
+.btn.btn-teams {
+    background-color: var(--teams) !important;
+    color: var(--text-inverse);
+    border-color: var(--teams) !important;
 }
 
 .text-danger { color: var(--danger) !important; }

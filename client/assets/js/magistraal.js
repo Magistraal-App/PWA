@@ -346,18 +346,13 @@ const magistraal = {
 								: `${appointment.start.lesson}-${appointment.end.lesson}`
 						);
 					} else {
-						// Info pictogram of niks
-						$appointment.find('.list-item-icon').html(
-							appointment.status == 'schedule' 
-								? '<i class="fal fa-info"></i>' 
-								: ''
-						);
+						$appointment.find('.list-item-icon').html('<i class="fal fa-info"></i>');
 					}
 
 					// Microsoft Teams link
-					if(appointment['has_meeting_link']) {
-						$appointment.find('.lesson-join-ms-teams').attr('href', appointment['meeting_link']);
-					}
+					// if(appointment['has_meeting_link']) {
+					// 	$appointment.find('.lesson-join-ms-teams').attr('href', appointment['meeting_link']);
+					// }
 
 					// Informatie (tijd, omschrijving en inhoud)
 					$appointment.find('.appointment-time').text(magistraal.locale.formatDate(appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(appointment.end.time, 'Hi')); // Set designation
@@ -394,6 +389,20 @@ const magistraal = {
 								handler: `magistraal.appointments.delete('${appointment.id}')`, 
 								icon: 'fal fa-trash'
 							}
+						}
+					}
+					
+					// Voeg knop om af te ronden toe aan de sidebar feed
+					sidebarFeed.actions.finish = {
+						handler: `magistraal.appointments.finish('${appointment.id}', $('.appointment-list-item[data-id="${appointment.id}"]').attr('data-finished') != 'true');`,
+						icon: 'fal fa-check'
+					}
+
+					// Voeg meeting link toe aan de sidebar feed
+					if(appointment.has_meeting_link) {
+						sidebarFeed.actions.join_meeting = {
+							handler: `magistraal.appointments.joinMeeting('${appointment.meeting_link}');`,
+							icon: 'fal fa-users'
 						}
 					}
 
@@ -451,23 +460,25 @@ const magistraal = {
 			window.open(meeting, '_blank', 'noopener');
 		},
 
-		finish: (id, finished) => {
-			if($(`.appointment-list-item[data-id="${id}"]`).attr('data-finishable') != 'true') {
+		finish: (id, finish) => {
+			const $appointment = $(`.appointment-list-item[data-id="${id}"]`);
+
+			if($appointment.attr('data-finishable') != 'true') {
 				return false;
 			}
 
-			$(`.appointment-list-item[data-id="${id}"]`).attr('data-finished', finished);
+			$appointment.attr('data-finished', finish);
 
-			magistraal.console.loading('console.loading.finish_appointment');
+			magistraal.console.loading(finish ? 'console.loading.finish_appointment' : 'console.loading.unfinish_appointment');
 
 			magistraal.api.call({
 				url: 'appointments/finish', 
-				data: {id: id, finished: finished},
+				data: {id: id, finished: finish},
 				source: 'both'
 			}).then(() => {
-				magistraal.console.success('console.success.finish_appointment');
+				magistraal.console.success(finish ? 'console.success.finish_appointment' : 'console.success.unfinish_appointment');
 			}).catch(() => {
-				$(`.appointment-list-item[data-id="${id}"]`).attr('data-finished', !finished);
+				$(`.appointment-list-item[data-id="${id}"]`).attr('data-finished', !finish);
 			});
 		},
 
@@ -1913,7 +1924,7 @@ const magistraal = {
 
 			$.each(feed.actions, function(actionType, action) {
 				let $action     = magistraal.template.get('sidebar-action');
-				let actionColor = (actionType == 'delete' ? 'danger' : 'secondary');
+				let actionColor = magistraal.mapping.colors('sidebar_action', actionType);
 				$action.addClass(`btn-${actionColor}`);
 
 				$action.html(`
@@ -2171,6 +2182,25 @@ const magistraal = {
 			}
 
 			return '';
+		},
+
+		colors: (category = '', selector = '') => {
+			switch(category) {
+				case 'sidebar_action': 
+					switch(selector) {
+						case 'delete':
+							return 'danger';
+						
+						case 'join_meeting': 
+							return 'teams';
+
+						case 'finish':
+							return 'success';
+
+						default:
+							return 'secondary';
+					}
+			}
 		}
 	}
 };
