@@ -574,6 +574,7 @@ textarea {
         display: flex;
         flex-direction: row;
         overflow-x: scroll !important;
+        overscroll-behavior-x: contain;
         scroll-snap-type: mandatory;
         scroll-snap-points-y: repeat(100%);
         scroll-snap-type: x mandatory;
@@ -582,7 +583,7 @@ textarea {
 
     body[data-page="appointments/list"] .appointments-group {
         min-width: 100%;
-        scroll-snap-align: start;
+        scroll-snap-align: center;
         padding: 0 var(--MAIN-padding);
     }
 }
