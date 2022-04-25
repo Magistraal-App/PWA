@@ -44,6 +44,7 @@
             
             \Magister\Session::obtainTokenData();
             \Magister\Session::obtainUserInfo();
+            \Magistraal\Authentication\token_set_user_uuid(\Magister\Session::$tokenId, \Magister\Session::$userUuid);
             
             return ['success' => true, 'token_id' => \Magister\Session::$tokenId ?? null, 'user_uuid' => \Magister\Session::$userUuid ?? null];
         }
@@ -107,7 +108,7 @@
                 // Token id changes when the token expires so it should be updated
                 $token_id = $token_data['token_id'];
 
-                // If access token is about to expire generate a new token id
+                // Generate a new token id if access token is about to expire
                 if(isset($token_data['access_token_expires']) && ($token_data['access_token_expires'] - 30) <= time()) {
                     $bearer = \Magister\Session::getBearer($token_data['refresh_token']);
 
@@ -115,7 +116,8 @@
                         'tenant'               => $token_data['tenant'],
                         'access_token'         => $bearer['access_token'],
                         'access_token_expires' => $bearer['access_token_expires'],
-                        'refresh_token'        => $bearer['refresh_token']
+                        'refresh_token'        => $bearer['refresh_token'],
+                        'user_uuid'            => $token_data['user_uuid']
                     ], $token_id);
                 } else {
                     // Access token is not expiring soon, use it
@@ -130,11 +132,12 @@
                     'tenant'               => \Magister\Session::$tenantId,
                     'access_token'         => $bearer['access_token'],
                     'access_token_expires' => $bearer['access_token_expires'],
-                    'refresh_token'        => $bearer['refresh_token']
+                    'refresh_token'        => $bearer['refresh_token'],
+                    'user_uuid'            => \Magister\Session::$userUuid
                 ]);
             }
 
-            \Magister\Session::$tokenId            = $token_id ?? \Magister\Session::$tokenId;
+            \Magister\Session::$tokenId            = $token_id;
             \Magister\Session::$accessToken        = $bearer['access_token'] ?? \Magistraal\Response\error('failed_to_obtain_access_token');
             \Magister\Session::$accessToken        = $bearer['access_token'] ?? \Magistraal\Response\error('failed_to_obtain_access_token');
             \Magister\Session::$refreshToken       = $bearer['refresh_token'] ?? \Magistraal\Response\error('failed_to_obtain_refresh_token');
@@ -155,8 +158,6 @@
                 if(!isset(\Magister\Session::$returnUrl)) {
                     \Magistraal\Response\error('return_url_not_set');
                 }
-
-                // var_dump(\Magister\Session::$returnUrl);
                 
                 // Refresh token is not set, get both refresh token and access token 
                 $redirect_uri = \Magistraal\Api\call('https://accounts.magister.net'.\Magister\Session::$returnUrl)['info']['url'] ?? null;

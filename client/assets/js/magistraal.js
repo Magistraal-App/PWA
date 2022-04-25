@@ -1483,7 +1483,6 @@ const magistraal = {
 				window.history.back();
 			}
 
-			const previousPage = magistraal.page.previous();
 			if(magistraal.page.previous().includes(magistraal.page.current(true)) && magistraal.page.current().includes('?')) {
 				return true;
 			}
@@ -1509,6 +1508,8 @@ const magistraal = {
 
 			// Voor popstate event 
 			magistraalStorage.set('previousPage', magistraal.page.current());
+
+			$('body').attr('data-page', page);
 
 			// Verander url
 			if(currentHash != newHash) {

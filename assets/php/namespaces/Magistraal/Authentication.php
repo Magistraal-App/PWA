@@ -49,27 +49,13 @@
             $response = $db->q("UPDATE magistraal_tokens 
                                 SET access_token='{$access_token}', access_token_expires='{$args['access_token_expires']}', refresh_token='{$refresh_token}' 
                                 WHERE token_id='{$token_id}'");
-
-            if($response > 0) {
-                if(\Magistraal\Config\get('production') === false) {
-                    file_put_contents(ROOT.'/log.txt', '['.date('Y-m-d H:i:s').'] '.
-                        "UPDATED token {$token_id}\n    access_token={$args['access_token']}\n    access_token_expires={$args['access_token_expires']}\n    refresh_token={$args['refresh_token']}\n",
-                    FILE_APPEND);
-                }
-            } else {
-                if(\Magistraal\Config\get('production') === false) {
-                    file_put_contents(ROOT.'/log.txt', '['.date('Y-m-d H:i:s').'] '.
-                        "FAILED to update token {$token_id}\n    access_token={$args['access_token']}\n    access_token_expires={$args['access_token_expires']}\n    refresh_token={$args['refresh_token']}\n",
-                    FILE_APPEND);
-                }
-            }
         } else {
             $token_id      = \Magistraal\Authentication\random_token_id();
             $token_expires = time() + 2700; // Token will expire in 45 minutes
 
             $response = $db->q("INSERT INTO magistraal_tokens 
-                (token_id,      token_expires,      tenant,              access_token,      access_token_expires,              refresh_token,      ip_address) VALUES 
-                ('{$token_id}', '{$token_expires}', '{$args['tenant']}', '{$access_token}', '{$args['access_token_expires']}', '{$refresh_token}', '{$ip_address}')");
+                (token_id,      token_expires,      tenant,              access_token,      access_token_expires,              refresh_token,      ip_address,      user_uuid) VALUES 
+                ('{$token_id}', '{$token_expires}', '{$args['tenant']}', '{$access_token}', '{$args['access_token_expires']}', '{$refresh_token}', '{$ip_address}', '{$args['user_uuid']}')");
         
             if($response > 0) {
                     if(\Magistraal\Config\get('production') === false) {
@@ -90,7 +76,23 @@
             return $token_id;
         }
 
-        \Magistraal\Response\error('error_storing_token');
+        \Magistraal\Response\error('error_storing_tokena');
+    }
+    
+    function token_set_user_uuid($token_id, $user_uuid) {
+        $db = \Magistraal\Database\connect();
+
+        if(isset($token_id) && isset($user_uuid)) {
+            $response = $db->q("UPDATE magistraal_tokens 
+                                SET user_uuid='{$user_uuid}' 
+                                WHERE token_id='{$token_id}'");
+        }
+        
+        if($response) {
+            return $token_id;
+        }
+
+        \Magistraal\Response\error('error_storing_tokenb');
     }
 
     function token_get($token_id) {
@@ -120,7 +122,8 @@
                 'tenant'               => $token_data['tenant'],
                 'access_token'         => $token_data['access_token'],
                 'access_token_expires' => $token_data['access_token_expires'],
-                'refresh_token'        => $token_data['refresh_token']
+                'refresh_token'        => $token_data['refresh_token'],
+                'user_uuid'            => $token_data['user_uuid']
             ]);
 
             $token_data = \Magistraal\Authentication\token_get($new_token_id);
@@ -129,6 +132,13 @@
         }
 
         return $token_data;
+    }
+
+    function token_get_by_user_uuid($user_uuid) {
+        $db = \Magistraal\Database\connect();
+        $token_id = $db->q("SELECT DISTINCT token_id FROM magistraal_tokens WHERE user_uuid='{$user_uuid}'")[0]['token_id'] ?? 0;
+
+        return \Magistraal\Authentication\token_get($token_id);
     }
 
     function token_delete($token_id) {

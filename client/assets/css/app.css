@@ -569,8 +569,22 @@ textarea {
 /*         Appointments         */
 /* ============================ */
 
-.appointment-group {
-    margin-bottom: 0.75rem;
+@media(max-width: 767.98px) {
+    body[data-page="appointments/list"] main {
+        display: flex;
+        flex-direction: row;
+        overflow-x: scroll !important;
+        scroll-snap-type: mandatory;
+        scroll-snap-points-y: repeat(100%);
+        scroll-snap-type: x mandatory;
+        padding: var(--spacing-lg) 0;
+    }
+
+    body[data-page="appointments/list"] .appointments-group {
+        min-width: 100%;
+        scroll-snap-align: start;
+        padding: 0 var(--MAIN-padding);
+    }
 }
 
 .appointment-list-item {
