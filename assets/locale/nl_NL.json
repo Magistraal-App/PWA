@@ -20,13 +20,14 @@
     "generic.month.10": "november",
     "generic.month.11": "december",
 
-    "generic.action.search": "Zoeken...",
     "generic.action.cancel": "Annuleren",
-    "generic.action.save": "Opslaan",
-    "generic.action.send": "Verzenden",
-    "generic.action.edit": "Bewerken",
     "generic.action.delete": "Verwijderen",
+    "generic.action.download": "Downloaden",
+    "generic.action.edit": "Bewerken",
     "generic.action.login": "Inloggen",
+    "generic.action.save": "Opslaan",
+    "generic.action.search": "Zoeken...",
+    "generic.action.send": "Verzenden",
     
     "generic.date_time_seperator": "om",
 

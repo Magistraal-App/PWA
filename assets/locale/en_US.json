@@ -20,13 +20,14 @@
     "generic.month.10": "November",
     "generic.month.11": "December",
 
-    "generic.action.search": "Search...",
     "generic.action.cancel": "Cancel",
-    "generic.action.save": "Save",
-    "generic.action.send": "Send",
-    "generic.action.edit": "Edit",
     "generic.action.delete": "Delete",
+    "generic.action.download": "Download",
+    "generic.action.edit": "Edit",
     "generic.action.login": "Sign in",
+    "generic.action.save": "Save",
+    "generic.action.search": "Search...",
+    "generic.action.send": "Send",
     
     "generic.date_time_seperator": "at",
 

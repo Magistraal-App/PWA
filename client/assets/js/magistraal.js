@@ -365,8 +365,8 @@ const magistraal = {
 					$appointment.find('.list-item-content').html(appointment['content_text']); // Set type
 
 					// Infotype
-					let lessonType = magistraal.locale.translate(`appointments.appointment.info_type.${appointment.info_type}`);
-					$appointment.find('.list-item-action-primary').text(lessonType); 
+					const infoTypeTranslation = magistraal.locale.translate(`appointments.appointment.info_type.${appointment.info_type}`);
+					$appointment.find('.list-item-action-primary').text(infoTypeTranslation); 
 					
 					// Maak een sidebar feed
 					let sidebarFeed = {
@@ -1040,8 +1040,21 @@ const magistraal = {
 
 				if(source.type == 'folder') {
 					$source.attr('onclick', `magistraal.page.load({page: 'sources/list', data: {parent_id: '${source.id}'}, showBack: true});`);
-				} else {
-					$source.attr('onclick', `$(this).attr('disabled', 'disabled'); magistraal.files.download('${source.location}').then(response => { $(this).removeAttr('disabled'); });`);
+				} else if(source.type == 'file') {
+					$source.attr('onclick', 'magistraal.sidebar.selectFeed($(this))');
+
+					let sidebarFeed = {
+						title: source.name,
+						subtitle: description,
+						actions: {
+							download: {
+								handler: `$(this).attr('disabled', 'disabled'); magistraal.files.download('${source.location}').then(response => { $(this).removeAttr('disabled'); })`, 
+								icon: 'fal fa-arrow-to-bottom'
+							}
+						}
+					};
+
+					magistraal.sidebar.addFeed($source, sidebarFeed);
 				}
 
 				$source.appendTo($html);
