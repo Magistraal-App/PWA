@@ -98,9 +98,14 @@ $.fn.formSerialize = function() {
     $form.find('[name]').each(function() {
         const $el = $(this);
 
+        // Continue if input is empty
+        if($el.val().trim().length == 0) {
+            return true;
+        }
+
         if($el.get(0).nodeName.toLowerCase() == 'textarea') {
             // Replace newline with br
-            output[$el.attr('name')] = $el.value().replace(/\r\n|\r|\n/g, '<br/>');
+            output[$el.attr('name')] = $el.value().replace(/\r\n|\r|\n/g, '<br>');
         } else {
             output[$el.attr('name')] = $el.value();
         }
@@ -167,6 +172,17 @@ $(document).on('click', function(e) {
         magistraal.nav.close();
     }
 })
+
+/* ============================ */
+/*         Appointments         */
+/* ============================ */
+
+new fullpage('#fullpage', {
+	//options here
+    licenseKey: 'gplv3-license',
+	autoScrolling:true,
+	scrollHorizontally: true
+});
 
 /* ============================ */
 /*           On/Offline         */

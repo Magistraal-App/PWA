@@ -2,7 +2,7 @@
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
     
     // Get tenant
-    if(!isset($_POST['tenant']) || empty($_POST['tenant'])) {
+    if(!isset($_POST['tenant']) || empty($_POST['tenant']) || strlen($_POST['tenant']) < 16) {
         \Magistraal\Response\error('login_field_empty.tenant');
     }
     $tenant = trim($_POST['tenant']);

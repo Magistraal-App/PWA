@@ -17,13 +17,15 @@
         public static $codeChallenge;
         public static $codeVerifier;
 
-        public static function start() {          
-            if(!isset($_COOKIE['magistraal-authorization'])) {
+        public static function start($token_id = null) {
+            $token_id = $token_id ?? $_COOKIE['magistraal-authorization'];
+
+            if(!isset($token_id)) {
                 \Magistraal\Response\error('token_not_sent');
             }
             
             if(!isset(\Magister\Session::$tokenId)) {
-                return \Magister\Session::loginToken($_COOKIE['magistraal-authorization']);
+                return \Magister\Session::loginToken($token_id);
             } else {
                 return ['success' => true, 'token_id' => \Magister\Session::$tokenId];
             }
