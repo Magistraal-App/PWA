@@ -177,12 +177,12 @@ $(document).on('click', function(e) {
 /*         Appointments         */
 /* ============================ */
 
-new fullpage('#fullpage', {
-	//options here
-    licenseKey: 'gplv3-license',
-	autoScrolling:true,
-	scrollHorizontally: true
-});
+// new fullpage('#fullpage', {
+// 	//options here
+//     licenseKey: 'gplv3-license',
+// 	autoScrolling:true,
+// 	scrollHorizontally: true
+// });
 
 /* ============================ */
 /*           On/Offline         */
