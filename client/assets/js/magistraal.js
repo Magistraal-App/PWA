@@ -1406,7 +1406,7 @@ const magistraal = {
 			if(!isSet(parameters.unobtrusive)) { parameters.unobtrusive = false; }
 
 			if(parameters.page.includes('?')) {
-				// Query string is embedded in page, extract it
+				// Query string is embedded in url, extract it
 				[parameters.page, parameters.data] = parameters.page.split('?');
 				parameters.data = Object.fromEntries(new URLSearchParams(parameters.data));
 			}
@@ -2041,6 +2041,8 @@ const magistraal = {
 			if(magistraalStorage.get('sidebar_active').value === false) {
 				return false;
 			}
+			
+			history.go(-1);
 
 			$('body').attr('data-sidebar-active', false);
 			magistraalStorage.set('sidebar_active', false);
