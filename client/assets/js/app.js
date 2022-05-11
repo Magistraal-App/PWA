@@ -99,9 +99,9 @@ $.fn.formSerialize = function() {
         const $el = $(this);
 
         // Continue if input is empty
-        if($el.val().trim().length == 0) {
+        if($el.val().trim().length == 0 && !$el.hasClass('input-tags')) {
             return true;
-        }
+        } 
 
         if($el.get(0).nodeName.toLowerCase() == 'textarea') {
             // Replace newline with br
@@ -290,7 +290,7 @@ $.fn.setTags = function(tags) {
     $tags.find('.input-tags-tag').remove();
     $wrapper.data('tags', {});
 
-    $.each(tags, function(value, text) {
+    $.each(tags, (value, text) => {
         this.addTag(value, text);
     })
 }
