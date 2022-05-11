@@ -139,14 +139,16 @@ textarea {
 }
 
 [data-magistraal="page-search-no-matches"] {
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    transform: scale(0);
 }
 
 [data-magistraal="page-search-no-matches"].show {
-    display: flex;
+    transform: scale(1);
+    transition: transform var(--animation-duration) cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 [data-magistraal="page-search-no-matches"] i {
@@ -1301,4 +1303,9 @@ h1, h2, h3, h4, h5, h6, .btn, .font-heading {
 
 .fr-box > .fr-wrapper[dir="auto"] > .fr-placeholder {
     margin-top: 0px !important;
+}
+
+hr {
+    border-color: var(--primary-border);
+    background-color: var(--primary-border);
 }
