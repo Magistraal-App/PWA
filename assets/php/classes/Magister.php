@@ -406,7 +406,7 @@
         }
 
         public static function messageMarkRead($id, $read = true) {
-            return \Magistraal\Browser\Browser::request(\Magister\Session::$domain."/api/berichten/berichten/", [
+            $response = \Magistraal\Browser\Browser::request(\Magister\Session::$domain."/api/berichten/berichten/", [
                 'method' => 'patch',
                 'payload' => [
                     'berichten' => [
@@ -423,6 +423,8 @@
                     ]
                 ]
             ]);
+
+            return $response['info']['success'];
         }
 
         public static function messageGet($id) {
@@ -455,6 +457,28 @@
                     'verzendOptie' => 'standaard'
                 ],
                 'redirects' => false
+            ]);
+
+            return $response['info']['success'];
+        }
+
+        public static function messageDelete($id) {
+            $response = \Magistraal\Browser\Browser::request(\Magister\Session::$domain."/api/berichten/berichten/", [
+                'method' => 'patch',
+                'payload' => [
+                    'berichten' => [
+                        [
+                            'berichtId' => $id,
+                            'operations' => [
+                                [
+                                    'op' => 'replace',
+                                    'path' => '/MapId',
+                                    'value' => 3
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
             ]);
 
             return $response['info']['success'];

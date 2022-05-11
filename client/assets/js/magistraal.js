@@ -301,7 +301,7 @@ const magistraal = {
 	/* ============================ */
 	appointments: {
 		paintList: response => {
-			let $html = $('<div></div>');
+			let $html = $('<div><div class="horizontal-scroll-wrapper"></div></div>');
 			
 			$.each(response.data, function (day, data) {
 				// Maak een groep en stel de titel in
@@ -414,7 +414,7 @@ const magistraal = {
 				});
 
 				// Voeg de groep toe aan de inhoud
-				$appointmentsGroup.appendTo($html);
+				$appointmentsGroup.appendTo($html.find('.horizontal-scroll-wrapper'));
 			});
 
 			// Werk de inhoud bij
@@ -638,46 +638,56 @@ const magistraal = {
 			const $overviewTerms    = $overview.find('.grade-overview-terms');
             const $overviewSubjects = $overview.find('.grade-overview-subjects');
             const $overviewMain     = $overview.find('.grade-overview-main');
-            
-            $.each(response.data, function(courseId, course) {
+
+			$.each(response.data, function(courseId, course) {
 				if(!course.active) {
 					return true;
 				}
 
 				$.each(course.terms, function(i, term) {
-					const $overviewTerm = magistraal.template.get('grade-overview-term');
-					$overviewTerm.attr('data-id', term.id);
-					$overviewTerm.find('.grade-overview-term-header').text(term.name);
-
-					$overviewTerm.appendTo($overviewTerms);
+					console.log(term);
 				})
-
-				$.each(course.columns, function(i, column) {
-					const $overviewTerm = $overview.find(`.grade-overview-term[data-id="${column.term.id}"]`);
-
-					// Sla deze kolom over als deze periode niet bestaat of als de kolom al bestaat
-					if($overviewTerm.length === 0 || $overviewTerm.find(`.grade-overview-term-column[data-number="${column.number}"][data-variant="${column.variant}"]`).length > 0) {
-						return true;
-					}
-
-					const $overviewColumn = magistraal.template.get('grade-overview-term-column');
-					$overviewColumn.find('.grade-overview-term-column-name').text(column.name);
-					$overviewColumn.attr({
-						'data-id':      column.id,
-						'data-number':  column.number,
-						'data-variant': column.variant
-					});
-					$overviewColumn.appendTo($overviewTerm.find('.grade-overview-term-columns'));
-				})
-
-                $.each(course.subjects, function(i, subject) {
-                    const $overviewSubject = magistraal.template.get('grade-overview-subject');
-                    $overviewSubject.attr('data-id', subject.id).text(subject.description);
-                    $overviewSubject.appendTo($overviewSubjects);
-                })
 			})
+            
+            // $.each(response.data, function(courseId, course) {
+			// 	if(!course.active) {
+			// 		return true;
+			// 	}
 
-            magistraal.page.setContent($overview, false);
+			// 	$.each(course.terms, function(i, term) {
+			// 		const $overviewTerm = magistraal.template.get('grade-overview-term');
+			// 		$overviewTerm.attr('data-id', term.id);
+			// 		$overviewTerm.find('.grade-overview-term-header').text(term.name);
+
+			// 		$overviewTerm.appendTo($overviewTerms);
+			// 	})
+
+			// 	$.each(course.columns, function(i, column) {
+			// 		const $overviewTerm = $overview.find(`.grade-overview-term[data-id="${column.term.id}"]`);
+
+			// 		// Sla deze kolom over als deze periode niet bestaat of als de kolom al bestaat
+			// 		if($overviewTerm.length === 0 || $overviewTerm.find(`.grade-overview-term-column[data-number="${column.number}"][data-variant="${column.variant}"]`).length > 0) {
+			// 			return true;
+			// 		}
+
+			// 		const $overviewColumn = magistraal.template.get('grade-overview-term-column');
+			// 		$overviewColumn.find('.grade-overview-term-column-name').text(column.name);
+			// 		$overviewColumn.attr({
+			// 			'data-id':      column.id,
+			// 			'data-number':  column.number,
+			// 			'data-variant': column.variant
+			// 		});
+			// 		$overviewColumn.appendTo($overviewTerm.find('.grade-overview-term-columns'));
+			// 	})
+
+            //     $.each(course.subjects, function(i, subject) {
+            //         const $overviewSubject = magistraal.template.get('grade-overview-subject');
+            //         $overviewSubject.attr('data-id', subject.id).text(subject.description);
+            //         $overviewSubject.appendTo($overviewSubjects);
+            //     })
+			// })
+
+            // magistraal.page.setContent($overview, false);
 		}
 	},
 
@@ -717,15 +727,34 @@ const magistraal = {
 				const icon = message.read ? 'envelope-open' : 'envelope';
 				$message.find('.message-list-item-icon').html(`<i class="fal fa-${icon}"></i>`);
 
-				// Maak een sidebar feed en voeg deze toe aan het bericht
-				magistraal.sidebar.addFeed($message, {
-					'title': message.subject,
-					'subtitle': message.sender.name,
-					'table': {
+				// Maak een sidebar feed
+				let sidebarFeed = {
+					title: message.subject,
+					subtitle: message.sender.name,
+					table: {
 						'message.sender': message.sender.name,
 						'message.sent_at': capitalizeFirst(magistraal.locale.formatDate(message.sent_at, 'ldFYHi'))
 					}
-				});
+				};
+
+				// Voeg de nodige knoppen toe aan de sidebar feed
+				sidebarFeed.actions = {
+					reply: {
+						handler: `magistraal.messages.reply({id: '${message.id}'})`, 
+						icon: 'fal fa-reply'
+					},
+					forward: {
+						handler: `magistraal.messages.forward({id: '${message.id}'})`, 
+						icon: 'fal fa-arrow-alt-right'
+					},
+					delete: {
+						handler: `magistraal.messages.delete('${message.id}')`, 
+						icon: 'fal fa-trash'
+					}
+				}
+
+				// Voeg de sidebar feed toe aan het bericht
+				magistraal.sidebar.addFeed($message, sidebarFeed);
 
 				// Voeg het bericht toe aan de inhoud
 				$message.appendTo($html);
@@ -815,6 +844,26 @@ const magistraal = {
 				magistraal.popup.open('messages_write_message');
 
 				magistraal.console.error(`console.error.${response.responseJSON?.info}`);
+			})
+		},
+
+		delete: (id) => {
+			magistraal.console.loading('console.loading.delete_message');
+
+			magistraal.api.call({
+				url: 'messages/delete',
+				data: {id: id},
+				source: 'server_only'
+			}).then(data => {
+				magistraal.console.success('console.success.delete_message');
+				magistraal.page.load({
+					page: 'messages/list'
+				});
+			}).catch(response => {
+				if(response.responseJSON && response.responseJSON.info) {
+					magistraal.console.error(`console.error.${response.responseJSON.info}`);
+					return false;
+				}
 			})
 		}
 	},

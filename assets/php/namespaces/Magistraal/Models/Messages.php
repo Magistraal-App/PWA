@@ -9,6 +9,10 @@
         return \Magistraal\Messages\format_all(\Magister\Session::messageList($top, $skip), $top, $skip);
     }
 
+    function delete($id) {
+        return \Magister\Session::messageDelete($id);
+    }
+
     function format($message) {
         $formatted = [
             'content'         => $message['inhoud'] ?? '',

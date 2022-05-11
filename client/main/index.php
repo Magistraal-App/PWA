@@ -275,23 +275,6 @@
                 <div class="list-item-icon message-list-item-icon"></div>
                 <p class="list-item-title message-list-item-title"></p>
                 <p class="list-item-content message-list-item-content text-muted"></p>
-                <div class="message-list-item-actions list-item-actions">
-                    <button 
-                        class="message-list-item-action list-item-action list-item-action-square message-action-reply" 
-                        data-magistraal-tooltip="message_reply">
-                        <i class="fal fa-reply"></i>
-                    </button>
-                    <button 
-                        class="message-list-item-action list-item-action list-item-action-square message-action-reply-all" 
-                        data-magistraal-tooltip="message_reply_all">
-                        <i class="fal fa-reply-all"></i>
-                    </button>
-                    <button 
-                        class="message-list-item-action list-item-action list-item-action-square message-action-forward" 
-                        data-magistraal-tooltip="message_forward">
-                        <i class="fal fa-arrow-alt-right"></i>
-                    </button>
-                </div>
             </div>
 
         <!-- SETTINGS -->
@@ -357,10 +340,10 @@
 
             <!-- Grades list -->
             <div data-magistraal-template="page-buttons-grades/list">
-                <!-- <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/overview'});">
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/overview'});">
                     <i class="btn-icon fal fa-table"></i>
                     <span class="btn-text" data-translation="grades.overview" ></span>
-                </button> -->
+                </button>
                 <!-- <button class="btn btn-secondary" data-translation="grades.to_grade_calculator"></button> -->
             </div>
 
