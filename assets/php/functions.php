@@ -63,6 +63,10 @@
         return null;
     }
 
+    function escape_quotes($str) {
+        return str_replace(['\'', '\"'], ['\\x27', '\\x22'], $str);
+    }
+
     function str_split_pos($str, $pos) {
         $str1 = substr($str, 0, $pos);
         $str2 = substr($str, $pos);
