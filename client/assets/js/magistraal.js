@@ -377,21 +377,20 @@ const magistraal = {
 					};
 					sidebarFeed.table[`appointment.info_type.${appointment.info_type}`] = appointment.content;
 					sidebarFeed.table['appointment.teachers'] = appointment.teachers.join(', ');
-
-					// Voeg de nodige knoppen toe aan de sidebar feed
+					
+					// Voeg verwijder- en bewerkknop toe aan de sidebar feed als de afspraak kan worden bewerkt
 					if(appointment.editable) {
-						sidebarFeed.actions = {
-							edit: {
-								handler: `magistraal.appointments.edit({id: '${appointment.id}', start: '${appointment.start.time}', end: '${appointment.end.time}', facility: '${escapeQuotes(appointment.facility)}', description: '${escapeQuotes(appointment.description)}', content: '${escapeQuotes(appointment.content)}'})`, 
-								icon: 'fal fa-pencil-alt'
-							},
-							delete: {
-								handler: `magistraal.appointments.delete('${appointment.id}')`, 
-								icon: 'fal fa-trash'
-							}
+						sidebarFeed.actions.delete = {
+							handler: `magistraal.appointments.delete('${appointment.id}')`, 
+							icon: 'fal fa-trash'
+						}
+
+						sidebarFeed.actions.edit = {
+							handler: `magistraal.appointments.edit(${JSON.stringify(appointment)})`, 
+							icon: 'fal fa-pencil-alt'
 						}
 					}
-					
+
 					// Voeg knop om af te ronden toe aan de sidebar feed
 					sidebarFeed.actions.finish = {
 						handler: `magistraal.appointments.finish('${appointment.id}', $('.appointment-list-item[data-id="${appointment.id}"]').attr('data-finished') != 'true');`,
@@ -517,14 +516,13 @@ const magistraal = {
 		},
 
 		edit: (appointment) => {
-			console.log(appointment);
-			let popup = 'appointments_create_appointment';
-			let $form = magistraal.element.get('form-appointments_create_appointment');
+			const popup = 'appointments_create_appointment';
+			const $form = magistraal.element.get('form-appointments_create_appointment');
 						
 			$form.find('[name="id"]').value(appointment.id);
-			$form.find('[name="date"]').value(appointment.start);
-			$form.find('[name="start"]').value(appointment.start);
-			$form.find('[name="end"]').value(appointment.end);
+			$form.find('[name="date"]').value(appointment.start.time);
+			$form.find('[name="start"]').value(appointment.start.time);
+			$form.find('[name="end"]').value(appointment.end.time);
 			$form.find('[name="facility"]').value(appointment.facility);
 			$form.find('[name="description"]').value(appointment.description);
 			$form.find('[name="content"]').value(appointment.content);
@@ -740,14 +738,6 @@ const magistraal = {
 
 				// Voeg de nodige knoppen toe aan de sidebar feed
 				sidebarFeed.actions = {
-					reply: {
-						handler: `magistraal.messages.reply({id: '${message.id}'})`, 
-						icon: 'fal fa-reply'
-					},
-					forward: {
-						handler: `magistraal.messages.forward({id: '${message.id}'})`, 
-						icon: 'fal fa-arrow-alt-right'
-					},
 					delete: {
 						handler: `magistraal.messages.delete('${message.id}')`, 
 						icon: 'fal fa-trash'
@@ -806,18 +796,28 @@ const magistraal = {
 			}
 
 			// Maak een sidebar feed
-			let updateFeedWith = {
-				'table': {
+			let updatedFeed = {
+				table: {
 					'message.to': message.recipients.to.names.join(', '),
 					'message.cc': message.recipients.cc.names.join(', '),
 					'message.bcc': message.recipients.bcc.names.join(', '),
 					'message.attachments': attachmentsHTML,
 					'message.content': message.content
+				},
+				actions: {
+					forward: {
+						handler: `magistraal.messages.forward(message)`, 
+						icon: 'fal fa-arrow-alt-right'
+					},
+					reply: {
+						handler: `magistraal.messages.reply(${JSON.stringify(message)})`, 
+						icon: 'fal fa-reply'
+					}
 				}
 			};
 			
 			// Werk de huidige sidebar feed bij
-			magistraal.sidebar.updateFeed(updateFeedWith, undefined);
+			magistraal.sidebar.updateFeed(updatedFeed, undefined);
 
 			// Stuur een bericht in de console
 			if(loadType == 'server_final' || loadType == 'cache_final') {
@@ -827,6 +827,8 @@ const magistraal = {
 
 		send: (message, $form = undefined) => {
 			magistraal.console.loading('console.loading.send_message');
+
+			console.log(message);
 
 			magistraal.api.call({
 				url: 'messages/send', 
@@ -866,6 +868,40 @@ const magistraal = {
 					return false;
 				}
 			})
+		},
+
+		reply: (message) => {
+			const popup = 'messages_write_message';
+			const $form = magistraal.element.get('form-messages_write_message');
+						
+			$form.find('[name="id"]').value(message.id);
+			$form.find('[name="date"]').value(message.start);
+			$form.find('[name="subject"]').value(magistraal.locale.translate('message.reply.prefix')+': '+message.subject);
+			
+			// Restructure recipients so they can be set as tag
+			let recipientTags = {to: {}, cc: {}, bcc: {}};
+			$.each(message.recipients, function(recipientsGroup, recipients) {
+				$.each(recipients.list, function(i, recipient) {
+					recipientTags[recipientsGroup][recipient.id] = recipient.name;
+				})
+			})
+			
+			let toValue = {};
+			toValue[message.sender.id] = message.sender.name;
+			$form.find('[name="to"]').setTags(toValue);
+
+			let newContent = `
+				<br><br><br><hr>
+				<b>${magistraal.locale.translate('messages.popup.write_message.item.from.title')}</b>: ${message.sender.name}<br>
+				<b>${magistraal.locale.translate('messages.popup.write_message.item.sent_at.title')}</b>: ${magistraal.locale.formatDate(message.sent_at, 'ldFYHi')}<br>
+				`+(message.recipients.to.list.length > 0 ? `<b>${magistraal.locale.translate('messages.popup.write_message.item.to.title')}</b>: ${message.recipients.to.names.join(', ')}<br>`: '')+`
+				`+(message.recipients.cc.list.length > 0 ? `<b>${magistraal.locale.translate('messages.popup.write_message.item.cc.title')}</b>: ${message.recipients.cc.names.join(', ')}<br>`: '')+`
+				<b>${magistraal.locale.translate('messages.popup.write_message.item.subject.title')}</b>: ${message.subject}<br><br>
+			` + message.content;
+
+			$form.find('[name="content"]').value(newContent);
+			
+			magistraal.popup.open(popup);
 		}
 	},
 
@@ -1993,20 +2029,22 @@ const magistraal = {
 			}
 		},
 
-		updateFeed: (updateFeedWith, insertAfterKey = undefined) => {
+		updateFeed: (updatedFeed, insertTableAfterKey = undefined) => {
 			let newFeed                = {title: '', subtitle: '', table: {}, actions: {}};
 			let currentFeed            = magistraal.sidebar.getFeed();
 			let currentFeedTableLength = Object.keys(currentFeed.table).length;
 			
-			newFeed.title = updateFeedWith?.title || currentFeed.title; 
-			newFeed.subtitle = updateFeedWith?.subtitle || currentFeed.subtitle; 
+			// Overwrite title and subtitle
+			newFeed.title = updatedFeed?.title || currentFeed.title; 
+			newFeed.subtitle = updatedFeed?.subtitle || currentFeed.subtitle; 
 
+			// Merge table
 			let i = 1;
 			$.each(currentFeed.table, function(currentTableKey, currentTableValue) {
 				newFeed.table[currentTableKey] = currentTableValue;
 
-			    if(currentTableKey == insertAfterKey || i == currentFeedTableLength) {
-					$.each(updateFeedWith.table, function(updateTableKey, updateTableValue) {
+			    if(currentTableKey == insertTableAfterKey || i == currentFeedTableLength) {
+					$.each(updatedFeed.table, function(updateTableKey, updateTableValue) {
 						newFeed.table[updateTableKey] = updateTableValue;
 					})
 				}
@@ -2014,7 +2052,8 @@ const magistraal = {
 				i++;
 			})
 
-			newFeed.actions = currentFeed.actions;
+			// Merge actions
+			Object.assign(newFeed.actions, currentFeed.actions, updatedFeed?.actions);
 
 			magistraal.sidebar.setFeed(newFeed, false);
 		},
@@ -2042,8 +2081,6 @@ const magistraal = {
 				return false;
 			}
 			
-			history.go(-1);
-
 			$('body').attr('data-sidebar-active', false);
 			magistraalStorage.set('sidebar_active', false);
 		},
