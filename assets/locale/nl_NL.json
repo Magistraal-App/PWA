@@ -30,6 +30,8 @@
     "generic.action.save": "Opslaan",
     "generic.action.search": "Zoeken...",
     "generic.action.send": "Verzenden",
+    "generic.action.reply": "Beantwoorden",
+    "generic.action.forward": "Doorsturen",
     
     "generic.date_time_seperator": "om",
 
