@@ -355,8 +355,8 @@ const magistraal = {
 					// }
 
 					// Informatie (tijd, omschrijving en inhoud)
-					$appointment.find('.appointment-time').text(magistraal.locale.formatDate(appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(appointment.end.time, 'Hi')); // Set designation
-					$appointment.find('.appointment-designation').text(appointment.facility == '' ? appointment.description : `${appointment.description} (${appointment.facility})`); // Set content
+					$appointment.find('.appointment-time').text(magistraal.locale.formatDate(appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(appointment.end.time, 'Hi'));
+					$appointment.find('.appointment-description').text(appointment.facility == '' ? appointment.description : `${appointment.description} (${appointment.facility})`);
 					$appointment.find('.list-item-content').html(appointment['content_text']); // Set type
 
 					// Infotype
@@ -382,7 +382,7 @@ const magistraal = {
 					if(appointment.editable) {
 						sidebarFeed.actions = {
 							edit: {
-								handler: `magistraal.appointments.edit({id: '${appointment.id}', start: '${appointment.start.time}', end: '${appointment.end.time}', facility: '${escapeQuotes(appointment.facility)}', designation: '${escapeQuotes(appointment.description)}', content: '${escapeQuotes(appointment.content)}'})`, 
+								handler: `magistraal.appointments.edit({id: '${appointment.id}', start: '${appointment.start.time}', end: '${appointment.end.time}', facility: '${escapeQuotes(appointment.facility)}', description: '${escapeQuotes(appointment.description)}', content: '${escapeQuotes(appointment.content)}'})`, 
 								icon: 'fal fa-pencil-alt'
 							},
 							delete: {
@@ -517,6 +517,7 @@ const magistraal = {
 		},
 
 		edit: (appointment) => {
+			console.log(appointment);
 			let popup = 'appointments_create_appointment';
 			let $form = magistraal.element.get('form-appointments_create_appointment');
 						

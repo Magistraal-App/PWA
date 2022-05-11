@@ -214,7 +214,7 @@
             <div data-magistraal-template="appointment" tabindex="0" class="appointment-list-item list-item" onclick="magistraal.sidebar.selectFeed($(this)); magistraal.appointments.view($(this).attr('data-id'));">
                 <div class="list-item-icon font-heading"></div>
                 <p class="list-item-title">
-                    <span class="appointment-designation"></span>
+                    <span class="appointment-description"></span>
                     <span class="bullet"></span>
                     <span class="appointment-time"></span>
                 </p>
