@@ -4,14 +4,17 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 
 ---
 
-## Todo
-- [] Meldingen op Android
-- [] Meldingen op iOS
-- [] Gemiddelde cijfers
-- [] Afsprakenlijst datum wijzigbaar en verder dan de huidige week
-- [] Afsprakenlijst scroll minder gevoelig maken
-- [] Homepagina
-- [] Opdrachtenpagina
+## Todo op volgorde van prioriteit
+- [ ] Maken: kijken of een gebruiker nieuwe cijfers, afspraken of berichten heeft
+- [ ] Maken: Meldingen op Android via Google Firebase
+- [ ] Maken: Meldingen op iOS via Pushcut
+- [ ] Maken: Gemiddelde cijferspagina
+- [ ] Maken: Afsprakenlijst datumkiezer
+- [ ] Fixen: Afsprakenlijst scroll gevoeligheid verlagen
+- [ ] Maken: 'Prullenbak' map bij berichtenpagina
+- [ ] Maken: 'Verzonden' map bij berichtenpagina
+- [ ] Maken: Homepagina
+- [ ] Maken: Opdrachtenpagina
 
 ---
 
