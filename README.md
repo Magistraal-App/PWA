@@ -5,10 +5,14 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 ---
 
 ## Todo
-[ ] Meldingen op Android
-[ ] Meldingen op iOS
-[ ] Afsprakenlijst datum wijzigen en verder dan de huidige week
-[ ] Afsprakenlijst scroll minder gevoelig maken
-[ ] Homepagina
+- [] Meldingen op Android
+- [] Meldingen op iOS
+- [] Gemiddelde cijfers
+- [] Afsprakenlijst datum wijzigbaar en verder dan de huidige week
+- [] Afsprakenlijst scroll minder gevoelig maken
+- [] Homepagina
+- [] Opdrachtenpagina
+
+---
 
 Magistraal is niet verbonden met of onderdeel van Iddink Group.
