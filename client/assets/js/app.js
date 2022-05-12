@@ -242,6 +242,42 @@ if(window.matchMedia) {
 }
 
 /* ============================ */
+/*         Notifications        */
+/* ============================ */
+
+function usingiOS() {
+    return [
+        'iPad Simulator',
+        'iPhone Simulator',
+        'iPod Simulator',
+        'iPad',
+        'iPhone',
+        'iPod'
+    ].includes(navigator.platform)
+    // iPad on iOS 13 detection
+    || (navigator.userAgent.includes('Mac') && "ontouchend" in document)
+}
+
+$(document).on('magistraal.ready', function() {
+    if(!usingiOS()) {
+        return;
+    }
+
+    if(isSet(getCookie('ignoreiOSNotificationsInstallPushcut'))) {
+        return;
+    }
+
+    new magistraal.inputs.dialog({
+        title: magistraal.locale.translate('generic.dialog.ios_notifications_install_pushcut.title'), 
+        description: magistraal.locale.translate('generic.dialog.ios_notifications_install_pushcut.content')
+    }).open().then(() => {
+        window.open('https://apps.apple.com/app/id1450936447', '_blank', 'noopener');
+    }).catch(() => {
+        setCookie('ignoreiOSNotificationsInstallPushcut', true)
+    })
+})
+
+/* ============================ */
 /*          Input tags          */
 /* ============================ */
 
@@ -491,7 +527,7 @@ function getCookie(name) {
             return c.substring(name.length, c.length);
         }
     }
-    return '';
+    return null;
 }
 
 function random(min, max) {

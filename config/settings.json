@@ -39,6 +39,39 @@
                 }
             }
         },
+        "notifications": {
+            "icon": "fal fa-bell",
+            "items": {
+                "appointments": {
+                    "icon": "fal fa-calendar-alt",
+                    "values": {
+                        "on": {"title": "on", "icon": "fal fa-check"},
+                        "off": {"title": "off", "icon": "fal fa-times"}
+                    }
+                },
+                "grades": {
+                    "icon": "fal fa-award",
+                    "values": {
+                        "on": {"title": "on", "icon": "fal fa-check"},
+                        "off": {"title": "off", "icon": "fal fa-times"}
+                    }
+                },
+                "messages": {
+                    "icon": "fal fa-envelope",
+                    "values": {
+                        "on": {"title": "on", "icon": "fal fa-check"},
+                        "off": {"title": "off", "icon": "fal fa-times"}
+                    }
+                },
+                "absences": {
+                    "icon": "fal fa-calendar-times",
+                    "values": {
+                        "on": {"title": "on", "icon": "fal fa-check"},
+                        "off": {"title": "off", "icon": "fal fa-times"}
+                    }
+                }
+            }
+        },
         "system": {
             "icon": "fal fa-cog",
             "items": {
@@ -61,6 +94,10 @@
         "appearance.theme": "dark",
         "appearance.buttons": "both",
         "appearance.animations": "on",
-        "appearance.language": "nl_NL"
+        "appearance.language": "nl_NL",
+        "notifications.setup": "",
+        "notifications.appointments": "on",
+        "notifications.grades": "on",
+        "notifications.absences": "off"
     }
 }

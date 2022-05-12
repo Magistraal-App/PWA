@@ -800,6 +800,7 @@ textarea {
     z-index: 200;
     max-width: min(90vw, 30rem);
     width: fit-content;
+    height: fit-content;
 }
 
 .popup-main,

@@ -1539,7 +1539,8 @@ const magistraal = {
 		getCallback: (response, loadType, request, page) => {
 			// Selecteer eerste item in lijst
 			const $li_first = magistraal.element.get('main').find('.list-item[data-interesting="true"]').first();
-			magistraal.sidebar.selectFeed($li_first, false);
+			$li_first.click();
+			magistraal.sidebar.close(true);
 
 			// Werk paginaknoppen bij
 			const $pageButtonsTemplate = magistraal.template.get(`page-buttons-${page}`);
@@ -1661,7 +1662,7 @@ const magistraal = {
 
 				this.parameters = parameters;
 
-				return this.open();
+				return this;
 			}
 
 			open() {
@@ -1674,9 +1675,9 @@ const magistraal = {
 					this.$dialog = magistraal.template.get('dialog');
 
 					this.$dialog.find('.dialog-title').text(this.parameters.title);
-					this.$dialog.find('.dialog-description').text(this.parameters.description);
+					this.$dialog.find('.dialog-description').html(this.parameters.description);
 
-					window.history.pushState('preventDialogClose', null, '?prevDia');
+					window.history.pushState('preventDialogClose', null, null);
 
 					this.$dialog.appendTo('body');
 					
@@ -1687,15 +1688,16 @@ const magistraal = {
 					this.$dialog.find(`[data-dialog-action="${this.parameters.defaultAnswer}"]`).attr('data-selected', true);
 					magistraal.element.get('dialog-backdrop').addClass('show');
 
-					const dialog = this;
+					const dialogClass = this;
 					this.$dialog.find('[data-dialog-action]').on('click', function() {
-						if($(this).attr('data-dialog-action') == 'yes') {
+						const $btn = $(this);
+						if($btn.attr('data-dialog-action') == 'yes') {
 							resolve();
 						} else {
 							reject();
 						}
 
-						dialog.close();
+						dialogClass.close();
 					})
 				})
 			}
@@ -2023,9 +2025,7 @@ const magistraal = {
 			})
 
 			if(openSidebar) {
-				setTimeout(() => {
-					magistraal.sidebar.open();
-				}, 50);
+				magistraal.sidebar.open();
 			}
 		},
 
@@ -2076,11 +2076,15 @@ const magistraal = {
 			magistraalStorage.set('sidebar_active', true);
 		},
 
-		close: () => {
+		close: (goBack = false) => {
 			if(magistraalStorage.get('sidebar_active').value === false) {
 				return false;
 			}
-			
+
+			if(goBack) {
+				history.go(-1);
+			}
+
 			$('body').attr('data-sidebar-active', false);
 			magistraalStorage.set('sidebar_active', false);
 		},
