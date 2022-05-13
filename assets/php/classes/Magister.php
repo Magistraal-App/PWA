@@ -105,13 +105,13 @@
 
         public static function obtainTokenData($token_id = null) {
             if(isset($token_id)) {
-                $token_data = \Magistraal\Authentication\token_get($token_id) ?? \Magistraal\Response\error('token_invalid');
+                $token_data = \Magistraal\Authentication\token_get($token_id) ?? \Magistraal\Response\error('token_invalid_not_found');
 
                 // Token id changes when the token expires so it should be updated
                 $token_id = $token_data['token_id'];
 
-                // Generate a new token id if access token is about to expire
-                if(isset($token_data['access_token_expires']) && ($token_data['access_token_expires'] - 30) <= time()) {
+                // Generate a new token id if access token expires in 15 minutes
+                if(isset($token_data['access_token_expires']) && ($token_data['access_token_expires'] - 900) <= time()) {
                     $bearer = \Magister\Session::getBearer($token_data['refresh_token']);
 
                     $token_id = \Magistraal\Authentication\token_put([
@@ -207,7 +207,7 @@
                 return $bearer;
             }
 
-            \Magistraal\Response\error('token_invalid');
+            \Magistraal\Response\error('token_invalid_unknown_error');
         }
 
         // public static function refreshTokens($refresh_token = null) {
