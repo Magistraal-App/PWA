@@ -15,9 +15,12 @@
         public static $userUuid;
         public static $codeVerifier;
         public static $codeChallenge;
+        public static $checkTokenExpiry;
 
-        public static function start($token_id = null, $check_token_expiry = true) {
+        public static function start($token_id = null, $check_token_expiry = false) {
             $token_id = $token_id ?? $_COOKIE['magistraal-authorization'] ?? null;
+
+            \Magister\Session::$checkTokenExpiry = $check_token_expiry;
 
             if(!isset($token_id)) {
                 \Magistraal\Response\error('token_invalid_not_sent');
@@ -148,7 +151,7 @@
 
         public static function getTokenData($token_id) {
             // Get token data
-            $token_data = \Magistraal\Authentication\token_get($token_id) ?? null;
+            $token_data = \Magistraal\Authentication\token_get($token_id, \Magister\Session::$checkTokenExpiry) ?? null;
 
             // Overwrite $token_id since it might have changed
             $token_id = $token_data['token_id'] ?? null;
