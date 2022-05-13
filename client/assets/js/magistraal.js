@@ -184,7 +184,7 @@ const magistraal = {
 
 					error: function(response) {
 						// Laat de gebruiker opnieuw inloggen als token niet bestaat / onjuist is
-						if(isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info == 'token_invalid') {
+						if(isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info.includes('token_invalid')) {
 							magistraal.token.delete();
 							magistraal.page.load({
 								page: 'login'
@@ -1539,8 +1539,7 @@ const magistraal = {
 		getCallback: (response, loadType, request, page) => {
 			// Selecteer eerste item in lijst
 			const $li_first = magistraal.element.get('main').find('.list-item[data-interesting="true"]').first();
-			$li_first.click();
-			magistraal.sidebar.close(true);
+			magistraal.sidebar.selectFeed($li_first, false);
 
 			// Werk paginaknoppen bij
 			const $pageButtonsTemplate = magistraal.template.get(`page-buttons-${page}`);
@@ -2082,7 +2081,7 @@ const magistraal = {
 			}
 
 			if(goBack) {
-				history.go(-1);
+				window.history.go(-1);
 			}
 
 			$('body').attr('data-sidebar-active', false);
