@@ -185,7 +185,6 @@ const magistraal = {
 					error: function(response) {
 						// Laat de gebruiker opnieuw inloggen als token niet bestaat / onjuist is
 						if(isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info.includes('token_invalid')) {
-							return;
 							magistraal.token.delete();
 							magistraal.page.load({
 								page: 'login'
