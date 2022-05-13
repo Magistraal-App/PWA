@@ -1,5 +1,6 @@
 <?php 
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
+    define('ALLOW_EXIT', false);
 
     $run_by = $_SERVER['HTTP_X_RUN_BY'] ?? 'N/A';
     file_put_contents('test.txt', '['.date('d-m-Y H:i:s').' - Triggered by flow ('.$run_by.')'."\n", FILE_APPEND);
@@ -20,25 +21,31 @@
     }
 
     // Get tokens per user_uuid
-    $tokens = \Magistraal\Database\query("SELECT token_expires, token_id, user_uuid FROM magistraal_tokens GROUP BY user_uuid");
+    $tokens = \Magistraal\Database\query("SELECT max(token_expires), token_id, user_uuid FROM magistraal_tokens GROUP BY user_uuid");
 
     $iso_start = date_iso(strtotime('today'));
     $iso_end   = date_iso(strtotime('today') + 86400 * 6);
 
     foreach ($tokens as $token) {
-        if(!isset($token['token_id']) || empty($token['token_id']) || !isset($token['user_uuid']) || empty($token['user_uuid'])) {
+        if(!isset($token['token_id']) || empty($token['token_id']) || !isset($token['user_uuid']) || empty($token['user_uuid']) || $token['token_expires'] <= time()) {
             continue;
-        }
-        
-        // Start session
-        \Magister\Session::start($token['token_id']);
+        }        
+        // Start session without checking if the token has expired
+        \Magister\Session::start($token['token_id'], false);
+
+        echo('PASSED!');
 
         // Grab appointment ids, message ids and grade ids for this user_uuid
-        $userdata = array_values(\Magistraal\Database\query("SELECT appointments, messages, grades FROM magistraal_userdata WHERE user_uuid=?", $token['user_uuid']))[0];
-
-        // Continue if userdata was not found
-        if(!$userdata) {
-            continue;
+        $userdata = \Magistraal\Database\query("SELECT appointments, messages, grades FROM magistraal_userdata WHERE user_uuid=?", $token['user_uuid']);
+        // Set default if userdata was not found
+        if(!isset($userdata) || !is_array($userdata) || empty($userdata)) {
+            $userdata = [
+                'appointments' => null,
+                'messages' => null,
+                'grades' => null
+            ];
+        } else {
+            $userdata = array_values($userdata)[0];
         }
 
         // Decode userdata
@@ -58,8 +65,8 @@
             'messages'     => json_encode($changes['messages']['new_entry'])
         ];
 
-        \Magistraal\Database\query("UPDATE magistraal_userdata SET appointments=?, grades=?, messages=? WHERE user_uuid=?", [$new_userdata['appointments'], $new_userdata['grades'], $new_userdata['messages'], $token['user_uuid']]);
-    
+        \Magistraal\Database\query("REPLACE INTO magistraal_userdata (user_uuid, appointments, grades, messages) VALUES (?, ?, ?, ?)", [$token['user_uuid'], $new_userdata['appointments'], $new_userdata['grades'], $new_userdata['messages']]);
     }
+
     \Magistraal\Response\success(['count' => count($tokens)]);
 ?>

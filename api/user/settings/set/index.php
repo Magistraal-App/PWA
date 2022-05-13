@@ -10,10 +10,6 @@
         \Magistraal\Response\error('parameter_value_missing');
     }
 
-    if(!isset(\Magister\Session::$userUuid)) {
-        \Magistraal\Response\error('error_authentication');
-    }
-
     \Magistraal\User\Settings\set(\Magister\Session::$userUuid, $_POST['setting'], $_POST['value']);
 
     \Magistraal\Response\success(\Magistraal\User\Settings\get_all(\Magister\Session::$userUuid));

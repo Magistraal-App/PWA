@@ -185,6 +185,7 @@ const magistraal = {
 					error: function(response) {
 						// Laat de gebruiker opnieuw inloggen als token niet bestaat / onjuist is
 						if(isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info.includes('token_invalid')) {
+							return;
 							magistraal.token.delete();
 							magistraal.page.load({
 								page: 'login'
@@ -1065,7 +1066,8 @@ const magistraal = {
 		get_all: () => {
 			return new Promise((resolve, reject) => {
 				magistraal.api.call({
-					url: 'user/settings/get_all'
+					url: 'user/settings/get_all',
+					alwaysReturn: true
 				}).then(response => {
 					resolve(response.data);
 				}).catch(response => {

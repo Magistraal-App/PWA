@@ -5,19 +5,6 @@
         return 'M6LOAPP';
     }
 
-    function generate_login_path() {
-        $nonce            = \Magistraal\Authentication\generate_nonce();
-        $state            = \Magistraal\Authentication\generate_state();
-
-        $code_verifier    = \Magistraal\Authentication\generate_code_verifier();
-        $code_challenge   = \Magistraal\Authentication\generate_code_challenge($code_verifier);
-
-        \Magister\Session::$codeChallenge = $code_challenge;
-        \Magister\Session::$codeVerifier  = $code_verifier;
-        
-        return "/connect/authorize?client_id=M6LOAPP&redirect_uri=m6loapp%3A%2F%2Foauth2redirect%2F&scope=openid%20profile%20offline_access%20magister.mobile%20magister.ecs&response_type=code%20id_token&state={$state}&nonce={$nonce}&code_challenge={$code_challenge}&code_challenge_method=S256";
-    }
-
     function generate_nonce() {
         return random_hex(32);
     }
@@ -65,16 +52,7 @@
         \Magistraal\Response\error('error_storing_tokena');
     }
     
-    function token_set_user_uuid($token_id, $user_uuid) {
-        if(isset($token_id) && isset($user_uuid)) {
-            \Magistraal\Database\query("UPDATE magistraal_tokens SET user_uuid=? WHERE token_id=?", [$user_uuid, $token_id]);
-            return $token_id;
-        }
-
-        \Magistraal\Response\error('error_setting_token_user_uuid');
-    }
-
-    function token_get($token_id) {
+    function token_get($token_id, $check_token_expiry = true) {
         $rows = \Magistraal\Database\query("SELECT * FROM magistraal_tokens WHERE token_id=?", $token_id);
 
         if(!isset($rows[0])) {
@@ -85,15 +63,7 @@
         $token_data['access_token']  = \Magistraal\Encryption\decrypt($token_data['access_token']);
         $token_data['refresh_token'] = \Magistraal\Encryption\decrypt($token_data['refresh_token']);
 
-        if(time() > $token_data['token_expires']) {
-            // $new_token_id = \Magistraal\Authentication\random_token_id();
-            // $new_token_expires = time()
-
-            // // Rename token id and change expiry
-            // \Magistraal\Database\query("UPDATE magistraal_tokens SET token_id=? WHERE token_id=?", [$new_token_id, $token_id]);
-
-            // var_dump($token_id, $new_token_id);
-
+        if(time() > $token_data['token_expires'] && $check_token_expiry) {
             // Delete current token 
             \Magistraal\Authentication\token_delete($token_id);
             

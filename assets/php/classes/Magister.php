@@ -10,247 +10,276 @@
         public static $refreshToken;
         public static $sessionId;
         public static $tenantId;
-        public static $tenantDomain;
         public static $tokenId;
         public static $userId;
         public static $userUuid;
-        public static $codeChallenge;
         public static $codeVerifier;
+        public static $codeChallenge;
 
-        public static function start($token_id = null) {
-            $token_id = $token_id ?? $_COOKIE['magistraal-authorization'];
+        public static function start($token_id = null, $check_token_expiry = true) {
+            $token_id = $token_id ?? $_COOKIE['magistraal-authorization'] ?? null;
 
             if(!isset($token_id)) {
-                \Magistraal\Response\error('token_not_sent');
+                \Magistraal\Response\error('token_invalid_not_sent');
             }
             
-            if(!isset(\Magister\Session::$tokenId)) {
-                return \Magister\Session::loginToken($token_id);
-            } else {
-                return ['success' => true, 'token_id' => \Magister\Session::$tokenId];
-            }
+            return \Magister\Session::loginToken($token_id);
         }
 
-        public static function login($tenantId, $username, $password) {
-            if(!\Magister\Session::loginTenant($tenantId)) {
+        public static function login($tenant_id, $username, $password) {
+            \Magister\Session::$tenantId = $tenant_id;
+            
+            // Get login endpoint
+            list($login_url, \Magister\Session::$codeVerifier, \Magister\Session::$codeChallenge) = \Magister\Session::getLoginEndpoint();
+
+            // Get actual login page url
+            $response  = \Magistraal\Api\call('https://accounts.magister.net'.$login_url);
+            $login_url = $response['info']['url'];
+            parse_str(parse_url($login_url)['query'], $login_url_query);
+
+            // Store login information
+            \Magister\Session::$sessionId = $login_url_query['sessionId'] ?? \Magistraal\Response\error('error_getting_session_id');
+            \Magister\Session::$returnUrl = $login_url_query['returnUrl'] ?? \Magistraal\Response\error('error_getting_return_url');
+            \Magister\Session::$authCode  = \Magister\Session::getAuthCode() ?? \Magistraal\Response\error('error_getting_authcode');
+            
+            // Enter tenant
+            if(!\Magister\Session::loginTenant($tenant_id)) {
                 return ['success' => false, 'info' => 'login_field_incorrect.tenant'];
             }
 
+            // Enter username
             if(!\Magister\Session::loginUsername($username)) {
                 return ['success' => false, 'info' => 'login_field_incorrect.username'];
             }
 
+            // Enter password
             if(!\Magister\Session::loginPassword($password)) {
                 return ['success' => false, 'info' => 'login_field_incorrect.password'];
             }
+
+            // Get bearer
+            $bearer = \Magister\Session::getBearerTokens(\Magister\Session::$codeVerifier);
+
+            // Store bearer in session
+            \Magister\Session::$accessToken        = $bearer['access_token'];
+            \Magister\Session::$accessTokenExpires = time() + $bearer['expires_in'];
+            \Magister\Session::$refreshToken       = $bearer['refresh_token'];
+
+            // Get domain
+            \Magister\Session::$domain = \Magister\Session::getDomain();
+
+            // Get user info
+            list(\Magister\Session::$userId, \Magister\Session::$userUuid) = \Magister\Session::getUserInfo();
+
+            // Save token data
+            $token_id = \Magistraal\Authentication\token_put([
+                'tenant'               => \Magister\Session::$tenantId ?? null,
+                'access_token'         => \Magister\Session::$accessToken ?? null,
+                'access_token_expires' => \Magister\Session::$accessTokenExpires ?? null,
+                'refresh_token'        => \Magister\Session::$refreshToken ?? null,
+                'user_uuid'            => \Magister\Session::$userUuid ?? null
+            ]);
             
-            \Magister\Session::obtainTokenData();
-            \Magister\Session::obtainUserInfo();
-            \Magistraal\Authentication\token_set_user_uuid(\Magister\Session::$tokenId, \Magister\Session::$userUuid);
-            
-            return ['success' => true, 'token_id' => \Magister\Session::$tokenId ?? null, 'user_uuid' => \Magister\Session::$userUuid ?? null];
+            return ['success' => true, 'token_id' => $token_id ?? null, 'user_uuid' => \Magister\Session::$userUuid ?? null];
+        }
+
+        public static function getDomain() {
+            $res              = \Magistraal\Api\call('https://magister.net/.well-known/host-meta.json');
+            $tenant_api_url   = $res['body']['links'][1]['href'] ?? \Magistraal\Response\error('error_obtaining_tenant_url');
+            $tenant_subdomain = explode('.', parse_url($tenant_api_url, PHP_URL_HOST))[0];
+
+            return "https://{$tenant_subdomain}.magister.net";
         }
 
         public static function loginToken($token_id) {
-            \Magister\Session::obtainTokenData($token_id);
-            \Magister\Session::obtainUserInfo();
+            $token_data = \Magister\Session::getTokenData($token_id);
+
+            if(!isset($token_data)) {
+                \Magistraal\Response\error('token_invalid_not_found');
+                return false;
+            }
+
+            // Store bearer in session
+            \Magister\Session::$accessToken        = $token_data['access_token'];
+            \Magister\Session::$accessTokenExpires = $token_data['access_token_expires'];
+            \Magister\Session::$refreshToken       = $token_data['refresh_token'];
+
+            // Get domain
+            \Magister\Session::$domain = \Magister\Session::getDomain();
+
+            // Get user info
+            list(\Magister\Session::$userId, \Magister\Session::$userUuid) = \Magister\Session::getUserInfo();
+
+            return true;
         }
 
         public static function loginTenant($tenant_id) {
-            \Magister\Session::$tenantId = $tenant_id;
-            
-            $login_path = \Magistraal\Authentication\generate_login_path();
-
-            // Redirect to actual login page
-            $response  = \Magistraal\Api\call('https://accounts.magister.net'.$login_path);
-            $login_url = $response['info']['url'];
-            parse_str(parse_url($login_url)['query'], $login_url_query);
-
-            \Magister\Session::$sessionId = $login_url_query['sessionId'] ?? \Magistraal\Response\error('error_getting_session_id');
-            \Magister\Session::$returnUrl = $login_url_query['returnUrl'] ?? \Magistraal\Response\error('error_getting_return_url');
-            \Magister\Session::$authCode  = \Magister\Session::getAuthCode();
-
-            // Enter tenant
-            $response = \Magistraal\Api\call('https://accounts.magister.net/challenges/tenant/', [
+            $res = \Magistraal\Api\call('https://accounts.magister.net/challenges/tenant/', [
                 'authCode'  => \Magister\Session::$authCode,
                 'returnUrl' => \Magister\Session::$returnUrl,
                 'sessionId' => \Magister\Session::$sessionId,
                 'tenant'    => $tenant_id
             ]);
 
-            return strpos($response['info']['url'], '/error') === false;
+            return strpos($res['info']['url'], '/error') === false;
         }
 
         public static function loginUsername($username) {
-            $response = \Magistraal\Api\call('https://accounts.magister.net/challenges/username/', [
+            $res = \Magistraal\Api\call('https://accounts.magister.net/challenges/username/', [
                 'authCode'  => \Magister\Session::$authCode,
                 'returnUrl' => \Magister\Session::$returnUrl,
                 'sessionId' => \Magister\Session::$sessionId,
                 'username'  => $username
             ]);
 
-            return $response['info']['success'];
+            return $res['info']['success'];
         }
 
         public static function loginPassword($password) {
-            $response = \Magistraal\Api\call('https://accounts.magister.net/challenges/password/', [
+            $res = \Magistraal\Api\call('https://accounts.magister.net/challenges/password/', [
                 'authCode'  => \Magister\Session::$authCode,
                 'returnUrl' => \Magister\Session::$returnUrl,
                 'sessionId' => \Magister\Session::$sessionId,
                 'password'  => $password
             ]);
 
-            return $response['info']['success'];
+            return $res['info']['success'];
         }
 
-        public static function obtainTokenData($token_id = null) {
-            if(isset($token_id)) {
-                $token_data = \Magistraal\Authentication\token_get($token_id) ?? \Magistraal\Response\error('token_invalid_not_found');
+        public static function getTokenData($token_id) {
+            // Get token data
+            $token_data = \Magistraal\Authentication\token_get($token_id) ?? null;
 
-                // Token id changes when the token expires so it should be updated
-                $token_id = $token_data['token_id'];
+            // Overwrite $token_id since it might have changed
+            $token_id = $token_data['token_id'] ?? null;
 
-                // Generate a new token id if access token expires in 15 minutes
-                if(isset($token_data['access_token_expires']) && ($token_data['access_token_expires'] - 900) <= time()) {
-                    $bearer = \Magister\Session::getBearer($token_data['refresh_token']);
-
-                    $token_id = \Magistraal\Authentication\token_put([
-                        'tenant'               => $token_data['tenant'],
-                        'access_token'         => $bearer['access_token'],
-                        'access_token_expires' => $bearer['access_token_expires'],
-                        'refresh_token'        => $bearer['refresh_token'],
-                        'user_uuid'            => $token_data['user_uuid']
-                    ], $token_id);
-                } else {
-                    // Access token is not expiring soon, use it
-                    $bearer = $token_data;
-                }
-            } else {
-                // Token does NOT exist or is invalid, create new token
-                // echo('CREATING NEW');
-                $bearer = \Magister\Session::getBearer();
-
-                $token_id = \Magistraal\Authentication\token_put([
-                    'tenant'               => \Magister\Session::$tenantId,
-                    'access_token'         => $bearer['access_token'],
-                    'access_token_expires' => $bearer['access_token_expires'],
-                    'refresh_token'        => $bearer['refresh_token'],
-                    'user_uuid'            => \Magister\Session::$userUuid
-                ]);
+            if(!isset($token_data) || empty($token_data)) {
+                // The token does not exist, return
+                return null;
             }
+                
+            if(isset($token_data['access_token_expires']) && ($token_data['access_token_expires'] - 900) > time()) {
+                // Use the current token the access token won't expire soon
+                $res_token_data = $token_data;
+            } else {
+                // Update token data if the access token expires soon
 
-            \Magister\Session::$tokenId            = $token_id;
-            \Magister\Session::$accessToken        = $bearer['access_token'] ?? \Magistraal\Response\error('failed_to_obtain_access_token');
-            \Magister\Session::$accessToken        = $bearer['access_token'] ?? \Magistraal\Response\error('failed_to_obtain_access_token');
-            \Magister\Session::$refreshToken       = $bearer['refresh_token'] ?? \Magistraal\Response\error('failed_to_obtain_refresh_token');
-            \Magister\Session::$tenantId           = $token_data['tenant'] ?? \Magister\Session::$tenantId;
+                // Refresh bearer
+                $bearer = \Magister\Session::getRefreshedBearer($token_data['refresh_token']);
 
-            // Obtain tenant domain
-            $response      = \Magistraal\Api\call('https://magister.net/.well-known/host-meta.json');
-            $tenant_api    = $response['body']['links'][1]['href'] ?? \Magistraal\Response\error('error_obtaining_tenant_url');
-            $tenant_domain = explode('.', parse_url($tenant_api, PHP_URL_HOST))[0];
-
-            \Magister\Session::$tenantDomain = $tenant_domain;
-            \Magister\Session::$domain       = "https://{$tenant_domain}.magister.net";
-        }
-
-        public static function getBearer($refresh_token = null) {
-            if(!isset($refresh_token)) {
-                // echo('OBTAINING!');
-                if(!isset(\Magister\Session::$returnUrl)) {
-                    \Magistraal\Response\error('return_url_not_set');
+                if(isset($bearer['error'])) {
+                    \Magistraal\Response\error('token_invalid_'.$bearer['error']);
+                    return false;
                 }
                 
-                // Refresh token is not set, get both refresh token and access token 
-                $redirect_uri = \Magistraal\Api\call('https://accounts.magister.net'.\Magister\Session::$returnUrl)['info']['url'] ?? null;
+                // New token data (inherit tenant and user_uuid)
+                $new_token_data = [
+                    'tenant'               => $token_data['tenant'],
+                    'access_token'         => $bearer['access_token'],
+                    'access_token_expires' => time() + $bearer['expires_in'],
+                    'refresh_token'        => $bearer['refresh_token'],
+                    'user_uuid'            => $token_data['user_uuid']
+                ];
 
-                parse_str(parse_url($redirect_uri, PHP_URL_FRAGMENT), $openid);
+                // Store new token data
+                \Magistraal\Authentication\token_put($new_token_data, $token_id);
 
-                if(!isset($openid['code'])) {
-                    \Magistraal\Response\error('error_getting_openid_code');
-                }
-                                
-                $bearer = \Magistraal\Browser\Browser::request('https://accounts.magister.net/connect/token', [
-                    'headers' => [
-                        'x-api-client-id' => 'EF15',
-                        'content-type'    => 'application/x-www-form-urlencoded',
-                        'host'            => 'accounts.magister.net'
-                    ],
-                    'payload' => [
-                        'client_id' => 'M6LOAPP',
-                        'grant_type' => 'authorization_code',
-                        'redirect_uri' => 'm6loapp://oauth2redirect/',
-                        'code' => $openid['code'],
-                        'code_verifier' => \Magister\Session::$codeVerifier
-                    ]
-                ])['body'] ?? null; 
-            } else {
-                // echo('REFRESHING!');
-                // Refresh token is set, update both refresh token and access token
-                $bearer = \Magistraal\Browser\Browser::request('https://accounts.magister.net/connect/token', [
-                    'headers' => [
-                        'x-api-client-id' => 'EF15',
-                        'content-type'    => 'application/x-www-form-urlencoded',
-                        'host'            => 'accounts.magister.net'
-                    ],
-                    'payload' => [
-                        'refresh_token' => $refresh_token,
-                        'client_id'     => 'M6LOAPP',
-                        'grant_type'    => 'refresh_token'
-                    ]
-                ])['body'] ?? null;
+                $res_token_data = $new_token_data;
             }
-
-            if(isset($bearer) && is_array($bearer) && isset($bearer['access_token']) && isset($bearer['refresh_token'])) {
-                $bearer['access_token_expires'] = time() + $bearer['expires_in'];
-
-                return $bearer;
-            }
-
-            \Magistraal\Response\error('token_invalid_unknown_error');
+            
+            return [
+                'token_id'             => $token_id,
+                'access_token'         => $res_token_data['access_token'] ?? \Magistraal\Response\error('failed_to_obtain_access_token'),
+                'access_token_expires' => $res_token_data['access_token_expires'] ?? \Magistraal\Response\error('failed_to_obtain_access_token_expires'),
+                'refresh_token'        => $res_token_data['refresh_token'] ?? \Magistraal\Response\error('failed_to_obtain_refresh_token'),
+                'tenant'               => $res_token_data['tenant'] ?? \Magistraal\Response\error('failed_to_obtain_token_data_tenant')
+            ];
         }
 
-        // public static function refreshTokens($refresh_token = null) {
-        //     $refresh_token = $refresh_token ?? \Magister\Session::$refreshToken ?? null;
-        //     // if(!isset($refresh_token)) {
-        //     //     \Magistraal\Response\error('refresh_token_not_set');
-        //     // }
-
-        //     // // $response = \Magistraal\Browser\Browser::request('https://accounts.magister.net/connect/token', [
-        //     // //      'headers' => [
-        //     // //         'x-api-client-id' => 'EF15',
-        //     // //         'content-type'    => 'application/x-www-form-urlencoded',
-        //     // //         'host'            => 'accounts.magister.net'
-        //     // //     ],
-        //     // //     'payload' => [
-        //     // //         'refresh_token' => $refresh_token,
-        //     // //         'client_id'     => 'M6LOAPP',
-        //     // //         'grant_type'    => 'refresh_token'
-        //     // //     ]
-        //     // // ]);
-
-        //     // \Magister\Session::$accessToken        = $response['body']['access_token'] ?? null;
-        //     // \Magister\Session::$refreshToken       = $response['body']['refresh_token'] ?? null;
-        //     // \Magister\Session::$accessTokenExpires = time() + ($response['body']['expires_in'] ?? 0);
-
-        //     // return [
-        //     //     'tenant'               => \Magister\Session::$tenantId,
-        //     //     'access_token'         => \Magister\Session::$accessToken,
-        //     //     'access_token_expires' => \Magister\Session::$accessTokenExpires,
-        //     //     'refresh_token'        => \Magister\Session::$refreshToken
-        //     // ];
-        // }
-
-        public static function obtainUserInfo() {
-            $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/account?noCache=0');
+        private static function getLoginEndpoint() {
+            $nonce            = \Magistraal\Authentication\generate_nonce();
+            $state            = \Magistraal\Authentication\generate_state();
+            $code_verifier    = \Magistraal\Authentication\generate_code_verifier();
+            $code_challenge   = \Magistraal\Authentication\generate_code_challenge($code_verifier);
             
-            \Magister\Session::$userId   = $response['body']['Persoon']['Id'] ?? \Magistraal\Response\error('failed_to_obtain_user_id');
-            \Magister\Session::$userUuid = \Magister\Session::$tenantId.'-'.($response['body']['UuId'] ?? \Magistraal\Response\error('failed_to_obtain_user_uuid'));
+            return [
+                /* Url */            "/connect/authorize?client_id=M6LOAPP&redirect_uri=m6loapp%3A%2F%2Foauth2redirect%2F&scope=openid%20profile%20offline_access%20magister.mobile%20magister.ecs&response_type=code%20id_token&state={$state}&nonce={$nonce}&code_challenge={$code_challenge}&code_challenge_method=S256",
+                /* Code verifier */  $code_verifier,
+                /* Code challenge */ $code_challenge
+            ];
+        }
 
-            return \Magister\Session::$userId;
+        private static function getBearer($refresh_token) {
+            if(!isset($refresh_token)) {
+                \Magistraal\Response\error('bearer_refresh_token_not_supplied');
+            }
+
+
+        }
+
+        private static function getOpenIdCode($return_url) {
+            $redirect_uri = \Magistraal\Api\call("https://accounts.magister.net{$return_url}")['info']['url'] ?? null;
+
+            parse_str(parse_url($redirect_uri, PHP_URL_FRAGMENT), $openid);
+
+            if(!isset($openid['code'])) {
+                \Magistraal\Response\error('error_getting_openid_code');
+            }
+
+            return $openid['code'];
+        }
+
+        private static function getBearerTokens($code_verifier) {
+            // Get OpenId code
+            $openid_code = \Magister\Session::getOpenIdCode(\Magister\Session::$returnUrl);
+
+            // Get refresh and access token
+            $res = \Magistraal\Browser\Browser::request('https://accounts.magister.net/connect/token', [
+                'headers' => [
+                    'x-api-client-id' => 'EF15',
+                    'content-type'    => 'application/x-www-form-urlencoded',
+                    'host'            => 'accounts.magister.net'
+                ],
+                'payload' => [
+                    'client_id' => 'M6LOAPP',
+                    'grant_type' => 'authorization_code',
+                    'redirect_uri' => 'm6loapp://oauth2redirect/',
+                    'code' => $openid_code,
+                    'code_verifier' => $code_verifier
+                ]
+            ])['body'] ?? null; 
+
+            return $res;
+        }
+
+        private static function getRefreshedBearer($refresh_token) {
+            $bearer = \Magistraal\Browser\Browser::request('https://accounts.magister.net/connect/token', [
+                'headers' => [
+                    'x-api-client-id' => 'EF15',
+                    'content-type'    => 'application/x-www-form-urlencoded',
+                    'host'            => 'accounts.magister.net'
+                ],
+                'payload' => [
+                    'refresh_token' => $refresh_token,
+                    'client_id'     => 'M6LOAPP',
+                    'grant_type'    => 'refresh_token'
+                ]
+            ])['body'] ?? null;
+
+            return $bearer;
+        }
+
+        public static function getUserInfo() {
+            $res = \Magistraal\Api\call(\Magister\Session::$domain.'/api/account?noCache=0');
+            
+            return [
+                /* User id */   $res['body']['Persoon']['Id'] ?? \Magistraal\Response\error('failed_to_obtain_user_id'),
+                /* User uuid */ str_replace('-', '', $res['body']['UuId']).'-'.\Magister\Session::$tenantId
+            ];
         }
 
         public static function getAuthCode() {
+            $start = microtime(true);
             $response = \Magistraal\Api\call_anonymous('https://argo-web.vercel.app/API/authCode')['body'];
 
             return $response;
@@ -396,11 +425,11 @@
         /* ============================ */
 
         public static function messageList($top = 1000) {
-            $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/berichten/mappen/alle/');
-            $folders  = $response['body']['items'];
+            $res = @\Magistraal\Api\call(\Magister\Session::$domain.'/api/berichten/mappen/alle/');
+            $folders  = @$res['body']['items'];
            
-            $response = \Magistraal\Api\call(\Magister\Session::$domain."{$folders[0]['links']['berichten']['href']}?top={$top}");
-            $messages = $response['body']['items'];
+            $res = @\Magistraal\Api\call(\Magister\Session::$domain."{$folders[0]['links']['berichten']['href']}?top={$top}");
+            $messages = @$res['body']['items'];
 
             return $messages;
         }

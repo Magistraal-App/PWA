@@ -49,6 +49,12 @@
 
         $rows = [];
         while ($row = $result->fetch_array(MYSQLI_BOTH)) {
+            foreach ($row as $key => $value) {
+                $key = str_ireplace(['min(', 'max(', ')'], '', $key);
+                unset($row[$key]);
+                $row[$key] = $value;
+            }
+
             $rows[] = $row;
         }
         
