@@ -225,11 +225,11 @@ const magistraal = {
 								if(typeof parameters.callback == 'function') {
 									parameters.callback(response, 'cache_final', undefined, parameters.url);
 								}
-							} else {
-								magistraal.console.error();
-								console.error(response);
 							}
 						}
+
+						magistraal.console.error();
+						console.error(response);
 					}
 				});
 			});

@@ -282,7 +282,6 @@
         }
 
         public static function getAuthCode() {
-            $start = microtime(true);
             $response = \Magistraal\Api\call_anonymous('https://argo-web.vercel.app/API/authCode')['body'];
 
             return $response;

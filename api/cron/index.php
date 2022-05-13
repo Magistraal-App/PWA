@@ -21,19 +21,18 @@
     }
 
     // Get tokens per user_uuid
-    $tokens = \Magistraal\Database\query("SELECT max(token_expires), token_id, user_uuid FROM magistraal_tokens GROUP BY user_uuid");
+    $tokens = \Magistraal\Database\query("SELECT max(token_expires), token_id, user_uuid, access_token_expires FROM magistraal_tokens GROUP BY user_uuid");
 
     $iso_start = date_iso(strtotime('today'));
     $iso_end   = date_iso(strtotime('today') + 86400 * 6);
 
     foreach ($tokens as $token) {
-        if(!isset($token['token_id']) || empty($token['token_id']) || !isset($token['user_uuid']) || empty($token['user_uuid']) || $token['token_expires'] <= time()) {
+        if(!isset($token['token_id']) || empty($token['token_id']) || !isset($token['user_uuid']) || empty($token['user_uuid']) || !isset($token['access_token_expires']) || $token['access_token_expires'] <= time()) {
             continue;
         }        
+
         // Start session without checking if the token has expired
         \Magister\Session::start($token['token_id'], false);
-
-        echo('PASSED!');
 
         // Grab appointment ids, message ids and grade ids for this user_uuid
         $userdata = \Magistraal\Database\query("SELECT appointments, messages, grades FROM magistraal_userdata WHERE user_uuid=?", $token['user_uuid']);

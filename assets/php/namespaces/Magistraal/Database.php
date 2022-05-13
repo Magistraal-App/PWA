@@ -48,10 +48,11 @@
         }
 
         $rows = [];
-        while ($row = $result->fetch_array(MYSQLI_BOTH)) {
+        while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+            // Remove min() and max() from column names
             foreach ($row as $key => $value) {
-                $key = str_ireplace(['min(', 'max(', ')'], '', $key);
                 unset($row[$key]);
+                $key = str_ireplace(['min(', 'max(', ')'], '', $key);
                 $row[$key] = $value;
             }
 
