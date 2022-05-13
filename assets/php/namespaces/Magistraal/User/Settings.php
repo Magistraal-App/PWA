@@ -3,11 +3,9 @@
 
     function get_all($user_uuid = null) {
         if(isset($user_uuid)) {
-            $db = \Magistraal\Database\connect();
+            $rows = \Magistraal\Database\query("SELECT * FROM magistraal_userdata WHERE user_uuid=?", $user_uuid);
 
-            $response = $db->q("SELECT * FROM magistraal_userdata WHERE user_uuid='{$user_uuid}'");
-
-            $settings = @json_decode($response[0]['settings'] ?? '[]', true) ?? [];
+            $settings = @json_decode($rows[0]['settings'] ?? '[]', true) ?? [];
         } else {
             $settings = [];
         }
@@ -50,10 +48,8 @@
         $settings = array_replace($settings, $new_settings);
         $settings_encoded = json_encode($settings);
 
-        $response = $db->q("REPLACE INTO magistraal_userdata
-                            (user_uuid,      settings) VALUES
-                            ('{$user_uuid}', '{$settings_encoded}')
-                        ");
+        $response = \Magistraal\Database\query(
+            "REPLACE INTO magistraal_userdata (user_uuid, settings) VALUES (?, ?)", [$user_uuid, $settings_encoded]);
 
         return ($response > 0);
     }

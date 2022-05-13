@@ -51,7 +51,6 @@
             <script type="text/javascript" src="/magistraal/client/assets/js/froala-editor/js/froala_editor.pkgd.min.js?v='.$version.'" defer></script>
             <script type="text/javascript" src="/magistraal/client/assets/js/froala-editor/js/languages/nl_NL.js?v='.$version.'" defer></script>
             <script type="text/javascript" src="/magistraal/client/assets/js/jquery.min.js?v='.$version.'"></script>
-            <script type="text/javascript" src="/magistraal/client/assets/js/fullpage.min.js?v='.$version.'"></script>
             <script type="text/javascript" src="/magistraal/client/assets/js/app'.$infix.'.js?v='.$version.'"></script>
             <script type="text/javascript" src="/magistraal/client/assets/js/magistraal'.$infix.'.js?v='.$version.'"></script>
             
