@@ -1,19 +1,19 @@
 <?php 
     namespace Magistraal\Messages;
 
-    function get($id) {
-        return \Magistraal\Messages\format(\Magister\Session::messageGet($id));
+    function get($id, $filter = []) {
+        return \Magistraal\Messages\format(\Magister\Session::messageGet($id), $filter);
     }
 
-    function get_all($top = 1000, $skip = 0) {
-        return \Magistraal\Messages\format_all(\Magister\Session::messageList($top, $skip), $top, $skip);
+    function get_all($top = 1000, $skip = 0, $filter = []) {
+        return \Magistraal\Messages\format_all(\Magister\Session::messageList($top, $skip), $top, $skip, $filter);
     }
 
     function delete($id) {
         return \Magister\Session::messageDelete($id);
     }
 
-    function format($message) {
+    function format($message, $filter = []) {
         $formatted = [
             'content'         => $message['inhoud'] ?? '',
             'folder_id'       => $message['mapId'],
@@ -80,15 +80,22 @@
                 ];
             }
         }
+        
+        // Filter out non-wanted items
+        if(!empty($filter)) {
+            $formatted = array_filter($formatted, function ($key) use ($filter) {
+                return in_array($key, $filter);
+            }, ARRAY_FILTER_USE_KEY);
+        }
 
         return $formatted;
     }
 
-    function format_all($messages, $top, $skip) {
+    function format_all($messages, $top, $skip, $filter = []) {
         $formatted = [];
             
         foreach ($messages as $message) {
-            $formatted[] = \Magistraal\Messages\format($message);
+            $formatted[] = \Magistraal\Messages\format($message, $filter);
         }
 
         return $formatted;

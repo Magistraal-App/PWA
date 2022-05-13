@@ -1,8 +1,8 @@
 <?php 
     namespace Magistraal\Appointments;
 
-    function get($id) {
-        return \Magistraal\Appointments\format(\Magister\Session::appointmentGet($id));
+    function get($id, $filter = []) {
+        return \Magistraal\Appointments\format(\Magister\Session::appointmentGet($id), $filter);
     }
 
     function get_all($iso_from, $iso_to, $filter = []) {
@@ -79,6 +79,7 @@
                 'lesson'            => $appointment['LesuurVan'] ?? 0
             ],  
             'status'           => \Magistraal\Appointments\remap_status($appointment['Status']) ?? 'unknown',
+            'status_code'      => $appointment['Status'] ?? 0,
             'subjects'         => array_column($appointment['Vakken'] ?? [], 'Naam') ?? [],
             'teachers'         => array_column($appointment['Docenten'] ?? [], 'Naam') ?? [],
             'type'             => \Magistraal\Appointments\remap_type($appointment['Type']) ?? 'unknown'
