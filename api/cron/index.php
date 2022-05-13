@@ -60,6 +60,6 @@
 
         \Magistraal\Database\query("UPDATE magistraal_userdata SET appointments=?, grades=?, messages=? WHERE user_uuid=?", [$new_userdata['appointments'], $new_userdata['grades'], $new_userdata['messages'], $token['user_uuid']]);
     
-        \Magistraal\Response\success($changes);
     }
+    \Magistraal\Response\success(['count' => count($tokens)]);
 ?>
