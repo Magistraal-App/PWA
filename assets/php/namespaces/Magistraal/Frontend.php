@@ -41,10 +41,13 @@
             <script type="text/javascript" src="/magistraal/client/assets/js/jquery.min.js?v='.$version.'"></script>
             <script type="text/javascript" src="/magistraal/client/assets/js/app'.$infix.'.js?v='.$version.'"></script>
             <script type="text/javascript" src="/magistraal/client/assets/js/magistraal'.$infix.'.js?v='.$version.'"></script>
-            <script type="module" src="/magistraal/client/assets/js/firebase'.$infix.'.js?v='.$version.'"></script>
+            <script defer type="text/javascript" src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+            <script defer type="text/javascript" src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
+            <script defer type="text/javascript" src="/magistraal/client/assets/js/firebase'.$infix.'.js?v='.$version.'"></script>
+            
             <script>
                 if(\'serviceWorker\' in navigator) {
-                        navigator.serviceWorker.register(\'../../service-worker.js.php?v='.$version.'\').then(function(registration) {
+                    navigator.serviceWorker.register(\'../../service-worker.js.php?v='.$version.'\').then(function(registration) {
                         console.log(\'Service worker registered. Scope is:\', registration.scope);
                     }).catch(function(error) {
                         console.error(\'Service worker registration failed, error:\', error);
