@@ -1,10 +1,7 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.8.1/firebase-app.js';
-import { getMessaging, getToken, onMessage } from  'https://www.gstatic.com/firebasejs/9.8.1/firebase-messaging.js';
-
 // Initialize the Firebase app in the service worker by passing in
 // your app's Firebase config object.
 // https://firebase.google.com/docs/web/setup#config-object
-const app = initializeApp({
+firebase.initializeApp({
     apiKey: "AIzaSyCeEjw-h8t6-7EAVtcxe2mK0gV52JVe938",
     authDomain: "magistraal-ed92d.firebaseapp.com",
     projectId: "magistraal-ed92d",
@@ -14,31 +11,19 @@ const app = initializeApp({
 });
 
 // Load service worker
-navigator.serviceWorker.register('../../firebase-messaging-sw.js');
-const registration = await navigator.serviceWorker.ready;
+navigator.serviceWorker.register('../../firebase-messaging-sw.js').then(registration => {
+    // Get messaging instance
+    const messaging = firebase.messaging();
 
-// Retrieve an instance of Firebase Messaging so that it can handle background
-// messages.
-const messaging = getMessaging();
+    // Get messaging token
+    messaging.getToken({
+        serviceWorkerRegistration: registration,
+        vapidKey: 'BEOPEe1UKGRRW91-qm3DN_AZOuBPB1ljTaJaXqyXSOSMundJvfjYzD89Do4f4-GoH06p91mEkU_ItrAi2xJ_tqM'
+    }).then((currentToken) => {
+        if (!currentToken) {
+            return;
+        }
 
-onMessage(messaging, (payload) => {
-    console.log('[init-firebase.js] Received foreground message:', payload);
-
-    const data = JSON.parse(payload.data['gcm.notification.data'] || '{}') || {};
-    console.log(data);
-
-    registration.showNotification(data.title || undefined, {
-        body: data.body,
-        icon: '/magistraal/client/assets/images/app/logo/256x256.png',
-        badge: '/magistraal/client/assets/images/app/badge/128x128.png'
-    });
-});
-
-getToken(messaging, {
-    serviceWorkerRegistration: registration,
-    vapidKey: 'BEOPEe1UKGRRW91-qm3DN_AZOuBPB1ljTaJaXqyXSOSMundJvfjYzD89Do4f4-GoH06p91mEkU_ItrAi2xJ_tqM'
-}).then((currentToken) => {
-    if (currentToken) {
         console.log('[init-firebase.js] Token:', currentToken);
         
         // Send message token to server
@@ -52,12 +37,30 @@ getToken(messaging, {
         }).then(res => {
             console.log('res from serv', res);
         })
-    } else {
-        // Show permission request UI
-        console.log('No registration token available. Request permission to generate one.');
+
+        messaging.onMessage(payload => {
+            console.log('[init-firebase.js] Received foreground message:', payload);
+
+            // Only show notifications is the PWA is installed
+            if (!window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('Message was received, but PWA is not installed.');
+                return;
+            }
+
+            if(!isSet(payload.data)) {
+                return;
+            }
+
+            const data = typeof payload.data == 'object' ? payload.data : JSON.parse(payload.data['gcm.notification.data'] || '{}') || {};
+            
+            registration.showNotification(data.title || undefined, {
+                body: data.body || undefined,
+                icon: '/magistraal/client/assets/images/app/logo-transparent/512x512.png',
+                badge: '/magistraal/client/assets/images/app/badge/128x128.png'
+            });
+        });
+    }).catch((err) => {
+        console.log('An error occurred while retrieving token. ', err);
         // ...
-    }
-}).catch((err) => {
-    console.log('An error occurred while retrieving token. ', err);
-    // ...
-});
+    });
+})

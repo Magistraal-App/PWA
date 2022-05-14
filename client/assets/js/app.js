@@ -258,12 +258,17 @@ function usingiOS() {
     || (navigator.userAgent.includes('Mac') && "ontouchend" in document)
 }
 
+function supportsPWA() {
+    return 'serviceWorker' in navigator;
+}
+
+// Show Pushcut dialog on iOS
 $(document).on('magistraal.ready', function() {
     if(!usingiOS()) {
         return;
     }
 
-    if(isSet(getCookie('ignoreiOSNotificationsInstallPushcut'))) {
+    if(isSet(getCookie('ignoreDialog_iOSInstallPushcut'))) {
         return;
     }
 
@@ -273,8 +278,41 @@ $(document).on('magistraal.ready', function() {
     }).open().then(() => {
         window.open('https://apps.apple.com/app/id1450936447', '_blank', 'noopener');
     }).catch(() => {
-        setCookie('ignoreiOSNotificationsInstallPushcut', true)
+        setCookie('ignoreDialog_iOSInstallPushcut', true)
     })
+})
+
+let deferredInstallPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+
+    // Store the event so it can be triggered later.
+    deferredPrompt = e;
+
+    if(isSet(getCookie('ignoreDialog_installPWA'))) {
+        return;
+    }
+
+    // Show dialog to let the user know that they can install the PWA
+    new magistraal.inputs.dialog({
+        title: magistraal.locale.translate('generic.dialog.install_pwa.title'), 
+        description: magistraal.locale.translate('generic.dialog.install_pwa.content')
+    }).open().then(() => {
+        // Show the pwa install prompt
+        deferredPrompt.prompt();
+    }).catch(() => {
+        setCookie('ignoreDialog_installPWA', true)
+    })
+});
+
+// Show dialog if user has not installed our PWA and the browser supports PWA's
+$(document).on('magistraal.ready', function() {
+    if(!supportsPWA()) {
+        return;
+    }
+
+    
 })
 
 /* ============================ */

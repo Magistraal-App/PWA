@@ -1,5 +1,10 @@
 console.log('[firebase-messaging-sw.js] Loading...');
 
+// So the service worker doesn't get flagged with 'Page does not work offline'
+self.addEventListener('fetch', () => {return;});
+
+importScripts('https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js');
+
 // Compat scripts provide the v8 API
 importScripts('https://www.gstatic.com/firebasejs/9.8.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.8.1/firebase-messaging-compat.js');
@@ -14,44 +19,27 @@ firebase.initializeApp({
     appId: "1:276429310436:web:0e7fc77f5ded2c9a3d9ff1"
 });
 
-// Get registration token. Initially this makes a network call, once retrieved
-// subsequent calls to getToken will return from cache.
+// Get messaging instance
 const messaging = firebase.messaging();
 
+console.log(ServiceWorkerRegistration);
+
 messaging.onBackgroundMessage((payload) => {
-    console.log('[firebase-messaging-sw.js] Received background message:', payload);
+    console.log('[init-firebase.js] Received background message:', payload);
+
+    if(typeof payload.data == 'undefined' || payload.data === null) {
+        return;
+    }
+
+    const data = typeof payload.data == 'object' ? payload.data : JSON.parse(payload.data['gcm.notification.data'] || '{}') || {};
+
+    return self.registration.showNotification(data.title || undefined, {
+        body: data.body || undefined,
+        icon: '/magistraal/client/assets/images/app/logo-transparent/512x512.png',
+        badge: '/magistraal/client/assets/images/app/badge/128x128.png'
+    });
 });
 
-// getToken(messaging, {
-//     serviceWorkerRegistration: registration,
-//     vapidKey: 'BEOPEe1UKGRRW91-qm3DN_AZOuBPB1ljTaJaXqyXSOSMundJvfjYzD89Do4f4-GoH06p91mEkU_ItrAi2xJ_tqM'
-// }).then((currentToken) => {
-//     if (currentToken) {
-//         console.log(currentToken);
-//         // Send the token to your server and update the UI if necessary
-//         // ...
-//     } else {
-//         // Show permission request UI
-//         console.log('No registration token available. Request permission to generate one.');
-//         // ...
-//     }
-// }).catch((err) => {
-//     console.log('An error occurred while retrieving token. ', err);
-//     // ...
-// });
 
-// onBackgroundMessage(messaging, (payload) => {
-//     console.log('BACKGROUND MESSAGE AAAA');
-//   console.log('[firebase-messaging-sw.js] Received background message ', payload);
-//   // Customize notification here
-//   const notificationTitle = 'Background Message Title';
-//   const notificationOptions = {
-//     body: 'Background Message body.',
-//     icon: '/firebase-logo.png'
-//   };
-
-//   self.registration.showNotification(notificationTitle,
-//     notificationOptions);
-// });
 
 console.log('[firebase-messaging-sw.js] Loaded!');
