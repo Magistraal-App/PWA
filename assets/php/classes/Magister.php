@@ -17,7 +17,7 @@
         public static $codeChallenge;
         public static $checkTokenExpiry;
 
-        public static function start($token_id = null, $check_token_expiry = false) {
+        public static function start($token_id = null, $check_token_expiry = true) {
             $token_id = $token_id ?? $_COOKIE['magistraal-authorization'] ?? null;
 
             \Magister\Session::$checkTokenExpiry = $check_token_expiry;
