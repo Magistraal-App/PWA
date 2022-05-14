@@ -67,6 +67,8 @@
 
     "generic.dialog.ios_notifications_install_pushcut.title": "Meldingen",
     "generic.dialog.ios_notifications_install_pushcut.content": "Om meldingen te ontvangen moet je de Pushcut: Shortcuts Automation app downloaden. Klik op 'Ja' om verder te gaan.<br><br>Je kunt dit later altijd nog aanpassen in de instellingen.",
+    "generic.dialog.install_pwa.title": "Betere ervaring",
+    "generic.dialog.install_pwa.content": "Voor een betere ervaring met meer functionaliteiten, zoals meldingen, moet je de app gebruiken.<br><br>Klik op 'Ja' om de app te installeren, of klik op 'Nee' om dit scherm niet opnieuw te tonen.",
 
     "appointments.popup.create_appointment.item.content.title": "Inhoud",
     "appointments.popup.create_appointment.item.date.title": "Datum",
