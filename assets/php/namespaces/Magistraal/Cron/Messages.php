@@ -5,8 +5,8 @@
         $new_entry = $current_entry;
         $new_items = [];
 
-        // Load top 3 messages
-        $messages = \Magistraal\messages\get_all(3);
+        // Load top 4 messages
+        $messages = \Magistraal\messages\get_all(4);
 
         // Return if messages could not be loaded
         if(!isset($messages)) {
@@ -15,7 +15,12 @@
         
         foreach ($messages as $message) {
             // Continue if message is invalid
-            if(!isset($message['subject']) || !isset($message['id']) || !isset($message['sender']['name'])) {
+            if(!isset($message['subject']) || !isset($message['id']) || !isset($message['sender']['name']) || !isset($message['read'])) {
+                continue;
+            }
+
+            // Continue if user has already read the message
+            if($message['read'] == true) {
                 continue;
             }
 
@@ -30,7 +35,7 @@
         }
 
         return [
-            'new_entry' => $new_entry,
+            'new_entry' => array_slice($new_entry, -4, 4, true),
             'new_items' => $new_items
         ];
     }

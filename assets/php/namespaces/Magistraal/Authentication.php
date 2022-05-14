@@ -32,7 +32,7 @@
 
         if(isset($token_id)) {
             $res = \Magistraal\Database\query(
-                "UPDATE magistraal_tokens SET access_token=?, access_token_expires=?, refresh_token=? WHERE token_id=?",
+                "UPDATE `magistraal_tokens` SET `access_token`=?, `access_token_expires`=?, `refresh_token`=? WHERE `token_id`=?",
                 [$access_token, $args['access_token_expires'], $refresh_token, $token_id]
             );
         } else {
@@ -40,7 +40,7 @@
             $token_expires = time() + 2700; // Token will expire in 45 minutes
 
             $res = \Magistraal\Database\query(
-                "INSERT INTO magistraal_tokens (token_id, token_expires, tenant, access_token, access_token_expires, refresh_token, ip_address, user_uuid) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO `magistraal_tokens` (`token_id`, `token_expires`, `tenant`, `access_token`, `access_token_expires`, `refresh_token`, `ip_address`, `user_uuid`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 [$token_id, $token_expires, $args['tenant'], $access_token, $args['access_token_expires'], $refresh_token, $ip_address, $args['user_uuid']]
             );
         }
@@ -53,7 +53,7 @@
     }
     
     function token_get($token_id, $check_token_expiry = true) {
-        $rows = \Magistraal\Database\query("SELECT * FROM magistraal_tokens WHERE token_id=?", $token_id);
+        $rows = \Magistraal\Database\query("SELECT * FROM `magistraal_tokens` WHERE `token_id`=?", $token_id);
 
         if(!isset($rows[0])) {
             return null;
@@ -80,7 +80,7 @@
     }
 
     function token_delete($token_id) {
-        $rows = \Magistraal\Database\query("DELETE FROM magistraal_tokens WHERE token_id=?", $token_id);
+        $rows = \Magistraal\Database\query("DELETE FROM `magistraal_tokens` WHERE `token_id`=?", $token_id);
         
         return ($rows > 0);
     }

@@ -1,7 +1,7 @@
 {
     "name": "Magistraal",
     "short_name": "Magistraal",
-    "description": "De magistrale manier om Magister te gebruiken.",
+    "description": "Magistraal biedt leerlingen een betere en modernere manier om het administratie- en communicatiesysteem Magister van Iddink Group te gebruiken.",
     "id": "/magistraal/client/main/",
     "start_url": "/magistraal/client/main/",
     "display": "standalone",
@@ -11,35 +11,23 @@
     "orientation": "portrait-primary",
     "icons": [
         {
-            "src": "client/assets/images/app/logo/icon-any.svg",
+            "src": "client/assets/images/app/logo/any.svg",
             "type": "image/svg+xml", "sizes": "any"
         },
         {
-            "src": "client/assets/images/app/logo/icon-96x96.png",
-            "type": "image/png", "sizes": "96x96"
+            "src": "client/assets/images/app/logo/64x64.png",
+            "type": "image/png", "sizes": "64x64"
         },
         {
-            "src": "client/assets/images/app/logo/icon-128x128.png",
+            "src": "client/assets/images/app/logo/128x128.png",
             "type": "image/png","sizes": "128x128"
         },
         {
-            "src": "client/assets/images/app/logo/icon-144x144.png",
-            "type": "image/png", "sizes": "144x144"
+            "src": "client/assets/images/app/logo/256x256.png",
+            "type": "image/png", "sizes": "256x256"
         },
         {
-            "src": "client/assets/images/app/logo/icon-152x152.png",
-            "type": "image/png", "sizes": "152x152"
-        },
-        {
-            "src": "client/assets/images/app/logo/icon-192x192.png",
-            "type": "image/png", "sizes": "192x192"
-        },
-        {
-            "src": "client/assets/images/app/logo/icon-384x384.png",
-            "type": "image/png", "sizes": "384x384"
-        },
-        {
-            "src": "client/assets/images/app/logo/icon-512x512.png",
+            "src": "client/assets/images/app/logo/512x512.png",
             "type": "image/png", "sizes": "512x512"
         }
     ]

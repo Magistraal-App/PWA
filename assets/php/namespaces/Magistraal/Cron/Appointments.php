@@ -27,7 +27,7 @@
         }
     
         return [
-            'new_entry' => $new_entry,
+            'new_entry' => array_slice($new_entry, -8, 8, true),
             'new_items' => $new_items
         ];
     }

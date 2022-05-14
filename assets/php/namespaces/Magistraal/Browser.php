@@ -18,11 +18,6 @@
             ], $options);
 
             $options['headers'] = array_replace([
-                'origin'         => 'https://accounts.magister.net',
-                'referrer'       => 'https://accounts.magister.net',
-                'sec-fetch-dest' => 'empty',
-                'sec-fetch-mode' => 'cors',
-                'sec-fetch-site' => 'same-origin',
                 'user-agent'     => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36',
                 'content-type'   => 'application/json',
                 'cache-control'  => 'no-cache'

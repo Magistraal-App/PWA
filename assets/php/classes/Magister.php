@@ -97,7 +97,7 @@
         public static function loginToken($token_id) {
             $token_data = \Magister\Session::getTokenData($token_id);
 
-            if(!isset($token_data)) {
+            if(!$token_data) {
                 \Magistraal\Response\error('token_invalid_not_found');
                 return false;
             }
@@ -277,7 +277,7 @@
             
             return [
                 /* User id */   $res['body']['Persoon']['Id'] ?? \Magistraal\Response\error('failed_to_obtain_user_id'),
-                /* User uuid */ str_replace('-', '', $res['body']['UuId']).'-'.\Magister\Session::$tenantId
+                /* User uuid */ str_replace('-', '', $res['body']['UuId'] ?? null).'-'.\Magister\Session::$tenantId
             ];
         }
 
