@@ -97,6 +97,8 @@
         public static function loginToken($token_id) {
             $token_data = \Magister\Session::getTokenData($token_id);
 
+            \Magister\Session::$tenantId = $token_data['tenant'] ?? null;
+
             if(!$token_data) {
                 \Magistraal\Response\error('token_invalid_not_found');
                 return false;
