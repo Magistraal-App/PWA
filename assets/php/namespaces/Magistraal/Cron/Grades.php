@@ -26,7 +26,7 @@
 
             // Store the grade since it was not yet discovered
             $new_items[] = $grade;
-            $new_entry[$grade['column_id']] = $grade['value'];
+            $new_entry[$grade['column_id']] = true;
         }
 
         return [
