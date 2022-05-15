@@ -230,7 +230,7 @@ $(document).on('magistraal.change', '.setting-list-item input', function(e) {
 // If system theme changes
 if(window.matchMedia) {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        let settings = magistraalPersistentStorage.get('settings');
+        const settings = magistraalPersistentStorage.get('settings').value;
         
         if(!settings['appearance.theme'].includes('auto')) {
             return false;
