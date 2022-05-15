@@ -122,7 +122,7 @@ p:last-child {
 main {
     grid-area: main;
     overflow: hidden auto !important;
-    padding: var(--spacing-lg) var(--MAIN-padding);
+    padding: 0 var(--MAIN-padding);
     border-bottom: var(--border-width) solid var(--primary-border);
 }
 
@@ -1022,32 +1022,60 @@ footer {
 }
 
 
+/* ============================ */
+/*       responsiveCarousel     */
+/* ============================ */
+
+@media(max-width: 767.98px) {
+    .responsive-carousel {
+        display: flex;
+        flex-direction: var(--carousel-flex-direction);
+        overflow: var(--carousel-overflow-x) var(--carousel-overflow-y) !important;
+        scroll-snap-type: var(--carousel-direction) mandatory;
+        max-height: 100%;
+        max-width: 100%;
+    }
+
+    .responsive-carousel[data-carousel-direction="x"] {
+        --carousel-flex-direction: row;
+        --carousel-overflow-x: auto;
+        --carousel-overflow-y: hidden;
+        --carousel-direction: x;
+    }
+
+    .responsive-carousel[data-carousel-direction="y"] {
+        --carousel-flex-direction: column;
+        --carousel-overflow-y: auto;
+        --carousel-overflow-x: hidden;
+        --carousel-direction: y;
+    }
+
+    .responsive-carousel-slide {
+        overflow: var(--carousel-overflow-y) var(--carousel-overflow-x); /* Inverted */
+        padding: var(--carousel-slide-padding);
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
+        display: flex;
+        flex-direction: var(--carousel-slide-flex-direction);
+    }
+
+    .responsive-carousel[data-carousel-direction="x"] > .responsive-carousel-slide {
+        min-width: 100%;
+        --carousel-slide-padding: 0 var(--MAIN-padding);
+        --carousel-slide-flex-direction: column;
+    }
+
+    .responsive-carousel[data-carousel-direction="y"] > .responsive-carousel-slide {
+        min-height: 100%;
+        --carousel-slide-padding: var(--MAIN-padding) 0;
+        --carousel-slide-flex-direction: row;
+    }
+}
+
 
 /* ============================ */
 /*           Classes            */
 /* ============================ */
-
-
-@media(max-width: 767.98px) {
-    .horizontal-scroll-wrapper {
-        display: flex;
-        flex-direction: row;
-        overflow-x: scroll !important;
-        overscroll-behavior-x: contain !important;
-        scroll-snap-type: mandatory !important;
-        scroll-snap-points-y: repeat(100%) !important;
-        scroll-snap-type: x mandatory !important;
-        padding: var(--spacing-lg) 0;
-    }
-
-    .horizontal-scroll-wrapper > * {
-        min-width: 100%;
-        scroll-snap-align: center;
-        scroll-snap-stop: always;
-        padding: 0 var(--MAIN-padding);
-        display: block;
-    }
-}
 
 .bullet::before {
     display: inline-block;

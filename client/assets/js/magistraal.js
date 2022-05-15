@@ -241,7 +241,7 @@ const magistraal = {
 	/* ============================ */
 	absences: {
 		paintList: response => {
-			let $html = $('<div><div class="horizontal-scroll-wrapper"></div></div>');
+			let carousel = new responsiveCarousel('x');
 
 			$.each(response.data, function (month, data) {
 				// Ga naar volgende maand als er geen absenties voor deze maand zijn
@@ -288,11 +288,11 @@ const magistraal = {
 				});
 
 				// Voeg de groep toe aan de inhoud
-				$absencesGroup.appendTo($html.find('.horizontal-scroll-wrapper'));
+				carousel.addSlide($absencesGroup);
 			});
 			
 			// Werk de inhoud bij
-			magistraal.page.setContent($html);
+			magistraal.page.setContent(carousel.jQueryObject(), false);
 		}
 	},
 
@@ -301,7 +301,7 @@ const magistraal = {
 	/* ============================ */
 	appointments: {
 		paintList: response => {
-			let $html = $('<div><div class="horizontal-scroll-wrapper"></div></div>');
+			let carousel = new responsiveCarousel('x');
 			
 			$.each(response.data, function (day, data) {
 				// Maak een groep en stel de titel in
@@ -413,11 +413,11 @@ const magistraal = {
 				});
 
 				// Voeg de groep toe aan de inhoud
-				$appointmentsGroup.appendTo($html.find('.horizontal-scroll-wrapper'));
+				carousel.addSlide($appointmentsGroup);
 			});
 
 			// Werk de inhoud bij
-			magistraal.page.setContent($html);
+			magistraal.page.setContent(carousel.jQueryObject(), false);
 		},
 
 		view: (id) => {
@@ -633,8 +633,7 @@ const magistraal = {
 		},
 
 		paintOverview: response => {
-			let $html = $('<div><div class="horizontal-scroll-wrapper"></div></div>');
-			
+			let carousel = new responsiveCarousel('x');
 			let idsOfColumnsTypeAverages = [];
 			let averagesPerTerm = {};
 
@@ -718,11 +717,11 @@ const magistraal = {
 					})
 					
 					// Voeg de groep toe aan de inhoud
-					$gradesGroup.appendTo($html.find('.horizontal-scroll-wrapper'));
+					carousel.addSlide($gradesGroup);
 				})
 			})
 
-			magistraal.page.setContent($html);
+			magistraal.page.setContent(carousel.jQueryObject(), false);
 		}
 	},
 
@@ -1616,8 +1615,8 @@ const magistraal = {
 			return magistraalStorage.get('previousPage').value || '';
 		},
 		
-		setContent: ($el, useChildren = true) => {
-			$('main').empty().append(useChildren ? $el.children() : $el);
+		setContent: ($el, unwrap = true) => {
+			$('main').empty().append(unwrap ? $el.children() : $el);
 		},
 
 		pushState: (data, unused, string) => {

@@ -174,17 +174,6 @@ $(document).on('click', function(e) {
 })
 
 /* ============================ */
-/*         Appointments         */
-/* ============================ */
-
-// new fullpage('#fullpage', {
-// 	//options here
-//     licenseKey: 'gplv3-license',
-// 	autoScrolling:true,
-// 	scrollHorizontally: true
-// });
-
-/* ============================ */
 /*           On/Offline         */
 /* ============================ */
 
@@ -239,6 +228,39 @@ if(window.matchMedia) {
         let newTheme = e.matches ? 'dark_auto' : 'light_auto';
         magistraal.settings.set('appearance.theme', newTheme);
     })
+}
+
+/* ============================ */
+/*       responsiveCarousel     */
+/* ============================ */
+
+class responsiveCarousel {
+    constructor(direction) {
+        if(direction != 'x' && direction != 'y') {
+            return;
+        }
+
+        this.direction = direction;
+        this.$carousel = $(`<div class="responsive-carousel scrollbar-hidden" data-carousel-direction="${direction}"></div>`);
+    
+        return this;
+    }
+
+    addSlide($el) {
+        let $slide = $el.clone(true);
+        $slide.wrap('<div class="responsive-carousel-slide scrollbar-hidden"></div>');
+        $slide.parent().appendTo(this.$carousel);
+
+        return this;
+    }
+
+    slideCount() {
+        return this.$carousel.find('.responsive-carousel-slide').length;
+    }
+
+    jQueryObject() {
+        return this.$carousel;
+    }
 }
 
 /* ============================ */
@@ -470,12 +492,6 @@ $(document).on('mouseenter', '[data-magistraal-tooltip]', function() {
     magistraal.element.get('tooltip').show();
     magistraal.element.get('tooltip').css({'top': e.pageY, 'left': e.pageX});
 })
-
-// $('*').on('scroll', function() {
-//     if($(this).find('[data-magistraal-tooltip]:hover').length == 0) {
-//         magistraal.element.get('tooltip').hide();
-//     }
-// })
 
 $(document).on('click', '[data-magistraal="popup-backdrop"]', function(e) {
     if($('[data-magistraal-popup].show').length > 0) {
