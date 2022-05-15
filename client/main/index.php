@@ -317,11 +317,11 @@
                 </div>
                 <div class="dialog-footer">
                     <button class="btn btn-secondary btn-with-icon" data-dialog-action="yes">
-                        <i class="btn-icon fal fa-check"></i>
+                        <i class="btn-icon fal fa-check-circle"></i>
                         <span class="btn-text" data-translation="generic.bool.true"></span>
                     </button>
                     <button class="btn btn-danger btn-with-icon" data-dialog-action="no">
-                        <i class="btn-icon fal fa-times"></i>
+                        <i class="btn-icon fal fa-times-circle"></i>
                         <span class="btn-text" data-translation="generic.bool.false"></span>
                     </button>
                 </div>
@@ -418,11 +418,11 @@
                 </div>
                 <div class="popup-footer">
                     <button type="button" class="btn btn-danger btn-with-icon" data-popup-action="cancel">
-                        <i class="btn-icon fal fa-times"></i>
+                        <i class="btn-icon fal fa-times-circle"></i>
                         <span class="btn-text" data-translation="generic.action.cancel"></span>
                     </button>
                     <button type="button" class="btn btn-secondary btn-with-icon" data-popup-action="confirm" onclick="magistraal.appointments.create($(this).parents('form').formSerialize(), $(this).parents('form'));">
-                        <i class="btn-icon fal fa-check"></i>
+                        <i class="btn-icon fal fa-check-circle"></i>
                         <span class="btn-text" data-translation="generic.action.save"></span>
                     </button>
                 </div>
@@ -477,7 +477,7 @@
                 </div>
                 <div class="popup-footer">
                     <button type="button" class="btn btn-danger btn-with-icon" data-popup-action="cancel">
-                        <i class="btn-icon fal fa-times"></i>
+                        <i class="btn-icon fal fa-times-circle"></i>
                         <span class="btn-text" data-translation="generic.action.cancel"></span>
                     </button>
                     <button type="button" class="btn btn-secondary btn-with-icon" data-popup-action="confirm" onclick="magistraal.messages.send($(this).parents('form').formSerialize(), $(this).parents('form'));">

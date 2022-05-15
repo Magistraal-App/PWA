@@ -394,7 +394,7 @@ const magistraal = {
 					// Voeg knop om af te ronden toe aan de sidebar feed
 					sidebarFeed.actions.finish = {
 						handler: `magistraal.appointments.finish('${appointment.id}', $('.appointment-list-item[data-id="${appointment.id}"]').attr('data-finished') != 'true');`,
-						icon: 'fal fa-check'
+						icon: 'fal fa-check-circle'
 					}
 
 					// Voeg meeting link toe aan de sidebar feed

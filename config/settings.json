@@ -23,8 +23,8 @@
                 "animations": {
                     "icon": "fal fa-magic",
                     "values": {
-                        "on": {"title": "on", "icon": "fal fa-check"},
-                        "off": {"title": "off", "icon": "fal fa-times"}
+                        "on": {"title": "on", "icon": "fal fa-check-circle"},
+                        "off": {"title": "off", "icon": "fal fa-times-circle"}
                     }
                 },
                 "language": {
@@ -45,29 +45,29 @@
                 "appointments": {
                     "icon": "fal fa-calendar-alt",
                     "values": {
-                        "on": {"title": "on", "icon": "fal fa-check"},
-                        "off": {"title": "off", "icon": "fal fa-times"}
+                        "on": {"title": "on", "icon": "fal fa-check-circle"},
+                        "off": {"title": "off", "icon": "fal fa-times-circle"}
                     }
                 },
                 "grades": {
                     "icon": "fal fa-award",
                     "values": {
-                        "on": {"title": "on", "icon": "fal fa-check"},
-                        "off": {"title": "off", "icon": "fal fa-times"}
+                        "on": {"title": "on", "icon": "fal fa-check-circle"},
+                        "off": {"title": "off", "icon": "fal fa-times-circle"}
                     }
                 },
                 "messages": {
                     "icon": "fal fa-envelope",
                     "values": {
-                        "on": {"title": "on", "icon": "fal fa-check"},
-                        "off": {"title": "off", "icon": "fal fa-times"}
+                        "on": {"title": "on", "icon": "fal fa-check-circle"},
+                        "off": {"title": "off", "icon": "fal fa-times-circle"}
                     }
                 },
                 "absences": {
                     "icon": "fal fa-calendar-times",
                     "values": {
-                        "on": {"title": "on", "icon": "fal fa-check"},
-                        "off": {"title": "off", "icon": "fal fa-times"}
+                        "on": {"title": "on", "icon": "fal fa-check-circle"},
+                        "off": {"title": "off", "icon": "fal fa-times-circle"}
                     }
                 }
             }
