@@ -241,7 +241,7 @@ const magistraal = {
 	/* ============================ */
 	absences: {
 		paintList: response => {
-			let $html = $('<div></div>');
+			let $html = $('<div><div class="horizontal-scroll-wrapper"></div></div>');
 
 			$.each(response.data, function (month, data) {
 				// Ga naar volgende maand als er geen absenties voor deze maand zijn
@@ -288,7 +288,7 @@ const magistraal = {
 				});
 
 				// Voeg de groep toe aan de inhoud
-				$absencesGroup.appendTo($html);
+				$absencesGroup.appendTo($html.find('.horizontal-scroll-wrapper'));
 			});
 			
 			// Werk de inhoud bij
@@ -717,7 +717,8 @@ const magistraal = {
 						$grade.appendTo($gradesGroup);
 					})
 					
-					$gradesGroup.appendTo($html);
+					// Voeg de groep toe aan de inhoud
+					$gradesGroup.appendTo($html.find('.horizontal-scroll-wrapper'));
 				})
 			})
 

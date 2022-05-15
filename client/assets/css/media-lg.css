@@ -33,8 +33,7 @@
         box-shadow: none !important;
         top: 0 !important;
         right: 0 !important;
-        overflow-x: hidden !important;
-        overflow-y: scroll !important;
+        overflow-x: hidden auto !important;
         transition: 0ms transform !important;
     }
 

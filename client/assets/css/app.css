@@ -121,8 +121,7 @@ p:last-child {
 
 main {
     grid-area: main;
-    overflow-x: hidden !important;
-    overflow-y: scroll !important;
+    overflow: hidden auto !important;
     padding: var(--spacing-lg) var(--MAIN-padding);
     border-bottom: var(--border-width) solid var(--primary-border);
 }
@@ -232,7 +231,7 @@ textarea {
 }
 
 .input-search-wrapper.active .input-search-results:not(:empty) {
-    overflow-y: scroll;
+    overflow: hidden scroll;
     max-height: min(12rem, 50vh);
     border-width: calc(var(--border-width) * 2);
 }
@@ -570,25 +569,6 @@ textarea {
 /*         Appointments         */
 /* ============================ */
 
-@media(max-width: 767.98px) {
-    body[data-page="appointments/list"] main {
-        display: flex;
-        flex-direction: row;
-        overflow-x: scroll !important;
-        overscroll-behavior-x: contain;
-        scroll-snap-type: mandatory;
-        scroll-snap-points-y: repeat(100%);
-        scroll-snap-type: x mandatory;
-        padding: var(--spacing-lg) 0;
-    }
-
-    body[data-page="appointments/list"] .appointments-group {
-        min-width: 100%;
-        scroll-snap-align: center;
-        padding: 0 var(--MAIN-padding);
-    }
-}
-
 .appointment-list-item {
     background-color: var(--list-item-background);
     border: var(--border-width) solid var(--list-item-border-color);
@@ -761,8 +741,7 @@ textarea {
 .dialog-main {
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden auto;
     position: relative;
     padding: var(--spacing-lg);
     height: 100%;
@@ -924,7 +903,7 @@ body[data-history="true"] [data-magistraal="page-back-button"] { /* Hide nav tog
 }
 
 .sidebar-table {
-    overflow-y: scroll;
+    overflow: hidden auto;
     flex: 1;
     height: 100%;
     width: 100%;
@@ -955,8 +934,7 @@ nav {
     display: flex;
     flex-direction: column;
     transition: width var(--animation-duration);
-    overflow-x: hidden;
-    overflow-y: scroll;
+    overflow: hidden auto;
     z-index: 100;
     width: 0px;
     top: 0;
@@ -1048,6 +1026,28 @@ footer {
 /* ============================ */
 /*           Classes            */
 /* ============================ */
+
+
+@media(max-width: 767.98px) {
+    .horizontal-scroll-wrapper {
+        display: flex;
+        flex-direction: row;
+        overflow-x: scroll !important;
+        overscroll-behavior-x: contain !important;
+        scroll-snap-type: mandatory !important;
+        scroll-snap-points-y: repeat(100%) !important;
+        scroll-snap-type: x mandatory !important;
+        padding: var(--spacing-lg) 0;
+    }
+
+    .horizontal-scroll-wrapper > * {
+        min-width: 100%;
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
+        padding: 0 var(--MAIN-padding);
+        display: block;
+    }
+}
 
 .bullet::before {
     display: inline-block;
