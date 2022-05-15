@@ -4,12 +4,13 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 
 ---
 
-## Todo op volgorde van prioriteit
+## Todo
 - [x] ~~Maken: Systeem maken om te kijken of een gebruiker nieuwe cijfers, afspraken of berichten heeft~~
 - [x] ~~Maken: Meldingen op Android via Google Firebase~~
-- [ ] Maken: Statuswebsite
-- [ ] Maken: Meldingen op iOS via Pushcut
+- [x] ~~Maken: Statuswebsite~~
 - [ ] Maken: Gemiddelde cijferspagina
+- [ ] Maken: Pagina om berekeningen met cijfers uit te voeren
+- [ ] Maken: Meldingen op iOS via Pushcut
 - [ ] Maken: Afsprakenlijst datumkiezer
 - [ ] Fixen: Afsprakenlijst scroll gevoeligheid verlagen
 - [ ] Maken: 'Prullenbak' map bij berichtenpagina
@@ -18,6 +19,7 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 - [ ] Maken: Ondersteuning voor KWT-uur
 - [ ] Maken: Mogelijkheid om afspraak in te plannen (op verzoek) bij andere Magistraal-gebruikers
 - [ ] Maken: Opdrachtenpagina
+- [ ] Fixen: Nieuwe instellingen worden pas toegepast als pagina voor de tweede keer wordt herladen
 
 ---
 
