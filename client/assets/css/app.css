@@ -105,6 +105,10 @@ header {
 
 [data-magistraal="page-title"] {
     margin-bottom: 0 !important;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 50vw;
 }
 
 [onclick] {
@@ -645,7 +649,9 @@ textarea {
     --list-item-icon-background: var(--danger);
 }
 
-.grade-list-item[data-value="10"] {
+.grade-list-item[data-value^="8"],
+.grade-list-item[data-value^="9"],
+.grade-list-item[data-value^="10"] {
     --list-item-icon-background: var(--success);
 }
 
@@ -653,77 +659,29 @@ textarea {
     --list-item-icon-color: var(--text-muted-inverse);
 }
 
-/* ============================ */
-/*        Grades overview       */
-/* ============================ */
-
-.grade-overview {
-    display: grid;
-    grid-template-columns: 8rem 1fr;
-    grid-template-rows: 4rem 1fr;
-    grid-template-areas: 
-        'go-none     go-terms'
-        'go-subjects go-main';
-    width: 100%;
-    background: blue;
-}
-
-.grade-overview-subjects {
-    grid-area: go-subjects;
-    background: green;
-    height: 100%;
-}
-
-.grade-overview-subject {
-    height: var(--btn-lg-height);
-    line-height: var(--btn-lg-height);
-    padding: 0 var(--spacing-lg);
-}
-
-.grade-overview-terms {
-    grid-area: go-terms;
-    display: flex;
-    flex-direction: row;
-}
-
-.grade-overview-term {
-    flex: 1 1 0px;
-    background: purple;
-}
-
-.grade-overview-term-header {
-    background: red;
-    display: block;
-    text-align: center;
-    width: 100%;
-}
-
-.grade-overview-column {
-    width: var(--btn-lg-height);
-    background: yellow;
-}
-
-.grade-overview-main-cell {
-    background: orange;
-}
-
 .grade-list-item[data-counts="false"] .grade-value {
     text-decoration: line-through;
 }
 
-.grades-overview-grade[data-value="10"] {
-    background-color: var(--success);
+/* ============================ */
+/*        Grades overview       */
+/* ============================ */
+
+.grade-overview-list-item[data-value^="8"],
+.grade-overview-list-item[data-value^="9"],
+.grade-overview-list-item[data-value^="10"] {
+    --list-item-icon-background: var(--success);
 }
 
-.grades-overview-grade[data-passed="false"] {
+.grade-overview-list-item[data-passed="false"] {
     background-color: var(--danger);
 }
 
-.grades-overview-grade[data-exemption="true"] {
+.grade-overview-list-item[data-exemption="true"] {
     color: var(--text-muted-inverse);
 }
 
-.grades-overview-grade[data-counts="false"] {
+.grade-overview-list-item[data-counts="false"] .grade-value {
     text-decoration: line-through;
 }
 

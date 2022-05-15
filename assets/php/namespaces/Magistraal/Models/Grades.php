@@ -38,12 +38,12 @@
             'id'            => $grade['CijferId'] ?? null,
             'term'          => [
                 'id'            => $grade['CijferPeriode']['Id'] ?? null,
-                'name'          => $grade['CijferPeriode']['Naam'] ?? null
+                'description'   => $grade['CijferPeriode']['Naam'] ?? null
             ],
             'subject'       => [
                 'id'            => $grade['Vak']['Id'] ?? null,
                 'abbr'          => $grade['Vak']['Afkorting'],
-                'name'          => $grade['Vak']['Omschrijving'] ?? ''
+                'description'   => $grade['Vak']['Omschrijving'] ?? ''
             ],
             'is_sufficient' => $grade['IsVoldoende'] ?? null,
             'entered_by'    => $grade['IngevoerdDoor'] ?? '',

@@ -59,41 +59,41 @@
                 <i class="fal fa-home"></i>
                 <span data-translation="generic.page.home.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'appointments/list'});" data-magistraal="nav-item-appointments/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'appointments/list'});" data-magistraal="nav-item-appointments">
                 <i class="fal fa-calendar-alt"></i>
                 <span data-translation="generic.page.appointments/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'grades/list'});" data-magistraal="nav-item-grades/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'grades/list'});" data-magistraal="nav-item-grades">
                 <i class="fal fa-award"></i>
                 <span data-translation="generic.page.grades/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'absences/list'});" data-magistraal="nav-item-absences/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'absences/list'});" data-magistraal="nav-item-absences">
                 <i class="fal fa-calendar-times"></i>
                 <span data-translation="generic.page.absences/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'sources/list'});" data-magistraal="nav-item-sources/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'sources/list'});" data-magistraal="nav-item-sources">
                 <i class="fal fa-folder"></i>
                 <span data-translation="generic.page.sources/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'studyguides'});" data-magistraal="nav-item-studyguides/list">
+            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'studyguides'});" data-magistraal="nav-item-studyguides">
                 <i class="fal fa-map-signs"></i>
                 <span data-translation="generic.page.studyguides/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'tasks'});" data-magistraal="nav-item-tasks/list">
+            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'tasks'});" data-magistraal="nav-item-tasks">
                 <i class="fal fa-pencil-alt"></i>
                 <span data-translation="generic.page.tasks/list.title"></span>
             </li>
         </ul>
         <ul class="nav-items mt-auto">
-            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'messages/list'});" data-magistraal="nav-item-messages/list">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'messages/list'});" data-magistraal="nav-item-messages">
                 <i class="fal fa-envelope"></i>
                 <span data-translation="generic.page.messages/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'account'});" data-magistraal="nav-item-account/list">
+            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'account'});" data-magistraal="nav-item-account">
                 <i class="fal fa-user"></i>
                 <span data-translation="generic.page.account/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse online-only" onclick="magistraal.page.load({page: 'settings/list'});" data-magistraal="nav-item-settings/list">
+            <li tabindex="0" class="nav-item text-inverse online-only" onclick="magistraal.page.load({page: 'settings/list'});" data-magistraal="nav-item-settings">
                 <i class="fal fa-cog"></i>
                 <span data-translation="generic.page.settings/list.title"></span>
             </li>
@@ -227,6 +227,11 @@
             </div>
 
         <!-- GRADES -->
+            <!-- Group -->
+            <div data-magistraal-template="grades-group" class="grades-group list-item-group">
+                <h4 class="grades-group-title"></h4>
+            </div>
+
             <!-- List item -->
             <div data-magistraal-template="grade-list-item" tabindex="0" class="grade-list-item list-item list-item-flex" onclick="magistraal.sidebar.selectFeed($(this));">
                 <div class="grade-value list-item-icon font-heading"></div>
@@ -244,11 +249,21 @@
                 </div>
             </div>
 
-            <!-- Grade overview -->
-            <div data-magistraal-template="grade-overview" data-magistraal="grade-overview" class="grade-overview">
-                <div class="grade-overview-terms"></div>
-                <div class="grade-overview-subjects"></div>
-                <div class="grade-overview-main"></div>
+            <!-- Grade overview list item -->
+            <div data-magistraal-template="grade-overview-list-item" tabindex="0" class="grade-overview-list-item list-item list-item-flex" onclick="magistraal.sidebar.selectFeed($(this));">
+                <div class="grade-value list-item-icon font-heading"></div>
+                <div class="list-item-title mx-n1">
+                    <span class="col-9 col-sm-6 col-md-7 col-lg-5 text-ellipsis px-1 grade-subject"></span>
+                    <span class="col-3 col-sm-2 col-md-2 col-lg-3 text-ellipsis px-1" data-translation="grades.grade.info.is_sufficient"></span>
+                    <span class="col-4 col-sm-4 col-md-3 col-lg-4 text-ellipsis px-1 d-none d-sm-block" data-translation="grades.grade.info.entered_at"></span>
+                    <!-- <div class="d-none d-lg-block px-1  col-lg-2 text-ellipsis" data-translation="grades.grade.info.subject_average"></div> -->
+                </div>
+                <div class="list-item-content mx-n1 text-muted">
+                    <div class="col-9 col-sm-6 col-md-7 col-lg-5 grade-description text-ellipsis px-1"></div>
+                    <div class="col-3 col-sm-2 col-md-2 col-lg-3 grade-sufficient text-ellipsis px-1"></div>
+                    <div class="col-4 col-sm-4 col-md-3 col-lg-4 grade-entered-at text-ellipsis px-1 d-none d-sm-block"></div>
+                    <!-- <div class="d-none d-lg-block px-1  col-lg-2 grade-subject-average text-ellipsis"></div> -->
+                </div>
             </div>
 
             <!-- Grade overview subject -->
@@ -339,16 +354,19 @@
 
             <!-- Grades list -->
             <div data-magistraal-template="page-buttons-grades/list">
-                <!-- <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/overview'});">
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/overview'});">
                     <i class="btn-icon fal fa-table"></i>
                     <span class="btn-text" data-translation="grades.overview" ></span>
-                </button> -->
+                </button>
                 <!-- <button class="btn btn-secondary" data-translation="grades.to_grade_calculator"></button> -->
             </div>
 
             <!-- Grade overview -->
             <div data-magistraal-template="page-buttons-grades/overview">
-                <!-- <button class="btn btn-secondary" data-translation="grades.to_list" onclick="magistraal.page.load({page: 'grades');"></button> -->
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/list'});">
+                    <i class="btn-icon fal fa-list"></i>
+                    <span class="btn-text" data-translation="grades.list" ></span>
+                </button>                
                 <!-- <button class="btn btn-secondary" data-translation="grades.to_grade_calculator"></button> -->
             </div>
 

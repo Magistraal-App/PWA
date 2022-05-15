@@ -22,11 +22,11 @@
             $formatted['columns'][] = [
                 'id'          => $grade['column']['id'],
                 'description' => $grade['column']['description'],
-                'name'        => $grade['column']['name'],
+                'name'        => $grade['column']['description'],
                 'number'      => $grade['column']['number'],
                 'order'       => $grade['column']['order'],
                 'term'        => [
-                    'name'        => $grade['term']['name'],
+                    'description' => $grade['term']['description'],
                     'id'          => $grade['term']['id']
                 ],
                 'type'        => $grade['column']['type'] == '1' ? 'grades' : 'averages',

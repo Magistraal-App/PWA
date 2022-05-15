@@ -594,33 +594,33 @@ const magistraal = {
 			
 			$.each(response.data, function (i, grade) {
 				let $grade    = magistraal.template.get('grade-list-item');
-				let enteredAt = magistraal.locale.formatDate(grade['entered_at'], 'dFYHi');
+				let enteredAt = magistraal.locale.formatDate(grade.entered_at, 'dFYHi');
 
 				$grade.attr({
-					'data-counts': grade['counts'],
-					'data-exemption': grade['exemption'],
+					'data-counts': grade.counts,
+					'data-exemption': grade.exemption,
 					'data-interesting': true,
-					'data-passed': grade['passed'],
+					'data-passed': grade.passed,
 					'data-search': `${grade['value_str']} ${grade['subject']['description']} ${grade['description']} ${enteredAt}`,
-					'data-value': grade['value'],
-					'data-weight': grade['weight']
+					'data-value': grade.value,
+					'data-weight': grade.weight
 				});
 
-				$grade.find('.list-item-icon').text(grade['value_str']);
-				$grade.find('.grade-subject').text(grade['subject']['description']);
-				$grade.find('.grade-description').text(grade['description']);
-				$grade.find('.grade-weight').text(`${grade['weight']}x`);
+				$grade.find('.list-item-icon').text(grade.value_str);
+				$grade.find('.grade-subject').text(grade.subject.description);
+				$grade.find('.grade-description').text(grade.description);
+				$grade.find('.grade-weight').text(`${grade.weight}x`);
 				$grade.find('.grade-entered-at').text(enteredAt);
 
 				let sidebarFeed = {
-					'title': grade['subject']['description'],
-					'subtitle': capitalizeFirst(grade['description']),
+					'title': grade.subject.description,
+					'subtitle': capitalizeFirst(grade.description),
 					'table': {
-						'grade.value': grade['value_str'],
-						'grade.weight': `${grade['weight']}x`,
+						'grade.value': grade.value_str,
+						'grade.weight': `${grade.weight}x`,
 						'grade.entered_at': capitalizeFirst(enteredAt),
-						'grade.counts': magistraal.locale.formatBoolean(grade['counts']),
-						'grade.exemption': magistraal.locale.formatBoolean(grade['exemption'])
+						'grade.counts': magistraal.locale.formatBoolean(grade.counts),
+						'grade.exemption': magistraal.locale.formatBoolean(grade.exemption)
 					}
 				};
 
@@ -633,60 +633,95 @@ const magistraal = {
 		},
 
 		paintOverview: response => {
-			const $overview         = magistraal.template.get('grade-overview');
-			const $overviewTerms    = $overview.find('.grade-overview-terms');
-            const $overviewSubjects = $overview.find('.grade-overview-subjects');
-            const $overviewMain     = $overview.find('.grade-overview-main');
+			let $html = $('<div><div class="horizontal-scroll-wrapper"></div></div>');
+			
+			let idsOfColumnsTypeAverages = [];
+			let averagesPerTerm = {};
 
 			$.each(response.data, function(courseId, course) {
 				if(!course.active) {
 					return true;
 				}
 
-				$.each(course.terms, function(i, term) {
-					console.log(term);
+				$.each(course.columns, function(i, column) {
+					// Ga verder als het kolomtype niet gelijk is aan gemiddelde
+					if(column.type != 'averages') {
+						return true;
+					}
+
+					idsOfColumnsTypeAverages[column.id] = true;
+				})
+
+				$.each(course.grades, function(i, grade) {
+					// Ga verder als het kolomtype niet gelijk is aan gemiddelde
+					if(!isSet(idsOfColumnsTypeAverages[grade.column.id])) {
+						return true;
+					}
+
+					// Ga verder als het cijfer niet geldig is
+					if(!isSet(grade.value)) {
+						return true;
+					}
+
+					// Sla de cijfers op per periode
+					if(!isSet(averagesPerTerm[grade.term.id])) {
+						averagesPerTerm[grade.term.id] = [];
+					}
+					averagesPerTerm[grade.term.id].push(grade);
+				})
+
+				// Loop all averages
+				$.each(averagesPerTerm, function(termId, grades) {
+					// Maak een groep en stel de titel in
+					let $gradesGroup = magistraal.template.get('grades-group');
+					$gradesGroup.find('.grades-group-title').text(magistraal.locale.translate('grades.grade_term')+' '+grades[0].term.description);
+
+					// Sorteer de cijfers op alfabetische volgorde van het vak
+					grades = grades.sort(function(a, b) {
+						return a.subject.description.localeCompare(b.subject.description);
+					})
+					
+					$.each(grades, function(i, grade) {
+						let $grade             = magistraal.template.get('grade-overview-list-item');
+						let enteredAt          = magistraal.locale.formatDate(grade.entered_at, 'dFYHi');
+						const gradeDescription = magistraal.locale.translate('grades.grade_term_average')+' '+grade.term.description;
+
+						$grade.find('.list-item-icon').text(grade.value_str);
+						$grade.find('.grade-subject').text(grade.subject.description);
+						$grade.find('.grade-description').text(gradeDescription);
+						$grade.find('.grade-sufficient').text(magistraal.locale.formatBoolean(grade.is_sufficient));
+						$grade.find('.grade-entered-at').text(enteredAt);
+
+						$grade.attr({
+							'data-counts': grade.counts,
+							'data-exemption': grade.exemption,
+							'data-interesting': true,
+							'data-passed': grade.passed,
+							'data-search': `${grade.value_str} ${grade.subject.description} ${enteredAt}`,
+							'data-value': grade.value
+						});
+
+						let sidebarFeed = {
+							'title': grade.subject.description,
+							'subtitle': gradeDescription,
+							'table': {
+								'grade.value': grade.value_str,
+								'grade.entered_at': capitalizeFirst(enteredAt),
+								'grade.counts': magistraal.locale.formatBoolean(grade.counts),
+								'grade.exemption': magistraal.locale.formatBoolean(grade.exemption)
+							}
+						};
+
+						magistraal.sidebar.addFeed($grade, sidebarFeed);
+						
+						$grade.appendTo($gradesGroup);
+					})
+					
+					$gradesGroup.appendTo($html);
 				})
 			})
-            
-            // $.each(response.data, function(courseId, course) {
-			// 	if(!course.active) {
-			// 		return true;
-			// 	}
 
-			// 	$.each(course.terms, function(i, term) {
-			// 		const $overviewTerm = magistraal.template.get('grade-overview-term');
-			// 		$overviewTerm.attr('data-id', term.id);
-			// 		$overviewTerm.find('.grade-overview-term-header').text(term.name);
-
-			// 		$overviewTerm.appendTo($overviewTerms);
-			// 	})
-
-			// 	$.each(course.columns, function(i, column) {
-			// 		const $overviewTerm = $overview.find(`.grade-overview-term[data-id="${column.term.id}"]`);
-
-			// 		// Sla deze kolom over als deze periode niet bestaat of als de kolom al bestaat
-			// 		if($overviewTerm.length === 0 || $overviewTerm.find(`.grade-overview-term-column[data-number="${column.number}"][data-variant="${column.variant}"]`).length > 0) {
-			// 			return true;
-			// 		}
-
-			// 		const $overviewColumn = magistraal.template.get('grade-overview-term-column');
-			// 		$overviewColumn.find('.grade-overview-term-column-name').text(column.name);
-			// 		$overviewColumn.attr({
-			// 			'data-id':      column.id,
-			// 			'data-number':  column.number,
-			// 			'data-variant': column.variant
-			// 		});
-			// 		$overviewColumn.appendTo($overviewTerm.find('.grade-overview-term-columns'));
-			// 	})
-
-            //     $.each(course.subjects, function(i, subject) {
-            //         const $overviewSubject = magistraal.template.get('grade-overview-subject');
-            //         $overviewSubject.attr('data-id', subject.id).text(subject.description);
-            //         $overviewSubject.appendTo($overviewSubjects);
-            //     })
-			// })
-
-            // magistraal.page.setContent($overview, false);
+			magistraal.page.setContent($html);
 		}
 	},
 
@@ -1493,7 +1528,7 @@ const magistraal = {
 
 			// Wijzig de geselecteerde knop in de navigatiebalk
 			$('.nav-item').removeClass('active');
-			magistraal.element.get(`nav-item-${parameters.page}`).addClass('active');
+			magistraal.element.get(`nav-item-${parameters.page.split('/')[0] || null}`).addClass('active');
 			
 			// Laad de pagina
 			magistraal.page.get(parameters);
