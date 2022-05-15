@@ -375,9 +375,8 @@ textarea {
     --list-item-border-color: var(--primary-border);
     --list-item-background: var(--primary);
     --list-item-action-background: var(--primary-border);
+    --list-item-action-color: var(--text);
     --list-item-action-border-color: var(--primary);
-    --list-item-action-primary-background: var(--list-item-action-background);
-    --list-item-action-primary-border-color: var(--list-item-action-border-color);
     width: 100%;
     display: grid;
     grid-template-columns: 3rem fit-content(100%) auto;
@@ -459,11 +458,7 @@ textarea {
     cursor: pointer;
     padding: 0.125rem 0.5rem;
     border: var(--border-width) solid var(--list-item-action-border-color);
-}
-
-.list-item-action-primary {
-    background-color: var(--list-item-action-primary-background);
-    border: var(--border-width) solid var(--list-item-action-primary-border-color);
+    color: var(--list-item-action-color);
 }
 
 .list-item .list-item-action-square {
@@ -609,12 +604,13 @@ textarea {
 }
 
 .appointment-list-item .list-item-action.appointment-info-type {
-    background-color: var(--list-item-action-primary-background);
+    background-color: var(--list-item-action-background);
 }
 
 .appointment-list-item[data-info-type*="test"],
 .appointment-list-item[data-info-type*="exam"] {
-    --list-item-action-primary-background: var(--secondary);
+    --list-item-action-background: var(--secondary);
+    --list-item-action-color: var(--text-inverse);
 }
 
 .appointment-list-item[data-status="canceled"] {
@@ -630,8 +626,8 @@ textarea {
 }
 
 .appointment-list-item[data-finished="true"] {
-    --list-item-action-primary-background: var(--success);
-    --list-item-action-primary-border: var(--success);
+    --list-item-action-background: var(--success);
+    --list-item-action-border: var(--success);
     --list-item-icon-background: var(--success);
 }
 
