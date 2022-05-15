@@ -9,6 +9,7 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 - [x] ~~Maken: Meldingen op Android via Google Firebase~~
 - [x] ~~Maken: Statuswebsite~~
 - [ ] Maken: Gemiddelde cijferspagina
+- [ ] Maken: Pagina om berekeningen met cijfers uit te voeren
 - [ ] Maken: Meldingen op iOS via Pushcut
 - [ ] Maken: Afsprakenlijst datumkiezer
 - [ ] Fixen: Afsprakenlijst scroll gevoeligheid verlagen
