@@ -1,7 +1,7 @@
 <?php 
     namespace Magistraal\Database;
 
-    function connect() {       
+    function connect() {
         return new \mysqli(
             \Magistraal\Config\get('mysql_hostname'),
             \Magistraal\Encryption\decrypt(\Magistraal\Config\get('mysql_username')),
@@ -33,6 +33,7 @@
         $stmt = $mysqli->prepare($query);
 
         if(is_bool($stmt)) {
+            $mysqli->close();
             return false;
         }
         
@@ -44,6 +45,7 @@
         $result = $stmt->get_result();
 
         if(is_bool($result)) {
+            $mysqli->close();
             return true;
         }
 
@@ -52,13 +54,22 @@
             // Remove min() and max() from column names
             foreach ($row as $key => $value) {
                 unset($row[$key]);
-                $key = str_ireplace(['min(', 'max(', ')'], '', $key);
+                $key = str_ireplace(['min(', 'max(', ')', '`'], '', $key);
                 $row[$key] = $value;
             }
 
             $rows[] = $row;
         }
-        
+
+        $mysqli->close();
         return $rows;
+    }
+
+    function latency_us() {
+        $start = microtime(true) * 1000000;
+        \Magistraal\Database\query("SELECT");
+        $end = microtime(true) * 1000000;
+
+        return $end - $start;
     }
 ?>
