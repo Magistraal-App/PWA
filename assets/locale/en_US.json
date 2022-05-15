@@ -66,7 +66,9 @@
     "generic.file_type.archive": "Compressed file",
 
     "generic.dialog.ios_notifications_install_pushcut.title": "Notifications",
-    "generic.dialog.ios_notifications_install_pushcut.content": "In order to receive notifications, you'll have to install the Pushcut: Shortcuts Automation app. Press 'Yes' to continue.<br><br>You can change this in your settings at any time.",
+    "generic.dialog.ios_notifications_install_pushcut.content": "In order to receive notifications, you'll have to install the Pushcut: Shortcuts Automation app. Click 'Yes' to continue.<br><br>You can change this in your settings at any time.",
+    "generic.dialog.install_pwa.title": "Download the app",
+    "generic.dialog.install_pwa.content": "For a better and more extensive experience, we recommend using the app. Install the app by clicking 'Yes', or click 'No' to not show this window again.",
     
     "appointments.popup.create_appointment.item.content.title": "Content",
     "appointments.popup.create_appointment.item.date.title": "Date",

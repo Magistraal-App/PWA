@@ -37,7 +37,6 @@
         );
         $wp3 = microtime(true);
         echo(round($wp3 - $wp2, 2) . "ms for loading appointments\n");
-        var_dump($appointments);
     }
 
     function format($appointment, $filter = []) {

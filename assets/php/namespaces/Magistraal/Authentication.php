@@ -24,7 +24,7 @@
     /* ============================ */
     /*            TOKENS            */
     /* ============================ */
-
+ 
     function token_put($args = [], $token_id = null) {
         $access_token  = \Magistraal\Encryption\encrypt($args['access_token']);
         $refresh_token = \Magistraal\Encryption\encrypt($args['refresh_token']);
@@ -54,7 +54,6 @@
     
     function token_get($token_id, $check_token_expiry = true) {
         $rows = \Magistraal\Database\query("SELECT * FROM `magistraal_tokens` WHERE `token_id`=?", $token_id);
-
         if(!isset($rows[0])) {
             return null;
         }
@@ -63,7 +62,7 @@
         $token_data['access_token']  = \Magistraal\Encryption\decrypt($token_data['access_token']);
         $token_data['refresh_token'] = \Magistraal\Encryption\decrypt($token_data['refresh_token']);
 
-        if(time() > $token_data['token_expires'] && $check_token_expiry) {
+        if($check_token_expiry && time() > $token_data['token_expires']) {
             // Delete current token 
             \Magistraal\Authentication\token_delete($token_id);
             
@@ -85,7 +84,7 @@
         return ($rows > 0);
     }
 
-    function random_token_id($length= 64) {
+    function random_token_id($length= 128) {
         $token_id = substr(base64_url_encode(random_bytes($length)), 0, $length);
 
         return $token_id;

@@ -46,20 +46,33 @@
             return $this;
         }
 
-        private function sendFirebase($to, array $notification) {
+        private function sendFirebase($to, array $notification = []) {
             $firebase_server_key = \Magistraal\Encryption\decrypt(\Magistraal\Config\get('firebase_server_key'));
 
             if(!isset($firebase_server_key)) {
                 return false;
             }
 
+            // Notification will expire at the end of today
+            $time_to_live = strtotime('tomorrow') - time();
+
+            // Send the notification as data so the notification can be styled
+            // on the client side.
             $res = \Magistraal\Browser\Browser::request('https://fcm.googleapis.com/fcm/send', [
                 'headers'   => [
                     'authorization' => 'key='.$firebase_server_key
                 ],
                 'payload' => [
                     'registration_ids' => is_array($to) ? $to : [$to],
-                    'notification' => $notification
+                    'data' => $notification,
+                    'android' => [
+                        'ttl' => $time_to_live.'s'
+                    ],
+                    'webpush' => [
+                        'headers' => [
+                            'TTL' => $time_to_live
+                        ]
+                    ]
                 ],
                 'anonymous' => true
             ]);

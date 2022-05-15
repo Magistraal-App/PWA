@@ -1,7 +1,6 @@
 <?php 
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
     define('ALLOW_EXIT', false);
-    \Magister\Session::start();
     header('Content-Type: text/html;'); 
 ?>
 <!DOCTYPE html>
