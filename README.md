@@ -6,7 +6,8 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 
 ## Todo op volgorde van prioriteit
 - [x] ~~Maken: Systeem maken om te kijken of een gebruiker nieuwe cijfers, afspraken of berichten heeft~~
-- [ ] Maken: Meldingen op Android via Google Firebase
+- [x] ~~Maken: Meldingen op Android via Google Firebase~~
+- [ ] Maken: Statuswebsite
 - [ ] Maken: Meldingen op iOS via Pushcut
 - [ ] Maken: Gemiddelde cijferspagina
 - [ ] Maken: Afsprakenlijst datumkiezer
