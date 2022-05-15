@@ -4,7 +4,7 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 
 ---
 
-## Todo op volgorde van prioriteit
+## Todo
 - [x] ~~Maken: Systeem maken om te kijken of een gebruiker nieuwe cijfers, afspraken of berichten heeft~~
 - [x] ~~Maken: Meldingen op Android via Google Firebase~~
 - [x] ~~Maken: Statuswebsite~~
