@@ -19,6 +19,7 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 - [ ] Maken: Ondersteuning voor KWT-uur
 - [ ] Maken: Mogelijkheid om afspraak in te plannen (op verzoek) bij andere Magistraal-gebruikers
 - [ ] Maken: Opdrachtenpagina
+- [ ] Fixen: Nieuwe instellingen worden pas toegepast als pagina voor de tweede keer wordt herladen
 
 ---
 
