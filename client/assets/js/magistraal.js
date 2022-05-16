@@ -290,6 +290,7 @@ const magistraal = {
 				// Voeg de groep toe aan de inhoud
 				carousel.addSlide($absencesGroup);
 			});
+
 			
 			// Werk de inhoud bij
 			magistraal.page.setContent(carousel.jQueryObject(), false);
@@ -348,11 +349,6 @@ const magistraal = {
 					} else {
 						$appointment.find('.list-item-icon').html('<i class="fal fa-info"></i>');
 					}
-
-					// Microsoft Teams link
-					// if(appointment['has_meeting_link']) {
-					// 	$appointment.find('.lesson-join-ms-teams').attr('href', appointment['meeting_link']);
-					// }
 
 					// Informatie (tijd, omschrijving en inhoud)
 					$appointment.find('.appointment-time').text(magistraal.locale.formatDate(appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(appointment.end.time, 'Hi'));
@@ -1831,6 +1827,9 @@ const magistraal = {
 				}
 
 				this.$input.data('searchInput', this);
+
+				// Autofill interferes with the search results, disable it
+				this.$input.attr('autocomplete', 'off');
 
 				this.$wrapper = this.$input.closest('.input-wrapper');
 				this.$wrapper.addClass('input-search-wrapper');

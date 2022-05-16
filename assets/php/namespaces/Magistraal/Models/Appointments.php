@@ -156,7 +156,7 @@
         $content = preg_replace('/<a(?:(?!<a|<\/a>)[\s\S])*?(href="https:\/\/teams.microsoft.com|href="https:\/\/support.office.com)[\s\S]*?<\/a>/', '', $content);
 
         // Verwijder resten
-        $content = str_replace(['<hr>', '<span> | </span>', '<p></p>', '<p> </p>', '<p><br></p>'], '', $content);
+        $content = preg_replace('/(<(p|span)>\s*(<br>|<br\/>|\||)\s*<\/(p|span)>|<hr>|<hr\/>)/', '', $content);
 
         return [$content, $meeting_link];
     }

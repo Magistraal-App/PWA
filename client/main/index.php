@@ -125,10 +125,10 @@
         <div data-magistraal="sidebar-table" class="sidebar-table"></div>
         <div data-magistraal="sidebar-actions" class="d-none d-md-flex"></div>
     </div>
-    <footer>
+    <footer class="scrollbar-hidden">
         <div data-magistraal="page-buttons-container" class="flex-row d-md-none mr-auto"></div>
         <div data-magistraal="sidebar-actions" class="flex-row d-md-none mr-auto"></div>
-        <div class="col pl-2 pr-0 ml-auto d-flex align-items-center justify-content-end" style="width: 0px;">
+        <div class="col px-0 ml-auto d-flex align-items-center justify-content-end" style="width: 0px;">
             <span data-magistraal="console"></span>
         </div>
     </footer>
@@ -220,9 +220,6 @@
                 <span class="list-item-content text-muted"></span>
                 <div class="list-item-actions">
                     <span class="list-item-action list-item-action-primary appointment-info-type"></span>
-                    <a class="list-item-action list-item-action-square appointment-meeting-link">
-                        <img src="../assets/images/join_ms_teams_meeting.svg" alt="Online les in Microsoft Teams">
-                    </a>
                 </div>
             </div>
 
@@ -254,14 +251,12 @@
                 <div class="grade-value list-item-icon font-heading"></div>
                 <div class="list-item-title mx-n1">
                     <span class="col-9 col-sm-6 col-md-7 col-lg-5 text-ellipsis px-1 grade-subject"></span>
-                    <span class="col-3 col-sm-2 col-md-2 col-lg-3 text-ellipsis px-1" data-translation="grades.grade.info.is_sufficient"></span>
-                    <span class="col-4 col-sm-4 col-md-3 col-lg-4 text-ellipsis px-1 d-none d-sm-block" data-translation="grades.grade.info.entered_at"></span>
+                    <span class="col-5 col-sm-6 col-md-5 col-lg-7 text-ellipsis px-1 d-none d-sm-block" data-translation="grades.grade.info.entered_at"></span>
                     <!-- <div class="d-none d-lg-block px-1  col-lg-2 text-ellipsis" data-translation="grades.grade.info.subject_average"></div> -->
                 </div>
                 <div class="list-item-content mx-n1 text-muted">
                     <div class="col-9 col-sm-6 col-md-7 col-lg-5 grade-description text-ellipsis px-1"></div>
-                    <div class="col-3 col-sm-2 col-md-2 col-lg-3 grade-sufficient text-ellipsis px-1"></div>
-                    <div class="col-4 col-sm-4 col-md-3 col-lg-4 grade-entered-at text-ellipsis px-1 d-none d-sm-block"></div>
+                    <div class="col-5 col-sm-6 col-md-5 col-lg-7 grade-entered-at text-ellipsis px-1 d-none d-sm-block"></div>
                     <!-- <div class="d-none d-lg-block px-1  col-lg-2 grade-subject-average text-ellipsis"></div> -->
                 </div>
             </div>

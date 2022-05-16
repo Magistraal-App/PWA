@@ -254,8 +254,30 @@ class responsiveCarousel {
         return this;
     }
 
-    slideCount() {
+    getSlideCount() {
         return this.$carousel.find('.responsive-carousel-slide').length;
+    }
+
+    setSlideIndex(index) {
+        const $slide = this.$carousel.find(`.responsive-carousel-slide:nth-child(${index + 1})`);
+
+        if($slide.length == 0) {
+            return this;
+        }
+
+        console.log($slide.find('h4').first().text());
+        
+        this.direction == 'x' ? this.$carousel.scrollLeft($slide.position().left) : this.$carousel.scrollTop($slide.position().top);
+
+        return this;
+    }
+
+    getSlideIndex() {
+        const scrollPos    = this.direction == 'x' ? this.$carousel.scrollLeft() : this.$carousel.scrollTop();
+        const maxScrollPos = this.direction == 'x' ? this.$carousel.get(0).scrollWidth : this.$carousel.get(0).scrollHeight;
+        const slideCount   = this.getSlideCount();
+
+        return Math.round((scrollPos / maxScrollPos) * slideCount);
     }
 
     jQueryObject() {
