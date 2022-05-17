@@ -12,7 +12,7 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 - [ ] Maken: Pagina om berekeningen met cijfers uit te voeren
 - [ ] Maken: Meldingen op iOS via Pushcut
 - [ ] Maken: Afsprakenlijst datumkiezer
-- [ ] Fixen: Afsprakenlijst scroll gevoeligheid verlagen
+- [x] ~~Fixen: Afsprakenlijst scroll gevoeligheid verlagen~~
 - [ ] Maken: 'Prullenbak' map bij berichtenpagina
 - [ ] Maken: 'Verzonden' map bij berichtenpagina
 - [ ] Maken: Homepagina
@@ -20,6 +20,7 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 - [ ] Maken: Mogelijkheid om afspraak in te plannen (op verzoek) bij andere Magistraal-gebruikers
 - [ ] Maken: Opdrachtenpagina
 - [ ] Fixen: Nieuwe instellingen worden pas toegepast als pagina voor de tweede keer wordt herladen
+- [ ] Maken: Leermiddelenpagina
 
 ---
 
