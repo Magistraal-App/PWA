@@ -33,8 +33,6 @@
         $stmt = $mysqli->prepare($query);
 
         if(is_bool($stmt)) {
-            var_dump($stmt);
-            var_dump(mysqli_error($mysqli));
             $mysqli->close();
             return false;
         }
