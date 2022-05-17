@@ -5,6 +5,7 @@
 
     $status = [
         'version'  => \Magistraal\Config\get('version') ?? null,
+        'notes'    => \Magistraal\Status\get('notes') ?? 'Geen',
         'database' => [
             'latency_us' => \Magistraal\Database\latency_us() ?? null
         ],
