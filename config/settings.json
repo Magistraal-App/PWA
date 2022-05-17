@@ -38,7 +38,7 @@
                     }
                 },
                 "carousel_indicator": {
-                    "icon": "fal fa-ellipsis-h",
+                    "icon": "fal fa-ellipsis-h fa-lg",
                     "values": {
                         "on": {"title": "on", "icon": "fal fa-check-circle"},
                         "off": {"title": "off", "icon": "fal fa-times-circle"}
@@ -48,6 +48,7 @@
         },
         "notifications": {
             "icon": "fal fa-bell",
+            "disabled": true,
             "items": {
                 "appointments": {
                     "icon": "fal fa-calendar-alt",

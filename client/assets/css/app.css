@@ -1219,7 +1219,7 @@ footer {
 
 
 /* ============================ */
-/*            Theme             */
+/*        User Settings         */
 /* ============================ */
 
 [data-settings*="appearance.buttons=icon"] .btn.btn-with-icon .btn-text {
@@ -1232,6 +1232,10 @@ footer {
 
 [data-settings*="appearance.buttons=text"] .btn.btn-with-icon .btn-text {
     margin-left: 0;
+}
+
+[data-settings*="appearance.carousel_indicator=off"] .responsive-carousel-indicator {
+    display: none !important;
 }
 
 [data-settings*="appearance.animations=off"] {

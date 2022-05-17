@@ -13,6 +13,10 @@
         }
         
         foreach ($items as $item_key => &$item) {
+            if(isset($item['disabled']) && $item['disabled'] == true) {
+                unset($items[$item_key]);
+            }
+
             if(!isset($item['values'])) {
                 continue;
             }
