@@ -187,7 +187,6 @@ const magistraal = {
 						if(isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info.includes('token_invalid')) {
 							magistraal.console.error();
 							console.error('login error:', response.responseJSON);
-							return;
 							magistraal.token.delete();
 							magistraal.page.load({
 								page: 'login'
