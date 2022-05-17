@@ -7,20 +7,20 @@
 
     function format($grade, $filter = []) {
         $formatted = [
-            'column_id'   => $grade['kolomId'],
-            'counts'      => $grade['teltMee'],
-            'description' => $grade['omschrijving'],
-            'entered_at'  => $grade['ingevoerdOp'] ?? null,
-            'exemption'   => $grade['heeftVrijstelling'],
-            'make_up'     => $grade['moetInhalen'],
-            'passed'      => $grade['isVoldoende'],
-            'subject'     => [
-                'abbr'        => $grade['vak']['code'],
-                'description' => $grade['vak']['omschrijving']
+            'column_id'     => $grade['kolomId'],
+            'counts'        => $grade['teltMee'],
+            'description'   => $grade['omschrijving'],
+            'entered_at'    => $grade['ingevoerdOp'] ?? null,
+            'exemption'     => $grade['heeftVrijstelling'],
+            'make_up'       => $grade['moetInhalen'],
+            'is_sufficient' => $grade['isVoldoende'],
+            'subject'       => [
+                'abbr'          => $grade['vak']['code'],
+                'description'   => $grade['vak']['omschrijving']
             ],
-            'value_str'   => $grade['waarde'],
-            'value'       => \Magistraal\Grades\grade_str_to_float($grade['waarde']),
-            'weight'      => $grade['weegfactor']
+            'value_str'     => $grade['waarde'],
+            'value'         => \Magistraal\Grades\grade_str_to_float($grade['waarde']),
+            'weight'        => $grade['weegfactor']
         ];
 
         // Filter out non-wanted items

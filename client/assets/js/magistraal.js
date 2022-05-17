@@ -185,6 +185,9 @@ const magistraal = {
 					error: function(response) {
 						// Laat de gebruiker opnieuw inloggen als token niet bestaat / onjuist is
 						if(isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info.includes('token_invalid')) {
+							magistraal.console.error();
+							console.error('login error:', response.responseJSON);
+							return;
 							magistraal.token.delete();
 							magistraal.page.load({
 								page: 'login'
@@ -237,10 +240,10 @@ const magistraal = {
 	},
 
 	/* ============================ */
-	/*         Absences         */
+	/*           Absences           */
 	/* ============================ */
 	absences: {
-		paintList: response => {
+		paintList: (response, loadType) => {
 			let carousel = new responsiveCarousel('x');
 
 			$.each(response.data, function (month, data) {
@@ -290,10 +293,11 @@ const magistraal = {
 				// Voeg de groep toe aan de inhoud
 				carousel.addSlide($absencesGroup);
 			});
-
 			
 			// Werk de inhoud bij
-			magistraal.page.setContent(carousel.jQueryObject(), false);
+			magistraal.page.setContent(carousel.jQueryObject(), false, loadType);
+
+			carousel.updateIndicator(loadType.includes('final'));
 		}
 	},
 
@@ -301,7 +305,7 @@ const magistraal = {
 	/*         Appointments         */
 	/* ============================ */
 	appointments: {
-		paintList: response => {
+		paintList: (response, loadType) => {
 			let carousel = new responsiveCarousel('x');
 			
 			$.each(response.data, function (day, data) {
@@ -413,7 +417,9 @@ const magistraal = {
 			});
 
 			// Werk de inhoud bij
-			magistraal.page.setContent(carousel.jQueryObject(), false);
+			magistraal.page.setContent(carousel.jQueryObject(), false, loadType);
+
+			carousel.updateIndicator(loadType.includes('final'));
 		},
 
 		view: (id) => {
@@ -585,7 +591,7 @@ const magistraal = {
 	/*            Grades            */
 	/* ============================ */
 	grades: {
-		paintList: response => {
+		paintList: (response, loadType) => {
 			let $html = $('<div></div>');
 			
 			$.each(response.data, function (i, grade) {
@@ -596,7 +602,7 @@ const magistraal = {
 					'data-counts': grade.counts,
 					'data-exemption': grade.exemption,
 					'data-interesting': true,
-					'data-passed': grade.passed,
+					'data-sufficient': grade.is_sufficient,
 					'data-search': `${grade['value_str']} ${grade['subject']['description']} ${grade['description']} ${enteredAt}`,
 					'data-value': grade.value,
 					'data-weight': grade.weight
@@ -625,10 +631,10 @@ const magistraal = {
 				$grade.appendTo($html);
 			});
 
-			magistraal.page.setContent($html);
+			magistraal.page.setContent($html, true, loadType);
 		},
 
-		paintOverview: response => {
+		paintOverview: (response, loadType) => {
 			let carousel = new responsiveCarousel('x');
 			let idsOfColumnsTypeAverages = [];
 			let averagesPerTerm = {};
@@ -691,7 +697,7 @@ const magistraal = {
 							'data-counts': grade.counts,
 							'data-exemption': grade.exemption,
 							'data-interesting': true,
-							'data-passed': grade.passed,
+							'data-sufficient': grade.is_sufficient,
 							'data-search': `${grade.value_str} ${grade.subject.description} ${enteredAt}`,
 							'data-value': grade.value
 						});
@@ -717,7 +723,9 @@ const magistraal = {
 				})
 			})
 
-			magistraal.page.setContent(carousel.jQueryObject(), false);
+			magistraal.page.setContent(carousel.jQueryObject(), false, loadType);
+
+			carousel.updateIndicator(loadType.includes('final'));
 		}
 	},
 
@@ -725,7 +733,7 @@ const magistraal = {
 	/*           Messages           */
 	/* ============================ */
 	messages: {
-		paintList: response => {
+		paintList: (response, loadType) => {
 			// Laad de drie nieuwste berichten
 			magistraal.api.call({url: 'messages/info', data: {id: String(response.data[0].id)}, source: 'prefer_cache'});
 			magistraal.api.call({url: 'messages/info', data: {id: String(response.data[1].id)}, source: 'prefer_cache'});
@@ -783,7 +791,7 @@ const magistraal = {
 			});
 
 			// Werk de inhoud bij
-			magistraal.page.setContent($html);
+			magistraal.page.setContent($html, true, loadType);
 		},
 
 		view: (id, read = true) => {
@@ -940,7 +948,7 @@ const magistraal = {
 	/*           Settings           */
 	/* ============================ */
 	settings: {
-		paintList: response => {
+		paintList: (response, loadType) => {
 			// Laad de huidige instellingen
 			let currentSettings = magistraalPersistentStorage.get('settings').value || [];
 
@@ -1061,10 +1069,10 @@ const magistraal = {
 			});
 
 			// Werk de inhoud bij
-			magistraal.page.setContent($html);
+			magistraal.page.setContent($html, true, loadType);
 		},
 
-		updateClient: (settings, updateOnServer = false) => {
+		updateClient: (settings) => {
 			if(!isSet(settings)) {
 				settings = {};
 			}
@@ -1080,10 +1088,6 @@ const magistraal = {
 				}
 			}
 			magistraalPersistentStorage.set('settings', settings);
-
-			if(Object.entries(settings).toString() != Object.entries(newSettings).toString() && updateOnServer) {
-				magistraal.settings.set_all(newSettings);
-			}
 
 			let settingsString = '';
 			$.each(newSettings, function(key, value) {
@@ -1154,7 +1158,7 @@ const magistraal = {
 	/*            Sources           */
 	/* ============================ */
 	sources: {
-		paintList: response => {
+		paintList: (response, loadType) => {
 			$html = $('<div></div>');
 
 			$.each(response.data, function(i, source) {
@@ -1189,7 +1193,7 @@ const magistraal = {
 				$source.appendTo($html);
 			})
 
-			magistraal.page.setContent($html);
+			magistraal.page.setContent($html, true, loadType);
 		}
 	},
 
@@ -1264,27 +1268,27 @@ const magistraal = {
 	},
 
 	load: (parameters = {}) => {
-		try {
-			magistraalStorage.set('api', '/magistraal/api/');
+		return new Promise((resolve, reject) => {
+			try {
+				magistraalStorage.set('api', '/magistraal/api/');
 
-			if(!isSet(parameters.version)) {
-				return false;
-			}
+				if(!isSet(parameters.version)) {
+					reject();
+				}
 
-			// If current version is not equal to new one, soft-clear cache
-			if(magistraalPersistentStorage.get('version').value != parameters?.version) {
-				console.log(`New version (${parameters?.version}) was found!`);
-				magistraalPersistentStorage.clear(true);
-			}
+				// If current version is not equal to new one, soft-clear cache
+				if(magistraalPersistentStorage.get('version').value != parameters?.version) {
+					console.log(`New version (${parameters?.version}) was found!`);
+					magistraalPersistentStorage.clear(true);
+				}
 
-			const settings = magistraalPersistentStorage.get('settings').value;
+				const settings = magistraalPersistentStorage.get('settings').value;
 
-			const language = (isSet(settings) && isSet(settings['appearance.language']) ? settings['appearance.language'] : 'nl_NL');
+				const language = (isSet(settings) && isSet(settings['appearance.language']) ? settings['appearance.language'] : 'nl_NL');
 
-			magistraalStorage.set('version', parameters?.version);
-			magistraalPersistentStorage.set('version', parameters?.version);
+				magistraalStorage.set('version', parameters?.version);
+				magistraalPersistentStorage.set('version', parameters?.version);
 
-			return new Promise((resolve, reject) => {
 				magistraal.locale.load(language).then(() => {
 					$(document).trigger('magistraal.ready');
 					resolve();
@@ -1300,14 +1304,15 @@ const magistraal = {
 					// magistraal.api.call({url: 'settings/list', data: {category: 'appearance'}, source: 'prefer_cache'});
 					// magistraal.api.call({url: 'settings/list', data: {category: 'system'}, source: 'prefer_cache'});
 				}
-			});
-		} catch(err) {
-			console.error(err);
-		}
+			} catch(err) {
+				reject();
+			}
+		})
+		
 	},
 
 	locale: {
-		load: locale => {
+		load: (locale) => {
 			return new Promise((resolve, reject) => {
 				magistraal.api.call({
 					url: 'locale', 
@@ -1507,6 +1512,10 @@ const magistraal = {
 				magistraal.page.modifyLocation(parameters.page, parameters.data, 'push');
 			}
 
+			// Verberg carousel indicator
+			const $carouselIndicator = magistraal.element.get('responsive-carousel-indicator');
+    		$carouselIndicator.removeClass('show');  
+
 			if(!parameters.unobtrusive) {
 				// Maak de sidebar leeg en sluit deze
 				magistraal.sidebar.clearFeed();
@@ -1611,8 +1620,20 @@ const magistraal = {
 			return magistraalStorage.get('previousPage').value || '';
 		},
 		
-		setContent: ($el, unwrap = true) => {
-			$('main').empty().append(unwrap ? $el.children() : $el);
+		setContent: ($el, unwrap = true, loadType) => {
+			const $newContent     = unwrap ? $el.children() : $el;
+			const $currentContent = $('main').children();
+
+			// Sla de scrollposities op
+			const scrollTop = $('main').scrollTop();
+			const scrollLeft = $('main').find('.responsive-carousel[data-carousel-direction="x"]').first().scrollLeft();
+
+			$('main').empty().append($newContent);
+
+			if(loadType.includes('final')) {
+				$('main').scrollTop(scrollTop);
+				$('main').find('.responsive-carousel[data-carousel-direction="x"]').first().scrollLeft(scrollLeft)
+			}
 		},
 
 		pushState: (data, unused, string) => {

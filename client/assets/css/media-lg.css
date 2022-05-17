@@ -20,6 +20,10 @@
         padding-right: var(--SIDEBAR-width-normal);
     }
 
+    main {
+        padding: var(--spacing-lg) var(--MAIN-padding);
+    }
+
     nav {
         min-width: var(--NAV-width);
     }

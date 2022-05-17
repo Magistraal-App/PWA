@@ -393,7 +393,6 @@ textarea {
     background-color: var(--list-item-background);
     margin-bottom: var(--spacing-lg);
     position: relative;
-    transition: var(--animation-duration-short) background-color;
 }
 
 .list-item .list-item-icon {
@@ -625,7 +624,7 @@ textarea {
     cursor: pointer;
 }
 
-.grade-list-item[data-passed="false"] {
+.grade-list-item[data-sufficient="false"] {
     --list-item-icon-background: var(--danger);
 }
 
@@ -653,8 +652,8 @@ textarea {
     --list-item-icon-background: var(--success);
 }
 
-.grade-overview-list-item[data-passed="false"] {
-    background-color: var(--danger);
+.grade-overview-list-item[data-sufficient="false"] {
+    --list-item-icon-background: var(--danger);
 }
 
 .grade-overview-list-item[data-exemption="true"] {
@@ -1032,7 +1031,7 @@ footer {
 /*       responsiveCarousel     */
 /* ============================ */
 
-@media(max-width: 767.98px) {
+@media(max-width: 767.98px) and (hover: none) {
     .responsive-carousel {
         display: flex;
         flex-direction: var(--carousel-flex-direction);
@@ -1079,6 +1078,43 @@ footer {
         min-height: 100%;
         --carousel-slide-padding: var(--MAIN-padding) 0;
         --carousel-slide-flex-direction: row;
+    }
+
+    .responsive-carousel-indicator {
+        display: flex;
+        flex-direction: row;
+        position: fixed;
+        bottom: var(--FOOTER-height);
+        left: 50%;
+        transform: translateX(-50%);
+        padding: var(--spacing-md);
+        z-index: 50;
+        border-radius: var(--border-radius);
+        opacity: 0;
+        transition: var(--animation-duration);
+        pointer-events: none;
+        background: var(--background);
+    }
+
+    .responsive-carousel-indicator.show {
+        bottom: calc(var(--FOOTER-height) + 2rem);
+        opacity: 0.95;
+    }
+
+    .responsive-carousel-indicator-item {
+        height: 0.5rem;
+        width: 0.5rem;
+        background-color: var(--text);
+        border-radius: var(--border-radius);
+        margin: 0.125rem calc(var(--spacing-lg)/2);
+        transition: var(--animation-duration-short);
+    }
+
+    .responsive-carousel-indicator-item.active {
+        background-color: var(--secondary);
+        height: 0.75rem;
+        width: 0.75rem;
+        margin: 0 calc(var(--spacing-lg)/2 - 0.125rem);
     }
 }
 

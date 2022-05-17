@@ -242,7 +242,9 @@ class responsiveCarousel {
 
         this.direction = direction;
         this.$carousel = $(`<div class="responsive-carousel scrollbar-hidden" data-carousel-direction="${direction}"></div>`);
-    
+
+        this.$carousel.on('scroll', (e) => { this.scrollCallback(e); })
+
         return this;
     }
 
@@ -280,10 +282,48 @@ class responsiveCarousel {
         return Math.round((scrollPos / maxScrollPos) * slideCount);
     }
 
+    scrollCallback() {
+        const $carouselIndicator = magistraal.element.get('responsive-carousel-indicator');
+        const slideIndex        = this.getSlideIndex();
+
+        $carouselIndicator.find('.responsive-carousel-indicator-item.active').removeClass('active');
+        $carouselIndicator.find(`.responsive-carousel-indicator-item:nth-child(${slideIndex + 1})`).addClass('active');
+    }
+
     jQueryObject() {
         return this.$carousel;
     }
+
+    updateIndicator(showIndicator = false) {
+        const $carouselIndicator     = magistraal.element.get('responsive-carousel-indicator');
+        const $carouselIndicatorItem = magistraal.template.get('responsive-carousel-indicator-item');
+        const slideCount             = this.getSlideCount();
+
+        $carouselIndicator.empty();
+
+        for (let i = 0; i < slideCount; i++) {
+            $carouselIndicator.append($carouselIndicatorItem.clone(true).toggleClass('active', i == 0));
+        }
+
+        if(showIndicator) {
+            $carouselIndicator.addClass('show');
+
+            setTimeout(() => {
+                $carouselIndicator.removeClass('show');
+            }, 1000);
+        }
+    }
 }
+
+$(document).on('touchmove', '.responsive-carousel', function() {
+    const $carouselIndicator = magistraal.element.get('responsive-carousel-indicator');
+    $carouselIndicator.addClass('show');
+})
+
+$(document).on('touchend touchcancel', debounce(function() {
+    const $carouselIndicator = magistraal.element.get('responsive-carousel-indicator');
+    $carouselIndicator.removeClass('show');  
+}, 1000))
 
 /* ============================ */
 /*         Notifications        */

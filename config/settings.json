@@ -36,6 +36,13 @@
                     "options": {
                         "do_reload": true
                     }
+                },
+                "carousel_indicator": {
+                    "icon": "fal fa-ellipsis-h",
+                    "values": {
+                        "on": {"title": "on", "icon": "fal fa-check-circle"},
+                        "off": {"title": "off", "icon": "fal fa-times-circle"}
+                    }
                 }
             }
         },
@@ -58,13 +65,6 @@
                 },
                 "messages": {
                     "icon": "fal fa-envelope",
-                    "values": {
-                        "on": {"title": "on", "icon": "fal fa-check-circle"},
-                        "off": {"title": "off", "icon": "fal fa-times-circle"}
-                    }
-                },
-                "absences": {
-                    "icon": "fal fa-calendar-times",
                     "values": {
                         "on": {"title": "on", "icon": "fal fa-check-circle"},
                         "off": {"title": "off", "icon": "fal fa-times-circle"}
@@ -95,9 +95,10 @@
         "appearance.buttons": "both",
         "appearance.animations": "on",
         "appearance.language": "nl_NL",
+        "appearance.carousel_indicator": "on",
         "notifications.setup": "",
         "notifications.appointments": "on",
         "notifications.grades": "on",
-        "notifications.absences": "off"
+        "notifications.messages": "on"
     }
 }

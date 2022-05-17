@@ -21,8 +21,12 @@
 
     $result = \Magister\Session::login($tenant, $username, $password);
 
-    if($result['success'] === true) {
+    if($result['success'] === true && isset(\Magister\Session::$userUuid)) {
         setcookie('magistraal-authorization', $result['token_id'], time()+365*24*60*60, '/magistraal/');
+        
+        // Create userdata row in database if it doesn't exist already
+        \Magistraal\Database\query("INSERT IGNORE INTO `magistraal_userdata` SET `user_uuid`=?", \Magister\Session::$userUuid);
+        
         \Magistraal\Response\success(['user_uuid' => $result['user_uuid']]);
     } else {
         \Magistraal\Response\error($result['info']);

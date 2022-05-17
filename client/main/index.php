@@ -1,7 +1,10 @@
 <?php 
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
-    define('ALLOW_EXIT', false);
     header('Content-Type: text/html;'); 
+    define('ALLOW_EXIT', false);
+
+    // Start session to get user uuid
+    \Magister\Session::start();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -19,23 +22,22 @@
     <?php echo(\Magistraal\Frontend\assetsHTML()); ?>
 
     <script>
+        // Werk de UI bij gebaseerd op de instellingen van de gebruiker
+        magistraal.settings.updateClient(<?php echo(json_encode(\Magistraal\User\Settings\get_all(\Magister\Session::$userUuid ?? null))); ?>);
+        
+        // Stuur gebruiker naar loginpagina als er geen token is
         if(!magistraal.token.isSet()) {
             magistraal.page.load({
                 page: 'login'
             });
-
-            magistraal.settings.updateClient(<?php echo(json_encode(\Magistraal\User\Settings\get_all(\Magister\Session::$userUuid ?? null))); ?>);
         }
 
+        // Laad Magistraal
         $(document).ready(function() {
             magistraal.load({
                 version: '<?php echo(VERSION); ?>',
                 doPreCache: true
             });
-
-            magistraal.settings.get_all().then(settings => {
-                magistraal.settings.updateClient(settings, true);
-            })
         })
 
         $(document).on('magistraal.ready', function() {
@@ -372,6 +374,9 @@
                     <span class="btn-text" data-translation="messages.write_message" ></span>
                 </button>
             </div>
+
+            <!-- Responsive Carousel Indicator Item -->
+            <div data-magistraal-template="responsive-carousel-indicator-item" class="responsive-carousel-indicator-item"></div>
         </div>
     </div>
     <div data-magistraal="popups">
@@ -507,6 +512,8 @@
         <i class="fal fa-search fa-8x text-secondary"></i>
         <h2 data-translation="tooltip.hint.search_no_matches" class="mt-4 text-center"></h2>
     </div>
+    <!-- Reponsive Carousel indicator -->
+    <div data-magistraal="responsive-carousel-indicator" class="responsive-carousel-indicator"></div>
     <span data-magistraal="tooltip" style="display: none;"></span>
 </body>
 </html>

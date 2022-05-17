@@ -36,7 +36,7 @@
                 [$access_token, $args['access_token_expires'], $refresh_token, $token_id]
             );
         } else {
-            $token_id      = \Magistraal\Authentication\random_token_id();
+            $token_id      = \Magistraal\Authentication\random_token_id(8);
             $token_expires = time() + 2700; // Token will expire in 45 minutes
 
             $res = \Magistraal\Database\query(
@@ -69,8 +69,8 @@
             // Create new token
             $new_token_id = \Magistraal\Authentication\token_put($token_data);
 
-            // Overwrite token data to new token's data
-            $token_data = \Magistraal\Authentication\token_get($new_token_id);
+            // Overwrite $token_data id with new token id
+            $token_data['token_id'] = $new_token_id;
         
             setcookie('magistraal-authorization', $new_token_id, time()+365*24*60*60, '/magistraal/');
         }

@@ -99,7 +99,7 @@
 
             \Magister\Session::$tenantId = $token_data['tenant'] ?? null;
 
-            if(!$token_data) {
+            if(!isset($token_data) || empty($token_data)) {
                 \Magistraal\Response\error('token_invalid_not_found');
                 return false;
             }
@@ -155,8 +155,8 @@
             // Get token data
             $token_data = \Magistraal\Authentication\token_get($token_id, \Magister\Session::$checkTokenExpiry) ?? null;
 
-            // Overwrite $token_id since it might have changed
-            $token_id = $token_data['token_id'] ?? null;
+            // Update $token_id as it might have changed
+            $token_id = $token_data['token_id'] ?? $token_id;
 
             if(!isset($token_data) || empty($token_data)) {
                 // The token does not exist, return
@@ -164,7 +164,7 @@
             }
                 
             if(isset($token_data['access_token_expires']) && ($token_data['access_token_expires'] - 900) > time()) {
-                // Use the current token the access token won't expire soon
+                // Use the current token as the access token won't expire soon
                 $res_token_data = $token_data;
             } else {
                 // Update token data if the access token expires soon

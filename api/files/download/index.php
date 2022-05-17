@@ -25,5 +25,5 @@
     }
 
     // Print content (encoded)
-    echo($response['body']);
+    exit($response['body']);
 ?>

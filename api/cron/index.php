@@ -28,9 +28,6 @@
 
         $timestamp1 = \Magistraal\Debug\get_timestamp();
 
-        // Create user data row only if it doesn't exist
-        \Magistraal\Database\query("INSERT IGNORE INTO `magistraal_userdata` SET `user_uuid`=?", $token_data['user_uuid']);
-
         $timestamp2 = \Magistraal\Debug\get_timestamp();
         // Start session without checking if the token has expired
         if(!\Magister\Session::start($token_data['token_id'], false)) {
@@ -142,9 +139,8 @@
             \Magistraal\Debug\print_value('Canceled appointments', 1, count($changes['appointments']['new_items']));
             \Magistraal\Debug\print_value('Grades', 1, count($changes['grades']['new_items']));
             \Magistraal\Debug\print_value('Messages', 1, count($changes['messages']['new_items']));
+            echo("\n\n\n");
         }
-
-        echo("\n\n\n");
     }
 
     // Update status
