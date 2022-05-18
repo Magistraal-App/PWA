@@ -1,8 +1,4 @@
 <?php 
-    if(!isset($_COOKIE['dev'])) {
-        exit('Magistraal is tijdelijk buiten gebruik.');
-    }
-
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
     header('Content-Type: text/html;'); 
     define('ALLOW_EXIT', false);
