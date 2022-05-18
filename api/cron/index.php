@@ -81,7 +81,7 @@
                 } else if($category == 'appointments') {
                     $fcm_notification = [
                         'title' => sprintf('%de uur vervalt', $change['start']['lesson']),
-                        'body' => sprintf('%s vervalt het %de uur (%s).', (strtotime($change['start']['time']) - time() <= 86400 ? 'Vandaag' : 'Morgen'), $change['start']['lesson'], trim(implode(', ', $change['subjects'])))
+                        'body' => sprintf('%s vervalt het %de uur (%s).', (strtotime(date('d-m-Y', strtotime($change['start']['time']))) - time() <= 86400 ? 'Vandaag' : 'Morgen'), $change['start']['lesson'], trim(implode(', ', $change['subjects'])))
                     ];
                 } else if($category == 'grades') {
                     $fcm_notification = [
