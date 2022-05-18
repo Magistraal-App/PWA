@@ -601,7 +601,7 @@ const magistraal = {
 					'data-counts': grade.counts,
 					'data-exemption': grade.exemption,
 					'data-interesting': true,
-					'data-sufficient': grade.is_sufficient,
+					'data-sufficient': grade.value >= 5.5,
 					'data-search': `${grade['value_str']} ${grade['subject']['description']} ${grade['description']} ${enteredAt}`,
 					'data-value': grade.value,
 					'data-weight': grade.weight
@@ -637,6 +637,7 @@ const magistraal = {
 			let carousel = new responsiveCarousel('x');
 			let idsOfColumnsTypeAverages = [];
 			let averagesPerTerm = {};
+			let gradesPerTerm = {};
 
 			$.each(response.data, function(courseId, course) {
 				if(!course.active) {
@@ -652,79 +653,109 @@ const magistraal = {
 					idsOfColumnsTypeAverages[column.id] = true;
 				})
 
-				$.each(course.grades, function(i, grade) {
+				$.each(course.grades, function(i, average) {
 					// Ga verder als het kolomtype niet gelijk is aan gemiddelde
-					if(!isSet(idsOfColumnsTypeAverages[grade.column.id])) {
+					if(!isSet(idsOfColumnsTypeAverages[average.column.id])) {
 						return true;
 					}
 
-					// Ga verder als het cijfer niet geldig is
-					if(!isSet(grade.value)) {
+					// Ga verder als het gemiddelde niet geldig is
+					if(!isSet(average.value)) {
 						return true;
 					}
 
-					// Sla de cijfers op per periode
-					if(!isSet(averagesPerTerm[grade.term.id])) {
-						averagesPerTerm[grade.term.id] = [];
+					// Sla de gemiddelden op per periode
+					if(!isSet(averagesPerTerm[average.term.id])) {
+						averagesPerTerm[average.term.id] = [];
 					}
-					averagesPerTerm[grade.term.id].push(grade);
+					averagesPerTerm[average.term.id].push(average);
 				})
 
-				// Loop all averages
-				$.each(averagesPerTerm, function(termId, grades) {
+				// Ga alle perioden bijlangs
+				$.each(averagesPerTerm, function(termId, averages) {
 					// Maak een groep en stel de titel in
-					let $gradesGroup = magistraal.template.get('grades-group');
-					$gradesGroup.find('.grades-group-title').text(magistraal.locale.translate('grades.grade_term')+' '+grades[0].term.description);
+					let $averagesGroup = magistraal.template.get('grades-group');
+					$averagesGroup.find('.grades-group-title').text(magistraal.locale.translate('grades.grade_term')+' '+averages[0].term.description);
 
-					// Sorteer de cijfers op alfabetische volgorde van het vak
-					grades = grades.sort(function(a, b) {
+					// Sorteer de gemiddeldes op alfabetische volgorde van het vak
+					averages = averages.sort(function(a, b) {
 						return a.subject.description.localeCompare(b.subject.description);
 					})
+
+					let termGradesSum   = 0;
+					let termGradesCount = 0;
 					
-					$.each(grades, function(i, grade) {
-						let $grade             = magistraal.template.get('grade-overview-list-item');
-						let enteredAt          = magistraal.locale.formatDate(grade.entered_at, 'dFYHi');
-						const gradeDescription = magistraal.locale.translate('grades.grade_term_average')+' '+grade.term.description;
+					$.each(averages, function(i, average) {
+						// Tel gemiddelde op om het gemiddelde over alle vakken te berekenen
+						termGradesSum   += average.value;
+						termGradesCount += 1;
+						
+						const $average           = magistraal.template.get('grade-overview-list-item');
+						const enteredAt          = magistraal.locale.formatDate(average.entered_at, 'dFYHi');
+						const averageDescription = magistraal.locale.translate('grades.term_average')+' '+average.term.description;
 
-						$grade.find('.list-item-icon').text(grade.value_str);
-						$grade.find('.grade-subject').text(grade.subject.description);
-						$grade.find('.grade-description').text(gradeDescription);
-						$grade.find('.grade-sufficient').text(magistraal.locale.formatBoolean(grade.is_sufficient));
-						$grade.find('.grade-entered-at').text(enteredAt);
+						$average.find('.list-item-icon').text(average.value_str);
+						$average.find('.grade-subject').text(average.subject.description);
+						$average.find('.grade-description').text(averageDescription);
+						$average.find('.grade-sufficient').text(magistraal.locale.formatBoolean(average.value >= 5.5));
+						$average.find('.grade-entered-at').text(enteredAt);
 
-						$grade.attr({
-							'data-counts': grade.counts,
-							'data-exemption': grade.exemption,
+						$average.attr({
+							'data-counts': average.counts,
+							'data-exemption': average.exemption,
 							'data-interesting': true,
-							'data-sufficient': grade.is_sufficient,
-							'data-search': `${grade.value_str} ${grade.subject.description} ${enteredAt}`,
-							'data-value': grade.value
+							'data-sufficient': average.value >= 5.5,
+							'data-search': `${average.value_str} ${average.subject.description} ${enteredAt}`,
+							'data-value': average.value
 						});
 
 						let sidebarFeed = {
-							'title': grade.subject.description,
-							'subtitle': gradeDescription,
+							'title': average.subject.description,
+							'subtitle': averageDescription,
 							'table': {
-								'grade.value': grade.value_str,
+								'grade.value': average.value_str,
 								'grade.entered_at': capitalizeFirst(enteredAt),
-								'grade.counts': magistraal.locale.formatBoolean(grade.counts),
-								'grade.exemption': magistraal.locale.formatBoolean(grade.exemption)
+								'grade.counts': magistraal.locale.formatBoolean(average.counts),
+								'grade.exemption': magistraal.locale.formatBoolean(average.exemption)
 							}
 						};
 
-						magistraal.sidebar.addFeed($grade, sidebarFeed);
+						magistraal.sidebar.addFeed($average, sidebarFeed);
 						
-						$grade.appendTo($gradesGroup);
+						$average.appendTo($averagesGroup);
 					})
+
+					// Toon gemiddelde over alle vakken
+					let termAverage = termGradesSum / termGradesCount;
+
+					const $average = magistraal.template.get('grade-overview-list-item-average');
+					$average.attr({
+						'data-interesting': false,
+						'data-sufficient': termAverage >= 5.5,
+						'data-value': termAverage
+					});
+					$average.find('.list-item-icon').text(termAverage.toFixed(1).toString().replace('.', ','));
+
+					$average.find('.grade-subject').text(magistraal.locale.translate('grades.term_average_total') + ' ' + averages[0].term.description);
+					$average.find('.grade-description').text(termGradesCount + ' ' + magistraal.locale.translate('grades.term_grades_amount'));
+
+					// Voeg gemiddelde toe aan groep
+					$average.appendTo($averagesGroup);
 					
 					// Voeg de groep toe aan de inhoud
-					carousel.addSlide($gradesGroup);
+					carousel.addSlide($averagesGroup);
 				})
 			})
 
 			magistraal.page.setContent(carousel.jQueryObject(), false, loadType);
 
 			carousel.updateIndicator(loadType.includes('final'));
+		},
+
+		paintCalculator: () => {
+			$listItem = magistraal.template.get('grade-calculator-list-item');
+
+			$listItem.clone(true).appendTo('main');
 		}
 	},
 
@@ -1545,6 +1576,7 @@ const magistraal = {
 				'appointments/list': magistraal.appointments.paintList,
 				'grades/list':       magistraal.grades.paintList,
 				'grades/overview':   magistraal.grades.paintOverview,
+				'grades/calculator': magistraal.grades.paintCalculator(),
 				'messages/list':     magistraal.messages.paintList,
 				'logout':            magistraal.logout.logout,
 				'settings/list':     magistraal.settings.paintList,

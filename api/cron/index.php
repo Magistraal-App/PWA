@@ -3,23 +3,23 @@
     define('ALLOW_EXIT', false);
     set_time_limit(7200);
 
-    if(!isset($_SERVER['HTTP_X_CRON_RUNNER_TOKEN']) || $_SERVER['HTTP_X_CRON_RUNNER_TOKEN'] != \Magistraal\Config\get('cron_runner_token')) {
+    if((!isset($_SERVER['HTTP_X_CRON_RUNNER_TOKEN']) || $_SERVER['HTTP_X_CRON_RUNNER_TOKEN'] != \Magistraal\Config\get('cron_runner_token')) && \Magistraal\Config\get('debugging') !== true) {
         exit();
     }
 
-    if(!isset($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] != \Magistraal\Config\get('cron_runner_ip')) {
+    if((!isset($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] != \Magistraal\Config\get('cron_runner_ip')) && \Magistraal\Config\get('debugging') !== true) {
         exit();
     }
 
-    echo('running');
+    echo("running\n");
 
     $microtime_start = microtime(true);
 
     // Get tokens per user_uuid
     $tokens = \Magistraal\Database\query("SELECT max(`token_expires`), `token_id`, `user_uuid`, `access_token_expires` FROM `magistraal_tokens` GROUP BY `user_uuid`");
 
-    $iso_from = date_iso(strtotime('today'));
-    $iso_to   = date_iso(strtotime($iso_from) + 86400);
+    $iso_from = date_iso(strtotime('today'));               // Start of today
+    $iso_to   = date_iso(strtotime($iso_from) + 86400 * 2); // Start of the day after tomorrow
 
     foreach ($tokens as $token_data) {
         if(!isset($token_data['token_id']) || empty($token_data['token_id']) || !isset($token_data['user_uuid']) || empty($token_data['user_uuid'])) {
@@ -39,46 +39,34 @@
         $timestamp3 = \Magistraal\Debug\get_timestamp();
 
         // Grab appointment ids, message ids and grade ids for this user_uuid
-        $userdata = \Magistraal\Database\query("SELECT `appointments`, `messages`, `grades` FROM `magistraal_userdata` WHERE `user_uuid`=?", $token_data['user_uuid']);
+        $notification_data = \Magistraal\Database\query("SELECT `notification_data` FROM `magistraal_userdata` WHERE `user_uuid`=?", [$token_data['user_uuid']])[0]['notification_data'] ?? null;
         
         $timestamp4 = \Magistraal\Debug\get_timestamp();
 
-        // Set default if userdata was not found
-        if(!isset($userdata) || !is_array($userdata) || empty($userdata)) {
-            $userdata = [
-                'appointments' => null,
-                'messages' => null,
-                'grades' => null
-            ];
-        } else {
-            $userdata = array_values($userdata)[0];
-        }
 
-        // Decode userdata
-        foreach ($userdata as &$entry) {
-            $entry = @json_decode($entry, true) ?? [];;
-        }
+        // Decode notification data
+        $notification_data = json_decode($notification_data, true) ?? ['appointments' => [], 'grades' => [], 'messages' => []];
 
         $timestamp5 = \Magistraal\Debug\get_timestamp();
 
-        // Find new appointments, grades and messages
+        // Search for new appointments, grades and messages
         $changes = [
-            'appointments' => \Magistraal\Cron\Appointments\find_changes($userdata['appointments'] ?? [], $iso_from, $iso_to),
-            'grades'       => \Magistraal\Cron\Grades\find_changes($userdata['grades'] ?? []),
-            'messages'     => \Magistraal\Cron\Messages\find_changes($userdata['messages'] ?? [])
+            'appointments' => \Magistraal\Cron\Appointments\find_changes($notification_data['appointments'] ?? [], $iso_from, $iso_to),
+            'grades'       => \Magistraal\Cron\Grades\find_changes($notification_data['grades'] ?? []),
+            'messages'     => \Magistraal\Cron\Messages\find_changes($notification_data['messages'] ?? [])
         ];
 
-        // Get new databse values
-        $new_userdata = [
-            'appointments' => json_encode($changes['appointments']['new_entry']),
-            'grades'       => json_encode($changes['grades']['new_entry']),
-            'messages'     => json_encode($changes['messages']['new_entry'])
-        ];
+        // Get new notication data
+        $new_notification_data = json_encode([
+            'appointments' => $changes['appointments']['new_entry'],
+            'grades'       => $changes['grades']['new_entry'],
+            'messages'     => $changes['messages']['new_entry']
+        ]);
 
         $timestamp6 = \Magistraal\Debug\get_timestamp();
 
-        // Store the new values
-        \Magistraal\Database\query("UPDATE `magistraal_userdata` SET `appointments`=?, `grades`=?, `messages`=? WHERE `user_uuid`=?", [$new_userdata['appointments'], $new_userdata['grades'], $new_userdata['messages'], $token_data['user_uuid']]);
+        // Store the new notification data
+        \Magistraal\Database\query("UPDATE `magistraal_userdata` SET `notification_data`=? WHERE `user_uuid`=?", [$new_notification_data, $token_data['user_uuid']]);
 
         $timestamp7 = \Magistraal\Debug\get_timestamp();
 
@@ -93,7 +81,7 @@
                 } else if($category == 'appointments') {
                     $fcm_notification = [
                         'title' => sprintf('%de uur vervalt', $change['start']['lesson']),
-                        'body' => sprintf('Vandaag vervalt het %de uur (%s).', $change['start']['lesson'], trim(implode(', ', $change['subjects'])))
+                        'body' => sprintf('%s vervalt het %de uur (%s).', (strtotime($change['start']['time']) - time() <= 86400 ? 'Vandaag' : 'Morgen'), $change['start']['lesson'], trim(implode(', ', $change['subjects'])))
                     ];
                 } else if($category == 'grades') {
                     $fcm_notification = [

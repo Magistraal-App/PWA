@@ -1,4 +1,8 @@
 <?php 
+    if(!isset($_COOKIE['dev'])) {
+        exit('Magistraal is tijdelijk buiten gebruik.');
+    }
+
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
     header('Content-Type: text/html;'); 
     define('ALLOW_EXIT', false);
@@ -113,7 +117,7 @@
             <i class="fal fa-arrow-left"></i>
         </button>
         <h2 data-magistraal="page-title" class="col px-1"></h2>
-        <div class="ml-auto d-flex flex-row col col-md-6 col-lg-8 col-xl-6 px-0" data-magistraal="header-items">
+        <div class="ml-auto d-flex flex-row col col-md-8 col-lg-8 col-xl-7 px-0" data-magistraal="header-items">
             <div class="page-search-wrapper w-100">
                 <input type="text" name="page-search" data-translation="generic.action.search" data-magistraal="page-search" data-magistraal-search-target="main" class="form-control">
             </div>
@@ -238,13 +242,11 @@
                     <span class="col-9 col-sm-6 col-md-7 col-lg-5 text-ellipsis px-1 grade-subject"></span>
                     <span class="col-3 col-sm-2 col-md-2 col-lg-3 text-ellipsis px-1" data-translation="grades.grade.info.weight"></span>
                     <span class="col-4 col-sm-4 col-md-3 col-lg-4 text-ellipsis px-1 d-none d-sm-block" data-translation="grades.grade.info.entered_at"></span>
-                    <!-- <div class="d-none d-lg-block px-1  col-lg-2 text-ellipsis" data-translation="grades.grade.info.subject_average"></div> -->
                 </div>
                 <div class="list-item-content mx-n1 text-muted">
                     <div class="col-9 col-sm-6 col-md-7 col-lg-5 grade-description text-ellipsis px-1"></div>
                     <div class="col-3 col-sm-2 col-md-2 col-lg-3 grade-weight text-ellipsis px-1"></div>
                     <div class="col-4 col-sm-4 col-md-3 col-lg-4 grade-entered-at text-ellipsis px-1 d-none d-sm-block"></div>
-                    <!-- <div class="d-none d-lg-block px-1  col-lg-2 grade-subject-average text-ellipsis"></div> -->
                 </div>
             </div>
 
@@ -254,31 +256,29 @@
                 <div class="list-item-title mx-n1">
                     <span class="col-9 col-sm-6 col-md-7 col-lg-5 text-ellipsis px-1 grade-subject"></span>
                     <span class="col-5 col-sm-6 col-md-5 col-lg-7 text-ellipsis px-1 d-none d-sm-block" data-translation="grades.grade.info.entered_at"></span>
-                    <!-- <div class="d-none d-lg-block px-1  col-lg-2 text-ellipsis" data-translation="grades.grade.info.subject_average"></div> -->
                 </div>
                 <div class="list-item-content mx-n1 text-muted">
                     <div class="col-9 col-sm-6 col-md-7 col-lg-5 grade-description text-ellipsis px-1"></div>
                     <div class="col-5 col-sm-6 col-md-5 col-lg-7 grade-entered-at text-ellipsis px-1 d-none d-sm-block"></div>
-                    <!-- <div class="d-none d-lg-block px-1  col-lg-2 grade-subject-average text-ellipsis"></div> -->
                 </div>
             </div>
 
-            <!-- Grade overview subject -->
-            <div data-magistraal-template="grade-overview-subject" class="grade-overview-subject text-ellipsis"></div>
-
-             <!-- Grade overview main row -->
-            <div data-magistraal-template="grade-overview-main-row" class="grade-overview-main-row d-flex flex-row flex-nowrap"></div>
-
-            <!-- Grade overview term header -->
-            <div data-magistraal-template="grade-overview-term" class="grade-overview-term">
-                <span class="grade-overview-term-header"></span>
-                <div class="grade-overview-term-columns"></div>
+            <!-- Grade overview list item average -->
+            <div data-magistraal-template="grade-overview-list-item-average" tabindex="0" class="grade-overview-list-item grade-overview-list-item-average list-item">
+                <div class="grade-value list-item-icon font-heading"></div>
+                <div class="list-item-title mx-n1">
+                    <span class="col-9 col-sm-6 col-md-7 col-lg-5 text-ellipsis px-1 grade-subject"></span>
+                </div>
+                <div class="list-item-content mx-n1 text-muted">
+                    <div class="col-9 col-sm-6 col-md-7 col-lg-5 grade-description text-ellipsis px-1"></div>
+                </div>
             </div>
 
-            <!-- Grade overview column -->
-            <div data-magistraal-template="grade-overview-term-column" class="grade-overview-term-column">
-                <span class="grade-overview-term-column-name"></span>
-            </div>
+            <!-- Grade calculator list item -->
+            <!-- <div data-magistraal-template="grade-calculator-list-item">
+                <input type="text" data-translation="grades.calculator.weight">
+                <input type="text" data-translation="grades.calculator.grade">
+            </div> -->
 
         <!-- MESSAGES -->
             <!-- List item -->
@@ -351,20 +351,38 @@
 
             <!-- Grades list -->
             <div data-magistraal-template="page-buttons-grades/list">
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/calculator'});">
+                    <i class="btn-icon fal fa-calculator-alt"></i>
+                    <span class="btn-text" data-translation="grades.calculator" ></span>
+                </button>
                 <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/overview'});">
-                    <i class="btn-icon fal fa-table"></i>
+                    <i class="btn-icon fal fa-columns"></i>
                     <span class="btn-text" data-translation="grades.overview" ></span>
                 </button>
-                <!-- <button class="btn btn-secondary" data-translation="grades.to_grade_calculator"></button> -->
             </div>
 
-            <!-- Grade overview -->
+            <!-- Grades overview -->
             <div data-magistraal-template="page-buttons-grades/overview">
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/calculator'});">
+                    <i class="btn-icon fal fa-calculator-alt"></i>
+                    <span class="btn-text" data-translation="grades.calculator" ></span>
+                </button>
                 <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/list'});">
                     <i class="btn-icon fal fa-list"></i>
                     <span class="btn-text" data-translation="grades.list" ></span>
                 </button>                
-                <!-- <button class="btn btn-secondary" data-translation="grades.to_grade_calculator"></button> -->
+            </div>
+
+            <!-- Grades calculator -->
+            <div data-magistraal-template="page-buttons-grades/calculator">
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/list'});">
+                    <i class="btn-icon fal fa-list"></i>
+                    <span class="btn-text" data-translation="grades.list" ></span>
+                </button>      
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/overview'});">
+                    <i class="btn-icon fal fa-columns"></i>
+                    <span class="btn-text" data-translation="grades.overview" ></span>
+                </button>
             </div>
 
             <!-- Messages -->

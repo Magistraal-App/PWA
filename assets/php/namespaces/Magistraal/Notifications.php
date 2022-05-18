@@ -66,16 +66,25 @@
                     'registration_ids' => is_array($to) ? $to : [$to],
                     'data' => $notification,
                     'android' => [
-                        'ttl' => $time_to_live.'s'
+                        'ttl' => $time_to_live.'s',
+                        'priority' => 'high'
+                    ],
+                    'apns' => [
+                        'headers' => [
+                            'apns-priority' => 10
+                        ]
                     ],
                     'webpush' => [
                         'headers' => [
-                            'TTL' => $time_to_live
+                            'TTL' => $time_to_live,
+                            'Urgency' => 'high'
                         ]
                     ]
                 ],
                 'anonymous' => true
             ]);
+
+            var_dump($res['body']);
         }
     }
 ?>

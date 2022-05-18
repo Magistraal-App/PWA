@@ -41,12 +41,6 @@ navigator.serviceWorker.register('../../firebase-messaging-sw.js').then(registra
         messaging.onMessage(payload => {
             console.log('[init-firebase.js] Received foreground message:', payload);
 
-            // Only show notifications is the PWA is installed
-            if (!window.matchMedia('(display-mode: standalone)').matches) {
-                console.log('Message was received, but PWA is not installed.');
-                return;
-            }
-
             if(!isSet(payload.data)) {
                 return;
             }

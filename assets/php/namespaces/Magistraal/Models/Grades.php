@@ -13,7 +13,6 @@
             'entered_at'    => $grade['ingevoerdOp'] ?? null,
             'exemption'     => $grade['heeftVrijstelling'],
             'make_up'       => $grade['moetInhalen'],
-            'is_sufficient' => $grade['isVoldoende'],
             'subject'       => [
                 'abbr'          => $grade['vak']['code'],
                 'description'   => $grade['vak']['omschrijving']
@@ -45,7 +44,6 @@
                 'abbr'          => $grade['Vak']['Afkorting'],
                 'description'   => $grade['Vak']['Omschrijving'] ?? ''
             ],
-            'is_sufficient' => $grade['IsVoldoende'] ?? null,
             'entered_by'    => $grade['IngevoerdDoor'] ?? '',
             'entered_at'    => $grade['DatumIngevoerd'] ?? date_iso(),
             'retake'        => $grade['Inhalen'] ?? null,

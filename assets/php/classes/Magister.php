@@ -275,7 +275,7 @@
         }
 
         public static function getUserInfo() {
-            $res = \Magistraal\Api\call(\Magister\Session::$domain.'/api/account?noCache=0');
+            $res = \Magistraal\Api\call(\Magister\Session::$domain.'/api/account');
             
             return [
                 /* User id */   $res['body']['Persoon']['Id'] ?? \Magistraal\Response\error('failed_to_obtain_user_id'),
