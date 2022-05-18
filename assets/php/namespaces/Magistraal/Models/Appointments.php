@@ -78,7 +78,6 @@
                 'lesson'            => $appointment['LesuurVan'] ?? 0
             ],  
             'status'           => \Magistraal\Appointments\remap_status($appointment['Status']) ?? 'unknown',
-            'status_code'      => $appointment['Status'] ?? 0,
             'subjects'         => array_column($appointment['Vakken'] ?? [], 'Naam') ?? [],
             'teachers'         => array_column($appointment['Docenten'] ?? [], 'Naam') ?? [],
             'type'             => \Magistraal\Appointments\remap_type($appointment['Type']) ?? 'unknown'
@@ -213,8 +212,7 @@
             case 6: return 'in_use';         // In gebruik
             case 7: return 'finished';       // Afgesloten
             case 8: return 'used';           // Ingezet
-            case 9: return 'moved';          // Verplaatst
-            case 10: return 'changed_moved'; // Gewijzigd en verplaatst
+            case 9: return 'moved';          // Verplaatst case 10: return 'changed_moved'; // Gewijzigd en verplaatst
         }
 
         return 'unknown';
