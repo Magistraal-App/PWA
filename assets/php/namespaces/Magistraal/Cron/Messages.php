@@ -5,8 +5,8 @@
         $new_entry = $current_entry;
         $new_items = [];
 
-        // Load top 4 messages
-        $messages = \Magistraal\messages\get_all(4);
+        // Load top 3 messages
+        $messages = \Magistraal\messages\get_all(3);
 
         // Return if messages could not be loaded
         if(!isset($messages)) {
@@ -35,7 +35,7 @@
         }
 
         return [
-            'new_entry' => array_slice($new_entry, -2, 2, true),
+            'new_entry' => array_slice($new_entry, -3, 3, true),
             'new_items' => $new_items
         ];
     }

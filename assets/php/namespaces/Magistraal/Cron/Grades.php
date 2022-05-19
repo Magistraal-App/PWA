@@ -6,7 +6,7 @@
         $new_items = [];
 
         // Load top 2 grades
-        $grades = \Magistraal\Grades\get_all(2);
+        $grades = \Magistraal\Grades\get_all(3);
 
         // Return if grades could not be loaded
         if(!isset($grades)) {
@@ -30,7 +30,7 @@
         }
 
         return [
-            'new_entry' => array_slice($new_entry, -2, 2, true),
+            'new_entry' => array_slice($new_entry, -3, 3, true),
             'new_items' => $new_items
         ];
     }

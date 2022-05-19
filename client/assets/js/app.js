@@ -595,12 +595,6 @@ $(window).on('popstate', function (e) {
     magistraal.sidebar.close();
 });
 
-$(window).on('hashchange', function(e) {
-    magistraal.page.load({
-        page: magistraal.page.current()
-    });
-})
-
 // Forms moeten via Ajax gesubmit worden
 $(document).on('submit', 'form', function(e) {
     e.preventDefault();

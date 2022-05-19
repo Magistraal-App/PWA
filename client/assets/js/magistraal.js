@@ -297,6 +297,14 @@ const magistraal = {
 			magistraal.page.setContent(carousel.jQueryObject(), false, loadType);
 
 			carousel.updateIndicator(loadType.includes('final'));
+		},
+
+		selectYearHandler: (formData) => {
+			let yearTo   = parseInt(formData.year_to || 0);
+			let dateTo   = '31-07-'+yearTo;
+			let dateFrom = '01-08-'+(yearTo-1);
+
+			console.log(dateFrom, dateTo);
 		}
 	},
 
@@ -1501,10 +1509,11 @@ const magistraal = {
 
 	page: {
 		load: (parameters) => {
+			console.log(parameters);
 			if(!isSet(parameters.cachable))    { parameters.cachable = null; }
 			if(!isSet(parameters.data))        { parameters.data = {}; }
 			if(!isSet(parameters.page))        { return false; }
-			if(!isSet(parameters.source))      { parameters.source = null; }
+			if(!isSet(parameters.source))      { parameters.source = 'both'; }
 			if(!isSet(parameters.showBack))    { parameters.showBack = false; }
 			if(!isSet(parameters.unobtrusive)) { parameters.unobtrusive = false; }
 

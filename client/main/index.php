@@ -336,6 +336,15 @@
             </div>
         
         <!-- PAGE BUTTONS -->
+            <!-- Absences -->
+            <div data-magistraal-template="page-buttons-absences/list">
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.popup.open('absences_select_year');">
+                    <i class="btn-icon fal fa-calendar-star"></i>
+                    <span class="btn-text" data-translation="absences.select_year"></span>
+                </button>
+                <!-- <button class="btn btn-secondary disabled">Vandaag</button> -->
+            </div>
+        
             <!-- Appointments -->
             <div data-magistraal-template="page-buttons-appointments/list">
                 <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.popup.open('appointments_create_appointment');">
@@ -394,6 +403,52 @@
         </div>
     </div>
     <div data-magistraal="popups">
+        <!-- ABSENCES -->
+        <!-- Select year popup -->
+        <div data-magistraal-popup="absences_select_year" class="popup popup-small">
+            <form data-magistraal="form-absences_select_year">
+                <div class="popup-main">
+                    <h3 class="popup-title" data-translation="absences.popup.select_year.title"></h3>
+                    <div class="popup-item">
+                        <h5 class="popup-item-key">
+                            <span data-translation="absences.popup.select_year.item.year.title"></span>
+                        </h5>
+                        <div class="popup-item-value">
+                            <input type="text" name="year_to" class="input-search form-control" data-magistraal-search-target="absences-select_year-years">
+                            <script>
+                                // Add search results to input
+                                $(document).on('magistraal.ready', function() {
+                                    const $input = $('[data-magistraal-search-target="absences-select_year-years"]');
+
+                                    let results     = [];
+                                    let currentYear = parseInt(new Date().getFullYear());
+                                    
+                                    for (let i = currentYear; i > 2012; i--) {
+                                        results.push({
+                                            title: `${i-1}/${i}`,
+                                            value: i
+                                        });
+                                    }
+
+                                    $input.data('searchInput').results.set(results);
+                                })
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <div class="popup-footer">
+                    <button type="button" class="btn btn-danger btn-with-icon" data-popup-action="cancel">
+                        <i class="btn-icon fal fa-times-circle"></i>
+                        <span class="btn-text" data-translation="generic.action.cancel"></span>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-with-icon" data-popup-action="confirm" onclick="magistraal.absences.selectYearHandler($(this).parents('form').formSerialize());">
+                        <i class="btn-icon fal fa-check-circle"></i>
+                        <span class="btn-text" data-translation="generic.action.save"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
         <!-- APPOINTMENTS -->
         <!-- Create appointment popup -->
         <div data-magistraal-popup="appointments_create_appointment" class="popup">

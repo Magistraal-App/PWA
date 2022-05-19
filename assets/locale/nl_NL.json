@@ -70,6 +70,9 @@
     "generic.dialog.install_pwa.title": "Download de app",
     "generic.dialog.install_pwa.content": "Voor een betere ervaring raden we je aan om de app te gebruiken. Klik op 'Ja' om de app te downloaden, of klik op 'Nee' om dit scherm niet opnieuw te tonen.",
 
+    "absences.popup.select_year.title": "Kies een schooljaar",
+    "absences.popup.select_year.item.year.title": "Schooljaar",
+
     "appointments.popup.create_appointment.item.content.title": "Inhoud",
     "appointments.popup.create_appointment.item.date.title": "Datum",
     "appointments.popup.create_appointment.item.description.title": "Omschrijving",
