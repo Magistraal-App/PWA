@@ -720,8 +720,8 @@ textarea {
     max-width: 95vw;
 }
 
-.popup {
-    min-height: 20rem;
+.popup > form {
+    min-height: 20rem !important;
 }
 
 .popup.popup-small {
@@ -733,11 +733,10 @@ textarea {
 }
 
 .popup > form {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    min-height: 100%;
+    max-height: 100%;
+    min-width: 100%;
+    max-width: 100%;
     overflow: hidden;
     display: flex;
     flex-direction: column;
