@@ -147,6 +147,7 @@ const magistraal = {
 					success: function(response, textStatus, request) {
 						// Als de pagina niet meer hetzelfde is, verwerp de response
 						if(isSet(parameters.scope) && parameters.scope != magistraal.page.current()) {
+							console.log('diff scope!', parameters.scope, magistraal.page.current());
 							return;
 						}
 
@@ -297,14 +298,6 @@ const magistraal = {
 			magistraal.page.setContent(carousel.jQueryObject(), false, loadType);
 
 			carousel.updateIndicator(loadType.includes('final'));
-		},
-
-		selectYearHandler: (formData) => {
-			let yearTo   = parseInt(formData.year_to || 0);
-			let dateTo   = '31-07-'+yearTo;
-			let dateFrom = '01-08-'+(yearTo-1);
-
-			console.log(dateFrom, dateTo);
 		}
 	},
 
@@ -905,8 +898,6 @@ const magistraal = {
 		send: (message, $form = undefined) => {
 			magistraal.console.loading('console.loading.send_message');
 
-			console.log(message);
-
 			magistraal.api.call({
 				url: 'messages/send', 
 				data: message,
@@ -1260,7 +1251,6 @@ const magistraal = {
 		send: (message, type = 'success', duration = 1500) => {
 			message = magistraal.locale.translate(message, magistraal.locale.translate(`console.${type}.generic`, message));
 			let messageId = Date.now();
-			// console.log(`${type}: ${message}`);
 			let styles = {
 				'info': {
 					'icon': 'info-circle',
@@ -1509,21 +1499,18 @@ const magistraal = {
 
 	page: {
 		load: (parameters) => {
-			console.log(parameters);
-			if(!isSet(parameters.cachable))    { parameters.cachable = null; }
 			if(!isSet(parameters.data))        { parameters.data = {}; }
 			if(!isSet(parameters.page))        { return false; }
 			if(!isSet(parameters.source))      { parameters.source = 'both'; }
 			if(!isSet(parameters.showBack))    { parameters.showBack = false; }
 			if(!isSet(parameters.unobtrusive)) { parameters.unobtrusive = false; }
+			if(!isSet(parameters.cachable))    { parameters.cachable = (parameters.source != 'server_only'); }
 
 			if(parameters.page.includes('?')) {
 				// Query string is embedded in url, extract it
 				[parameters.page, parameters.data] = parameters.page.split('?');
 				parameters.data = Object.fromEntries(new URLSearchParams(parameters.data));
 			}
-
-			if(isSet(parameters.data.activity)) { delete parameters.data.activity; }
 
 			// Aanpassingen per pagina
 			switch(parameters.page) {
@@ -1542,7 +1529,7 @@ const magistraal = {
 		
 			// Sluit popup(s)
 			magistraal.popup.close();
-				
+
 			// Wijzig de URL
 			if(parameters.showBack) {
 				magistraal.page.pushState('backBtn', null, null);
@@ -1585,7 +1572,7 @@ const magistraal = {
 				'appointments/list': magistraal.appointments.paintList,
 				'grades/list':       magistraal.grades.paintList,
 				'grades/overview':   magistraal.grades.paintOverview,
-				'grades/calculator': magistraal.grades.paintCalculator(),
+				'grades/calculator': magistraal.grades.paintCalculator,
 				'messages/list':     magistraal.messages.paintList,
 				'logout':            magistraal.logout.logout,
 				'settings/list':     magistraal.settings.paintList,
@@ -1613,7 +1600,9 @@ const magistraal = {
 					}, 
 				}).then(response => {
 					resolve(response);
-				}).catch(() => {});
+				}).catch((err) => {
+					console.error(`Error loading page ${parameters.page}:`, err);
+				});
 			});
 		},
 
@@ -1646,7 +1635,7 @@ const magistraal = {
 			}
 		},
 
-		current: (ignoreQuery = false, ignoreActivity = true) => {
+		current: (ignoreQuery = false) => {
 			const page = trim(window.location.hash.substring(2), '/');
 			
 			if(ignoreQuery) {
@@ -1714,13 +1703,16 @@ const magistraal = {
 
 			$('body').attr('data-page', page);
 
+
 			// Verander url
 			if(currentHash != newHash) {
+				console.log('modifying location to', newHash, 'method=', method);
 				if(method == 'push') {
 					window.history.pushState(newHash, null, '#/' + newHash);
 				} else if(method == 'replace') {
 					window.history.replaceState(newHash, null, '#/' + newHash);
 				}
+				console.log('new hash:', window.location.hash);
 			}
 		}
 	},
@@ -1769,7 +1761,7 @@ const magistraal = {
 					this.$dialog.find('.dialog-title').text(this.parameters.title);
 					this.$dialog.find('.dialog-description').html(this.parameters.description);
 
-					window.history.pushState('preventDialogClose', null, null);
+					window.history.pushState('preventDialogClose', null, '?prevDialogClose');
 
 					this.$dialog.appendTo('body');
 					
@@ -1799,7 +1791,7 @@ const magistraal = {
 					return false;
 				}
 
-				window.history.go(-1);
+				window.history.back();
 				magistraal.element.get('dialog-backdrop').removeClass('show');
 
 				this.$dialog.removeClass('show');
@@ -2164,7 +2156,7 @@ const magistraal = {
 			}
 			
 			if(window.innerWidth < 768) {
-				magistraal.page.pushState('preventSidebarClose', null, null);
+				magistraal.page.pushState('preventSidebarClose', null, '?prevSidebarClose');
 			}
 
 			$('body').attr('data-sidebar-active', true);
@@ -2177,7 +2169,7 @@ const magistraal = {
 			}
 
 			if(goBack) {
-				window.history.go(-1);
+				window.history.back();
 			}
 
 			$('body').attr('data-sidebar-active', false);
@@ -2204,7 +2196,7 @@ const magistraal = {
 				return false;
 			}
 			
-			window.history.pushState('preventPopupClose', null, null);
+			window.history.pushState('preventPopupClose', null, '?prevPopupClose');
 
 			magistraal.element.get('popup-backdrop').addClass('show');
 			magistraal.popup.enable(selector);

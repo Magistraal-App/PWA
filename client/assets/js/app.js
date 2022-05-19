@@ -570,9 +570,11 @@ $(document).on('click', '[data-popup-action]', function(e) {
     
     switch(action) {
         case 'confirm':
+            console.log('confirm');
             magistraal.popup.close(popup);
             break;
         case 'cancel':
+            console.log('cancel!');
             magistraal.popup.close(popup, true, true);
             break;
     }
@@ -585,15 +587,26 @@ $(document).ready(function() {
 })
 
 $(window).on('popstate', function (e) {
+    console.log('popstate fired!');
     magistraal.page.back(false);
+    console.log('new hash 2:', window.location.hash);
 
     if($('.popup.show').length > 0) {
+        console.log('closing popup!');
         magistraal.popup.close(undefined, false, true);
         return;
     }
-       
+
+    console.log('closing sidebar');  
     magistraal.sidebar.close();
 });
+
+$(window).on('hashchange', function(e) {
+    console.log('hashchange to:', magistraal.page.current());
+    magistraal.page.load({
+        page: magistraal.page.current()
+    });
+})
 
 // Forms moeten via Ajax gesubmit worden
 $(document).on('submit', 'form', function(e) {
