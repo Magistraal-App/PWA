@@ -11,16 +11,12 @@
 <head>
     <title>Home | Magistraal</title>
 
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#000000">
-
-    <link rel="manifest" href="/magistraal/manifest.json" />
-    <link rel="icon" type="image/ico" href="/magistraal/client/favicon.ico">
-
     <?php echo(\Magistraal\Frontend\assetsHTML()); ?>
 
+    <script defer type="text/javascript" src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script defer type="text/javascript" src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
+    <script defer type="text/javascript" src="/magistraal/client/assets/js/firebase'.$infix.'.js?v='.$version.'"></script>
+    
     <script>
         // Werk de UI bij gebaseerd op de instellingen van de gebruiker
         magistraal.settings.updateClient(<?php echo(json_encode(\Magistraal\User\Settings\get_all(\Magister\Session::$userUuid ?? null))); ?>);

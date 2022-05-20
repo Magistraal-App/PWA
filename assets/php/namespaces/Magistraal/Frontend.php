@@ -21,7 +21,24 @@
         //$infix      = ($production === false ? '' : '.min');
         $infix = '';
 
-        return '
+        return '   
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+            <meta name="theme-color" content="#000000">
+
+            <link rel="manifest" href="/magistraal/manifest.json" />
+            <link rel="icon" type="image/ico" href="/magistraal/client/assets/images/app/icons/favicon.ico">
+            <link rel="apple-touch-icon" href="/magistraal/client/assets/images/app/icons/apple-touch-icon.png" />
+            <link rel="apple-touch-icon" sizes="57x57" href="/magistraal/client/assets/images/app/icons/apple-touch-icon-57x57.png" />
+            <link rel="apple-touch-icon" sizes="72x72" href="/magistraal/client/assets/images/app/icons/apple-touch-icon-72x72.png" />
+            <link rel="apple-touch-icon" sizes="76x76" href="/magistraal/client/assets/images/app/icons/apple-touch-icon-76x76.png" />
+            <link rel="apple-touch-icon" sizes="114x114" href="/magistraal/client/assets/images/app/icons/apple-touch-icon-114x114.png" />
+            <link rel="apple-touch-icon" sizes="120x120" href="/magistraal/client/assets/images/app/icons/apple-touch-icon-120x120.png" />
+            <link rel="apple-touch-icon" sizes="144x144" href="/magistraal/client/assets/images/app/icons/apple-touch-icon-144x144.png" />
+            <link rel="apple-touch-icon" sizes="152x152" href="/magistraal/client/assets/images/app/icons/apple-touch-icon-152x152.png" />
+            <link rel="apple-touch-icon" sizes="180x180" href="/magistraal/client/assets/images/app/icons/apple-touch-icon-180x180.png" />
+
             <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/bootstrap.min.css?v='.$version.'">
             <link rel="stylesheet" type="text/css" href="/magistraal/client/assets/css/app'.$infix.'.css?v='.$version.'">
 
@@ -41,9 +58,6 @@
             <script type="text/javascript" src="/magistraal/client/assets/js/jquery.min.js?v='.$version.'"></script>
             <script type="text/javascript" src="/magistraal/client/assets/js/app'.$infix.'.js?v='.$version.'"></script>
             <script type="text/javascript" src="/magistraal/client/assets/js/magistraal'.$infix.'.js?v='.$version.'"></script>
-            <script defer type="text/javascript" src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-            <script defer type="text/javascript" src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
-            <script defer type="text/javascript" src="/magistraal/client/assets/js/firebase'.$infix.'.js?v='.$version.'"></script>
             
             <script>
                 if(\'serviceWorker\' in navigator) {
