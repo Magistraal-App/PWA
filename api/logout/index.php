@@ -1,10 +1,9 @@
 <?php 
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
-    \Magister\Session::start();
     
-    if(\Magistraal\Authentication\token_delete(\Magister\Session::$tokenId)) {
-        \Magistraal\Response\success();
+    if(isset($_COOKIE['magistraal-authorization'])) {
+        \Magistraal\Authentication\token_delete($_COOKIE['magistraal-authorization']);
     }
 
-    \Magistraal\Response\error();
+    \Magistraal\Response\success();
 ?>
