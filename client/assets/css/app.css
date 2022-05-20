@@ -614,6 +614,7 @@ textarea {
 .appointment-list-item[data-finished="true"] {
     --list-item-action-background: var(--success);
     --list-item-action-border: var(--success);
+    --list-item-action-color: var(--text-inverse);
     --list-item-icon-background: var(--success);
 }
 
