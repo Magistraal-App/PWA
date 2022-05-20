@@ -36,7 +36,7 @@
                 [$access_token, $args['access_token_expires'], $refresh_token, $token_id]
             );
         } else {
-            $token_id      = \Magistraal\Authentication\random_token_id(8);
+            $token_id      = \Magistraal\Authentication\random_token_id(128);
             $token_expires = time() + 2700; // Token will expire in 45 minutes
 
             $res = \Magistraal\Database\query(

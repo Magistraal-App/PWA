@@ -337,13 +337,13 @@
         
         <!-- PAGE BUTTONS -->
             <!-- Absences -->
-            <!-- <div data-magistraal-template="page-buttons-absences/list">
+            <div data-magistraal-template="page-buttons-absences/list">
                 <button class="btn btn-secondary btn-with-icon" onclick="magistraal.popup.open('absences_select_year');">
                     <i class="btn-icon fal fa-calendar-star"></i>
                     <span class="btn-text" data-translation="absences.select_year"></span>
                 </button>
-                <button class="btn btn-secondary disabled">Vandaag</button>
-            </div> -->
+                <!-- <button class="btn btn-secondary disabled">Vandaag</button> -->
+            </div>
         
             <!-- Appointments -->
             <div data-magistraal-template="page-buttons-appointments/list">
@@ -356,10 +356,10 @@
 
             <!-- Grades list -->
             <div data-magistraal-template="page-buttons-grades/list">
-                <!-- <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/calculator'});">
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/calculator'});">
                     <i class="btn-icon fal fa-calculator-alt"></i>
                     <span class="btn-text" data-translation="grades.calculator" ></span>
-                </button> -->
+                </button>
                 <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/overview'});">
                     <i class="btn-icon fal fa-columns"></i>
                     <span class="btn-text" data-translation="grades.overview" ></span>
@@ -368,10 +368,10 @@
 
             <!-- Grades overview -->
             <div data-magistraal-template="page-buttons-grades/overview">
-                <!-- <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/calculator'});">
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/calculator'});">
                     <i class="btn-icon fal fa-calculator-alt"></i>
                     <span class="btn-text" data-translation="grades.calculator" ></span>
-                </button> -->
+                </button>
                 <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/list'});">
                     <i class="btn-icon fal fa-list"></i>
                     <span class="btn-text" data-translation="grades.list" ></span>
@@ -405,7 +405,7 @@
     <div data-magistraal="popups">
         <!-- ABSENCES -->
         <!-- Select year popup -->
-        <!-- <div data-magistraal-popup="absences_select_year" class="popup popup-small">
+        <div data-magistraal-popup="absences_select_year" class="popup popup-small">
             <form data-magistraal="form-absences_select_year">
                 <div class="popup-main">
                     <h3 class="popup-title" data-translation="absences.popup.select_year.title"></h3>
@@ -441,13 +441,13 @@
                         <i class="btn-icon fal fa-times-circle"></i>
                         <span class="btn-text" data-translation="generic.action.cancel"></span>
                     </button>
-                    <button type="button" class="btn btn-secondary btn-with-icon" data-popup-action="confirm" onclick="magistraal.absences.selectYearHandler($(this).parents('form').formSerialize());">
+                    <button type="button" class="btn btn-secondary btn-with-icon" data-popup-action="confirm">
                         <i class="btn-icon fal fa-check-circle"></i>
                         <span class="btn-text" data-translation="generic.action.save"></span>
                     </button>
                 </div>
             </form>
-        </div> -->
+        </div>
 
         <!-- APPOINTMENTS -->
         <!-- Create appointment popup -->

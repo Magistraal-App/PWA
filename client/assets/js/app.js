@@ -240,28 +240,41 @@ class responsiveCarousel {
             return;
         }
 
-        this.direction = direction;
-        this.$carousel = $(`<div class="responsive-carousel scrollbar-hidden" data-carousel-direction="${direction}"></div>`);
+        this.direction    = direction;
+        this.$carousel    = $(`<div class="responsive-carousel scrollbar-hidden" data-carousel-direction="${direction}"><div class="responsive-carousel-header" style="display: none;"><div class="responsive-carousel-header-items d-flex flex-row"></div></div><div class="responsive-carousel-body scrollbar-hidden"></div></div>`);
+        this.$header      = this.$carousel.find('.responsive-carousel-header');
+        this.$headerItems = this.$header.find('.responsive-carousel-header-items');
+        this.$body        = this.$carousel.find('.responsive-carousel-body');
 
-        this.$carousel.on('scroll', (e) => { this.scrollCallback(e); })
+        this.$body.on('scroll', (e) => { this.scrollCallback(e); })
 
         return this;
     }
 
-    addSlide($el) {
+    addSlide($el, title) {
         let $slide = $el.clone(true);
         $slide.wrap('<div class="responsive-carousel-slide scrollbar-hidden"></div>');
-        $slide.parent().appendTo(this.$carousel);
+        $slide.parent().appendTo(this.$body);
+
+        // this.$headerItems.append('<span class="responsive-carousel-header-item">EE</span>');
 
         return this;
+    }
+
+    showHeader() {
+        this.$header.css('display', '');
+    }
+
+    hideHeader() {
+        this.$header.hide();
     }
 
     getSlideCount() {
-        return this.$carousel.find('.responsive-carousel-slide').length;
+        return this.$body.find('.responsive-carousel-slide').length;
     }
 
     setSlideIndex(index) {
-        const $slide = this.$carousel.find(`.responsive-carousel-slide:nth-child(${index + 1})`);
+        const $slide = this.$body.find(`.responsive-carousel-slide:nth-child(${index + 1})`);
 
         if($slide.length == 0) {
             return this;
@@ -269,14 +282,14 @@ class responsiveCarousel {
 
         console.log($slide.find('h4').first().text());
         
-        this.direction == 'x' ? this.$carousel.scrollLeft($slide.position().left) : this.$carousel.scrollTop($slide.position().top);
+        this.direction == 'x' ? this.$body.scrollLeft($slide.position().left) : this.$body.scrollTop($slide.position().top);
 
         return this;
     }
 
     getSlideIndex() {
-        const scrollPos    = this.direction == 'x' ? this.$carousel.scrollLeft() : this.$carousel.scrollTop();
-        const maxScrollPos = this.direction == 'x' ? this.$carousel.get(0).scrollWidth : this.$carousel.get(0).scrollHeight;
+        const scrollPos    = this.direction == 'x' ? this.$body.scrollLeft() : this.$body.scrollTop();
+        const maxScrollPos = this.direction == 'x' ? this.$body.get(0).scrollWidth : this.$body.get(0).scrollHeight;
         const slideCount   = this.getSlideCount();
 
         return Math.round((scrollPos / maxScrollPos) * slideCount);
@@ -562,12 +575,11 @@ $(document).on('click', '[data-magistraal="popup-backdrop"]', function(e) {
 })
 
 $(document).on('click', '[data-popup-action]', function(e) {
-    e.preventDefault();
-
     let $button = $(this);
     let action  = $button.attr('data-popup-action');
     let popup   = $button.parents('[data-magistraal-popup]').first().attr('data-magistraal-popup');
     
+    console.log('closing popup!');
     switch(action) {
         case 'confirm':
             console.log('confirm');
@@ -587,25 +599,27 @@ $(document).ready(function() {
 })
 
 $(window).on('popstate', function (e) {
-    console.log('popstate fired!');
+    console.log('popState!');
     magistraal.page.back(false);
-    console.log('new hash 2:', window.location.hash);
 
     if($('.popup.show').length > 0) {
-        console.log('closing popup!');
+        console.log('closing popup');
         magistraal.popup.close(undefined, false, true);
         return;
     }
 
-    console.log('closing sidebar');  
+    console.log('closing sidebar');
     magistraal.sidebar.close();
 });
 
 $(window).on('hashchange', function(e) {
-    console.log('hashchange to:', magistraal.page.current());
+    console.log('hashChange!');
+
     magistraal.page.load({
         page: magistraal.page.current()
     });
+    
+
 })
 
 // Forms moeten via Ajax gesubmit worden

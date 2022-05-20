@@ -1049,6 +1049,40 @@ footer {
 
 @media(max-width: 767.98px) and (hover: none) {
     .responsive-carousel {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .responsive-carousel-header {
+        display: flex;
+        width: 100%;
+        background: var(--background);
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .responsive-carousel-header-items {
+        margin: 0 auto;
+        width: 80%;
+        flex-wrap: nowrap;
+        justify-content: center;
+    }
+
+    .responsive-carousel-header-item {
+        display: inline-block;
+        height: 1.75em;
+        width: 1.75em;
+        background: var(--primary);
+        text-align: center;
+        vertical-align: middle;
+        line-height: 1.75em;
+        border-radius: var(--border-radius);
+    }
+
+    .responsive-carousel-body {
         display: flex;
         flex-direction: var(--carousel-flex-direction);
         overflow: var(--carousel-overflow-x) var(--carousel-overflow-y) !important;
@@ -1060,14 +1094,14 @@ footer {
         margin: 0 calc(-1 * var(--MAIN-padding));
     }
 
-    .responsive-carousel[data-carousel-direction="x"] {
+    .responsive-carousel[data-carousel-direction="x"] .responsive-carousel-body {
         --carousel-flex-direction: row;
         --carousel-overflow-x: auto;
         --carousel-overflow-y: hidden;
         --carousel-direction: x;
     }
 
-    .responsive-carousel[data-carousel-direction="y"] {
+    .responsive-carousel[data-carousel-direction="y"] .responsive-carousel-body {
         --carousel-flex-direction: column;
         --carousel-overflow-y: auto;
         --carousel-overflow-x: hidden;
@@ -1084,13 +1118,13 @@ footer {
         position: relative;
     }
 
-    .responsive-carousel[data-carousel-direction="x"] > .responsive-carousel-slide {
+    .responsive-carousel[data-carousel-direction="x"] .responsive-carousel-slide {
         min-width: 100%;
         --carousel-slide-padding: 0 var(--MAIN-padding);
         --carousel-slide-flex-direction: column;
     }
 
-    .responsive-carousel[data-carousel-direction="y"] > .responsive-carousel-slide {
+    .responsive-carousel[data-carousel-direction="y"] .responsive-carousel-slide {
         min-height: 100%;
         --carousel-slide-padding: var(--MAIN-padding) 0;
         --carousel-slide-flex-direction: row;
