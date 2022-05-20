@@ -24,7 +24,7 @@
     foreach ($tokens as $token_data) {
         if(!isset($token_data['token_id']) || empty($token_data['token_id']) || !isset($token_data['user_uuid']) || empty($token_data['user_uuid'])) {
             continue;
-        }    
+        }
 
         $timestamp1 = \Magistraal\Debug\get_timestamp();
 
@@ -32,7 +32,7 @@
         // Start session without checking if the token has expired
         if(!\Magister\Session::start($token_data['token_id'], false)) {
             // Failed to start session, delete token and continue
-            \Magistraal\Database\query("DELETE FROM `magistraal_tokens` WHERE `token_id`=?", $token_data['token_id']);
+            \Magistraal\Authentication\token_delete($token_data['token_id']);
             continue;
         }
 
@@ -137,4 +137,6 @@
     \Magistraal\Status\set('notifications.new_appointments_count', 0);
     \Magistraal\Status\set('notifications.new_grades_count', 0);
     \Magistraal\Status\set('notifications.new_messages_count', 0);
+
+    echo('success');
 ?>

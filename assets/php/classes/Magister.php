@@ -429,11 +429,11 @@
         /* ============================ */
 
         public static function messageList($top = 1000) {
-            $res = @\Magistraal\Api\call(\Magister\Session::$domain.'/api/berichten/mappen/alle/');
-            $folders  = @$res['body']['items'];
+            $res = \Magistraal\Api\call(\Magister\Session::$domain.'/api/berichten/mappen/alle/');
+            $folders  = $res['body']['items'] ?? [];
            
-            $res = @\Magistraal\Api\call(\Magister\Session::$domain."{$folders[0]['links']['berichten']['href']}?top={$top}");
-            $messages = @$res['body']['items'];
+            $res = \Magistraal\Api\call(\Magister\Session::$domain."{$folders[0]['links']['berichten']['href']}?top={$top}");
+            $messages = $res['body']['items'] ?? [];
 
             return $messages;
         }
@@ -529,7 +529,7 @@
                 return [];
             }
 
-            return $response['body']['items'];
+            return $response['body']['items'] ?? [];
         }
 
         /* ============================ */

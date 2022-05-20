@@ -5,6 +5,10 @@
     define('LOG_ITEM_COLUMN_WIDTH', 28);
 
     function print_value($label, $level = 1, $value) {      
+        if(\Magistraal\Config\get('debugging') !== true) {
+            return;
+        }
+
         // Print indentation
         echo(str_repeat('    ', $level));
 
@@ -16,6 +20,10 @@
     }
 
     function print_heading($label, $level = 1, $columns = 1) {
+        if(\Magistraal\Config\get('debugging') !== true) {
+            return;
+        }
+
         $total_length = LOG_ITEM_LABEL_WIDTH + LOG_ITEM_COLUMN_WIDTH * $columns;
 
         // Print indentation
@@ -30,6 +38,10 @@
     }
 
     function print_timing($label, $level = 1, $start = null, $end = null, $total_start = 1, $total_end = 2) {
+        if(\Magistraal\Config\get('debugging') !== true) {
+            return;
+        }
+        
         // Print indentation
         echo(str_repeat('    ', $level));
 
