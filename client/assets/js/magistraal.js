@@ -53,7 +53,7 @@ const magistraalPersistentStorage = {
 	clear: (soft = false) => {
 		let magistraalItems = [];
 
-		console.log((soft ? 'Soft-clearing' : 'Hard-clearing') + ' cache!');
+		console.log((soft ? 'Soft-clearing' : 'Hard-clearing') + ' storage!');
 
 		for (let i = 0; i < localStorage.length; i++) {
 			let key = localStorage.key(i);

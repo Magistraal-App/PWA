@@ -409,6 +409,8 @@ textarea {
     font-size: 1.25rem;
     border-radius: var(--border-radius);
     transition: var(--animation-duration) background-color;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .list-item .list-item-title {

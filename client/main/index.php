@@ -356,10 +356,10 @@
 
             <!-- Grades list -->
             <div data-magistraal-template="page-buttons-grades/list">
-                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/calculator'});">
+                <!-- <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/calculator'});">
                     <i class="btn-icon fal fa-calculator-alt"></i>
                     <span class="btn-text" data-translation="grades.calculator" ></span>
-                </button>
+                </button> -->
                 <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/overview'});">
                     <i class="btn-icon fal fa-columns"></i>
                     <span class="btn-text" data-translation="grades.overview" ></span>
@@ -368,10 +368,10 @@
 
             <!-- Grades overview -->
             <div data-magistraal-template="page-buttons-grades/overview">
-                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/calculator'});">
+                <!-- <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/calculator'});">
                     <i class="btn-icon fal fa-calculator-alt"></i>
                     <span class="btn-text" data-translation="grades.calculator" ></span>
-                </button>
+                </button> -->
                 <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'grades/list'});">
                     <i class="btn-icon fal fa-list"></i>
                     <span class="btn-text" data-translation="grades.list" ></span>
