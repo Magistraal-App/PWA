@@ -18,8 +18,7 @@
     function assetsHTML() {
         $version    = str_replace('.', '-', \Magistraal\Config\get('version'));
         $production = \Magistraal\Config\get('production');
-        //$infix      = ($production === false ? '' : '.min');
-        $infix = '';
+        $infix      = ($production === false ? '' : '.min');
 
         return '   
             <meta charset="UTF-8">
