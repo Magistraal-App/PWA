@@ -12,10 +12,6 @@
     <title>Home | Magistraal</title>
 
     <?php echo(\Magistraal\Frontend\assetsHTML()); ?>
-
-    <script defer type="text/javascript" src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script defer type="text/javascript" src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
-    <script defer type="text/javascript" src="/magistraal/client/assets/js/firebase'.$infix.'.js?v='.$version.'"></script>
     
     <script>
         // Werk de UI bij gebaseerd op de instellingen van de gebruiker
