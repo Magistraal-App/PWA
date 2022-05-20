@@ -616,7 +616,7 @@ const magistraal = {
 					'data-counts': grade.counts,
 					'data-exemption': grade.exemption,
 					'data-interesting': true,
-					'data-sufficient': grade.value >= 5.5,
+					'data-sufficient': grade.is_sufficient,
 					'data-search': `${grade['value_str']} ${grade['subject']['description']} ${grade['description']} ${enteredAt}`,
 					'data-value': grade.value,
 					'data-weight': grade.weight
@@ -719,7 +719,7 @@ const magistraal = {
 							'data-counts': average.counts,
 							'data-exemption': average.exemption,
 							'data-interesting': true,
-							'data-sufficient': average.value >= 5.5,
+							'data-sufficient': average.is_sufficient,
 							'data-search': `${average.value_str} ${average.subject.description} ${enteredAt}`,
 							'data-value': average.value
 						});

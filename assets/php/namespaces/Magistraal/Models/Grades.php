@@ -6,6 +6,8 @@
     }
 
     function format($grade, $filter = []) {
+        $value_float = \Magistraal\Grades\grade_str_to_float($grade['waarde']);
+
         $formatted = [
             'column_id'     => $grade['kolomId'],
             'counts'        => $grade['teltMee'],
@@ -18,7 +20,8 @@
                 'description'   => $grade['vak']['omschrijving']
             ],
             'value_str'     => $grade['waarde'],
-            'value'         => \Magistraal\Grades\grade_str_to_float($grade['waarde']),
+            'value'         => $value_float,
+            'is_sufficient' => is_null($value_float) || $value_float >= 5.5,
             'weight'        => $grade['weegfactor']
         ];
 
