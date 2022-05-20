@@ -13,7 +13,7 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 - [ ] Maken: Meldingen op iOS via Pushcut
 - [ ] Maken: Afsprakenlijst datumkiezer
 - [ ] Maken: Afwezigheid alleen dit schooljaar tonen
-- [ ] Maken: Jaarkiezer bij afwezigeheid
+- [ ] Maken: Jaarkiezer bij afwezigheid
 - [x] ~~Fixen: Afsprakenlijst scroll gevoeligheid verlagen~~
 - [ ] Maken: 'Prullenbak' map bij berichtenpagina
 - [ ] Maken: 'Verzonden' map bij berichtenpagina
