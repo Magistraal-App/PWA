@@ -425,6 +425,26 @@
         }
 
         /* ============================ */
+        /*      Learning resources      */
+        /* ============================ */
+
+        public static function learningresourceList() {
+            $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId.'/lesmateriaal');
+
+            return $response['body']['Items'] ?? [];
+        }
+
+        public static function learningresourceGet($id) {
+            $response = \Magistraal\Browser\Browser::request(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/digitaallesmateriaal/Ean/{$id}?redirect_type=body", [
+                'redirects' => false
+            ]);
+
+            return [
+                'location' => $response['info']['url'] ?? null
+            ];
+        }
+
+        /* ============================ */
         /*           Messages           */
         /* ============================ */
 

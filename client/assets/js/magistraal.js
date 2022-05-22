@@ -97,7 +97,7 @@ const magistraal = {
 			if(!isSet(parameters.alwaysReturn))     { parameters.alwaysReturn = {}; }
 			if(!isSet(parameters.cacheMaxAge))      { parameters.cacheMaxAge = 3*24*60*60; }
 
-			console.log('new hash 3:', window.location.hash);
+			// console.log('new hash 3:', window.location.hash);
 
 			return new Promise((resolve, reject) => {
 				if(parameters.cachable) {
@@ -135,7 +135,7 @@ const magistraal = {
 					}
 				}
 
-				console.log('new hash 4:', window.location.hash);
+				// console.log('new hash 4:', window.location.hash);
 
 				// Stuur cookies mee
 				parameters.xhrFields.withCredentials = true;
@@ -149,7 +149,7 @@ const magistraal = {
 					xhrFields: parameters.xhrFields,
 					cache: false,
 					success: function(response, textStatus, request) {
-						console.log('new hash 5:', window.location.hash);
+						// console.log('new hash 5:', window.location.hash);
 						// Als de pagina niet meer hetzelfde is, verwerp de response
 						if(isSet(parameters.scope) && parameters.scope.trim() != magistraal.page.current().trim()) {
 							console.log('scope no match!', parameters.scope.trim(), magistraal.page.current().trim());
@@ -775,6 +775,68 @@ const magistraal = {
 	},
 
 	/* ============================ */
+	/*      Learning resources      */
+	/* ============================ */
+	learningresources: {
+		paintList: (response, loadType) => {
+			const $html = $('<div></div>');
+
+			$.each(response.data, function(i, learningResource) {
+				const $learningResource = magistraal.template.get('learning-resource');
+
+				$learningResource.find('.list-item-icon').html(`<i class="fal fa-school"></i>`);
+				$learningResource.find('.list-item-title').text(learningResource.description);
+				$learningResource.find('.list-item-content').text(learningResource.subject.description);
+
+				$learningResource.attr('data-search', learningResource.subject.description+' '+learningResource.description);
+
+				let sidebarFeed = {
+					title: learningResource.description,
+					subtitle: learningResource.subject.description,
+					table: {
+						'learningresource.ean': learningResource.id,
+					},
+					actions: {
+						open: {
+							handler: `magistraal.learningresources.open('${learningResource.id}')`,
+							icon: 'fal fa-external-link'
+						}
+					}
+				};
+				
+				// Voeg de sidebar feed toe aan het leermiddel
+				magistraal.sidebar.addFeed($learningResource, sidebarFeed);
+
+				// Voeg het leermiddel toe aan de inhoud
+				$learningResource.appendTo($html);
+			});
+
+			// Werk de inhoud bij
+			magistraal.page.setContent($html, true, loadType);
+		},
+
+		open: (id) => {
+			magistraal.console.loading();
+
+			// Haal meer informatie op over het leermiddel
+			magistraal.api.call({
+				url: 'learningresources/info',
+				data: {id: id},
+				source: 'server_only'
+			}).then(response => {
+				if(!isSet(response.data.location)) {
+					magistraal.console.error();
+					return;
+				}
+
+				magistraal.console.success();
+
+        		window.open(response.data.location, '_blank', 'noopener');
+			})
+		}
+	},
+
+	/* ============================ */
 	/*           Messages           */
 	/* ============================ */
 	messages: {
@@ -807,8 +869,8 @@ const magistraal = {
 				});
 
 				// Pictogram
-				const icon = message.read ? 'envelope-open' : 'envelope';
-				$message.find('.message-list-item-icon').html(`<i class="fal fa-${icon}"></i>`);
+				const icon = message.read ? 'fal fa-envelope-open' : 'fal fa-envelope';
+				$message.find('.message-list-item-icon').html(`<i class="${icon}"></i>`);
 
 				// Maak een sidebar feed
 				let sidebarFeed = {
@@ -1211,7 +1273,7 @@ const magistraal = {
 				
 				$source.find('.list-item-title').text(source.name);
 				$source.find('.list-item-content').text(description);
-				$source.find('.list-item-icon').html(`<i class="fal fa-${icon}"></i>`);
+				$source.find('.list-item-icon').html(`<i class="${icon}"></i>`);
 				$source.attr('data-search', source.name);
 
 				if(source.type == 'folder') {
@@ -1579,7 +1641,7 @@ const magistraal = {
 				magistraal.page.modifyLocation(parameters.page, parameters.data, 'push');
 			}
 
-			console.log('new hash 2', window.location.hash);
+			// console.log('new hash 2', window.location.hash);
 
 			// Verberg carousel indicator
 			const $carouselIndicator = magistraal.element.get('responsive-carousel-indicator');
@@ -1596,15 +1658,16 @@ const magistraal = {
 		get: (parameters) => {
 			// Lijst van callbacks
 			const callbacks = {
-				'absences/list':     magistraal.absences.paintList,
-				'appointments/list': magistraal.appointments.paintList,
-				'grades/list':       magistraal.grades.paintList,
-				'grades/overview':   magistraal.grades.paintOverview,
-				'grades/calculator': magistraal.grades.paintCalculator,
-				'messages/list':     magistraal.messages.paintList,
-				'logout':            magistraal.logout.logout,
-				'settings/list':     magistraal.settings.paintList,
-				'sources/list':      magistraal.sources.paintList
+				'absences/list':          magistraal.absences.paintList,
+				'appointments/list':      magistraal.appointments.paintList,
+				'grades/list':            magistraal.grades.paintList,
+				'grades/overview':        magistraal.grades.paintOverview,
+				'grades/calculator':      magistraal.grades.paintCalculator,
+				'learningresources/list': magistraal.learningresources.paintList,
+				'messages/list':          magistraal.messages.paintList,
+				'logout':                 magistraal.logout.logout,
+				'settings/list':          magistraal.settings.paintList,
+				'sources/list':           magistraal.sources.paintList
 			};
 
 			return new Promise((resolve, reject) => {
@@ -1617,7 +1680,7 @@ const magistraal = {
 
 				magistraal.console.loading('console.loading.refresh');
 
-				console.log('new hash x:', window.location.hash);
+				// console.log('new hash x:', window.location.hash);
 
 				magistraal.api.call({
 					url: parameters.page, 
@@ -1742,7 +1805,7 @@ const magistraal = {
 				} else if(method == 'replace') {
 					window.history.replaceState(newHash, null, '#/' + newHash);
 				}
-				console.log('new hash:', window.location.hash);
+				// console.log('new hash:', window.location.hash);
 			}
 		}
 	},
@@ -1860,8 +1923,10 @@ const magistraal = {
 					this.eventFocus(e);
 				});
 
-				this.$wrapper.on('focusout', e => {
-					this.eventFocusOut(e);
+				$(document).on('click', e => {
+					if(!$(e.target).closest('.input-wrapper').is(this.$wrapper)) {
+						this.eventFocusOut(e);
+					}
 				});
 
 				this.$input.on('magistraal.change', e => {
@@ -1877,8 +1942,11 @@ const magistraal = {
 				this.$inputGhost.addClass('focus');
 			}
 
+
 			eventFocusOut(e) {
-				this.$inputGhost.removeClass('focus');
+				setTimeout(() => {
+					this.$inputGhost.removeClass('focus');	
+				}, 1);
 			}
 
 			eventChange(e) {
@@ -1917,15 +1985,14 @@ const magistraal = {
 				this.$wrapper = this.$input.closest('.input-wrapper');
 				this.$wrapper.addClass('input-search-wrapper');
 				this.$results = $('<ul class="input-search-results"></ul>');
+				this.$results.append(`<li class="input-search-result">${magistraal.locale.translate('generic.search.no_matches')}</li>`);
 				this.$results.appendTo(this.$wrapper);
 				if(!this.$input.attr('placeholder')) {
 					this.$input.attr('placeholder', magistraal.locale.translate('generic.action.search'));
 				}
 
 				this.$wrapper.on('click', e => {
-					if($(e.target).closest('.input-search-results').length === 0) {
-						this.eventFocus(e);
-					}
+					this.eventFocus(e);
 				});
 
 				$(document).on('click', e => {
@@ -1955,20 +2022,22 @@ const magistraal = {
 			}
 
 			eventFocusOut(e) {
-				this.$wrapper.removeClass('active');
+				setTimeout(() => {
+					this.$wrapper.removeClass('active');	
+				}, 1);
 			}
 
 			eventInput(e) {
 				if(isSet(this.$input.attr('data-magistraal-search-api'))) {
 					// Fetch data from api
-					let api = this.$input.attr('data-magistraal-search-api');
-					let query = this.$input.val() || this.$input.text();
+					const api   = this.$input.attr('data-magistraal-search-api');
+					const query = this.$input.val() || this.$input.text();
 					magistraal.api.call({
 						url: `${api}/search`,
 						data: {query: query},
 						cachable: false
 					}).then(response => {
-						let results = magistraal.inputs.search.remap_api_response(api, response);
+						const results = magistraal.inputs.search.remap_api_response(api, response);
 						this.results.set(results);
 					}).catch(err => {
 						console.error(err);
@@ -2002,7 +2071,7 @@ const magistraal = {
 					this.$input.trigger('magistraal.change');
 				}
 			
-				this.$wrapper.removeClass('active');
+				this.eventFocusOut();
 			}
 			
 			results = {
@@ -2017,7 +2086,8 @@ const magistraal = {
 						}
 					});
 					
-					this.$results.html(html);
+					this.$results.find('.input-search-result[value]').remove();
+					this.$results.prepend(html);;
 				},
 
 				select: (value = undefined) => {
@@ -2334,6 +2404,8 @@ const magistraal = {
 	
 	mapping: {
 		icons: (category = '', selector = '') => {
+			selector = selector.toLowerCase();
+
 			switch(category) {
 				case 'file_icons':
 					if(selector == 'application/msword' || selector == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
@@ -2358,6 +2430,47 @@ const magistraal = {
 						return 'fal fa-folder';
 					} else {
 						return 'fal fa-file';
+					}
+
+				case 'subject_icons':
+					if(selector.includes('aard')) {                // Aardrijkskunde
+						return 'fal fa-globe-africa';
+					} else if(selector.includes('nederland')) {    // Nederlands
+						return 'fal fa-flower-tulip';
+					} else if(selector.includes('frans')) {        // Frans
+						return 'fal fa-wine-glass-alt';
+					} else if(selector.includes('engels')) {       // Engels
+						return 'fal fa-mug-tea';
+					} else if(selector.includes('duits')) {        // Duits
+						return 'fal fa-beer';
+					} else if(selector.includes('spaans')) {       // Spaans
+						return 'fal fa-skull-cow';
+					} else if(selector.includes('wis')) {          // Wiskunde
+						return 'fal fa-calculator-alt';
+					} else if(selector.includes('geschie')) {      // Geschiedenis
+						return 'fal fa-castle';
+					} else if(selector.includes('latijn')) {       // Latijn
+						return 'fal fa-helmet-battle';
+					} else if(selector.includes('grieks')) {       // Grieks
+						return 'fal fa-omega';
+					} else if(selector.includes('rekenen')) {      // Rekenen
+						return 'fal fa-abacus';
+					} else if(selector.includes('maatschap')) {    // Maatschappijleer
+						return 'fal fa-users';
+					} else if(selector.includes('licha')) {        // Lichamelijke opvoeding
+						return 'fal fa-running';
+					} else if(selector.includes('schei')) {        // Scheikunde
+						return 'fal fa-flask';
+					} else if(selector.includes('biol')) {         // Biologie
+						return 'fal fa-leaf';
+					} else if(selector.includes('natuur')) {       // Natuurkunde
+						return 'fal fa-atom';
+					} else if(selector.includes('bedrijfseco')) {  // Bedrijfseconomie
+						return 'fal fa-coins';
+					} else if(selector.includes('eco')) {          // Economie
+						return 'fal fa-coin';
+					} else {
+						return 'fal fa-school';
 					}
 			}
 

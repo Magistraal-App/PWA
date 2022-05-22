@@ -69,6 +69,10 @@
                 <i class="fal fa-folder"></i>
                 <span data-translation="generic.page.sources/list.title"></span>
             </li>
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'learningresources/list'});" data-magistraal="nav-item-learningresources">
+                <i class="fal fa-books"></i>
+                <span data-translation="generic.page.learningresources/list.title"></span>
+            </li>
             <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'studyguides'});" data-magistraal="nav-item-studyguides">
                 <i class="fal fa-map-signs"></i>
                 <span data-translation="generic.page.studyguides/list.title"></span>
@@ -268,6 +272,14 @@
                 <input type="text" data-translation="grades.calculator.grade">
             </div> -->
 
+        <!-- LEARNING RESOURCES -->
+            <!-- List item -->
+            <div data-magistraal-template="learning-resource" tabindex="0" class="learning-resource-list-item list-item" onclick="magistraal.sidebar.selectFeed($(this));">
+                <div class="list-item-icon font-heading"></div>
+                <p class="list-item-title"></p>
+                <span class="list-item-content text-muted"></span>
+            </div>
+
         <!-- MESSAGES -->
             <!-- List item -->
             <div data-magistraal-template="message-list-item" tabindex="0" class="message-list-item list-item list-item-flex" onclick="magistraal.sidebar.selectFeed($(this)); magistraal.messages.view($(this).attr('data-id'), ($(this).attr('data-read') == 'true' ? true : false));">
@@ -330,10 +342,10 @@
         <!-- PAGE BUTTONS -->
             <!-- Absences -->
             <div data-magistraal-template="page-buttons-absences/list">
-                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.popup.open('absences_select_year');">
+                <!-- <button class="btn btn-secondary btn-with-icon" onclick="magistraal.popup.open('absences_select_year');">
                     <i class="btn-icon fal fa-calendar-star"></i>
                     <span class="btn-text" data-translation="absences.select_year"></span>
-                </button>
+                </button> -->
                 <!-- <button class="btn btn-secondary disabled">Vandaag</button> -->
             </div>
         

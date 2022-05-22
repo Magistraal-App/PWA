@@ -32,6 +32,7 @@
     "generic.action.save": "Save",
     "generic.action.search": "Search...",
     "generic.action.send": "Send",
+    "generic.action.open": "Open",
 
     "generic.date_time_seperator": "at",
 
@@ -46,6 +47,7 @@
     "generic.page.grades/list.title": "Grades",
     "generic.page.grades/overview.title": "Grades",
     "generic.page.sources/list.title": "Files",
+    "generic.page.learningresources/list.title": "Education",
     "generic.page.studyguides/list.title": "Study guides",
     "generic.page.tasks/list.title": "Tasks",
     "generic.page.messages/list.title": "Messages",
@@ -70,6 +72,8 @@
     "generic.dialog.install_pwa.title": "Download the app",
     "generic.dialog.install_pwa.content": "For a better and more extensive experience, we recommend using the app. Install the app by clicking 'Yes', or click 'No' to not show this window again.",
     
+    "generic.search.no_matches": "No matches found.",
+
     "appointments.popup.create_appointment.item.content.title": "Content",
     "appointments.popup.create_appointment.item.date.title": "Date",
     "appointments.popup.create_appointment.item.description.title": "Description",
@@ -134,7 +138,7 @@
     "grades.grade.info.entered_at": "Entered on",
     "grades.grade.info.subject_average": "Average",
     "grades.grade.info.is_sufficient": "Sufficient",
-    "grades.grade_term_average": "Average grades of term",
+    "grades.term_average": "Average grades of term",
     "grades.grade_term": "Term",
     "grades.list": "All grades",
     "grades.overview": "Average grades",
@@ -180,7 +184,7 @@
     "settings.setting.appearance.theme.value.auto.title": "System",
     "settings.setting.appearance.theme.value.dark.title": "Dark",
     "settings.setting.appearance.theme.value.light.title": "Light",
-    "settings.setting.appearance.theme.value.silver.title": "Silver",
+    "settings.setting.appearance.theme.value.oled.title": "Oled",
     "settings.setting.notifications.absences.title": "Absences",
     "settings.setting.notifications.absences.value.off.title": "Disabled",
     "settings.setting.notifications.absences.value.on.title": "Enabled",
@@ -223,6 +227,7 @@
     "sidebar.table.info.grade.exemption": "Exemption",
     "sidebar.table.info.grade.value": "Grade",
     "sidebar.table.info.grade.weight": "Weight",
+    "sidebar.table.info.learningresource.ean": "Ean",
     "sidebar.table.info.message.bcc": "Bcc",
     "sidebar.table.info.message.cc": "Cc",
     "sidebar.table.info.message.content": "Content",

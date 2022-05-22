@@ -32,6 +32,7 @@
     "generic.action.send": "Verzenden",
     "generic.action.reply": "Beantwoorden",
     "generic.action.forward": "Doorsturen",
+    "generic.action.open": "Openen",
     
     "generic.date_time_seperator": "om",
 
@@ -46,6 +47,7 @@
     "generic.page.grades/list.title": "Cijfers",
     "generic.page.grades/overview.title": "Cijfers",
     "generic.page.sources/list.title": "Bronnen",
+    "generic.page.learningresources/list.title": "Leermiddelen",
     "generic.page.studyguides/list.title": "Studiewijzers",
     "generic.page.tasks/list.title": "Opdrachten",
     "generic.page.messages/list.title": "Berichten",
@@ -69,6 +71,8 @@
     "generic.dialog.ios_notifications_install_pushcut.content": "Om meldingen te ontvangen moet je de Pushcut: Shortcuts Automation app downloaden. Klik op 'Ja' om verder te gaan.<br><br>Je kunt dit later altijd nog aanpassen in de instellingen.",
     "generic.dialog.install_pwa.title": "Download de app",
     "generic.dialog.install_pwa.content": "Voor een betere ervaring raden we je aan om de app te gebruiken. Klik op 'Ja' om de app te downloaden, of klik op 'Nee' om dit scherm niet opnieuw te tonen.",
+
+    "generic.search.no_matches": "Geen resultaten gevonden.",
 
     "absences.popup.select_year.title": "Kies een schooljaar",
     "absences.popup.select_year.item.year.title": "Schooljaar",
@@ -185,7 +189,7 @@
     "settings.setting.appearance.theme.value.auto.title": "Systeem",
     "settings.setting.appearance.theme.value.dark.title": "Donker",
     "settings.setting.appearance.theme.value.light.title": "Licht",
-    "settings.setting.appearance.theme.value.silver.title": "Grijs",
+    "settings.setting.appearance.theme.value.oled.title": "Oled",
     "settings.setting.notifications.absences.title": "Afwezigheid",
     "settings.setting.notifications.absences.value.off.title": "Uit",
     "settings.setting.notifications.absences.value.on.title": "Aan",
@@ -228,6 +232,7 @@
     "sidebar.table.info.grade.exemption": "Vrijstelling",
     "sidebar.table.info.grade.value": "Cijfer",
     "sidebar.table.info.grade.weight": "Weging",
+    "sidebar.table.info.learningresource.ean": "Ean",
     "sidebar.table.info.message.bcc": "BCC",
     "sidebar.table.info.message.cc": "CC",
     "sidebar.table.info.message.content": "Inhoud",
