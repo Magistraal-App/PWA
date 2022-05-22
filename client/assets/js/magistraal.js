@@ -147,7 +147,7 @@ const magistraal = {
 					cache: false,
 					success: function(response, textStatus, request) {
 						// Als de pagina niet meer hetzelfde is, verwerp de response
-						if(isSet(parameters.scope) && parameters.scope.trim() != magistraal.page.current().trim()) {
+						if(parameters.inBackground !== true && isSet(parameters.scope) && parameters.scope.trim() != magistraal.page.current().trim()) {
 							console.log('scope no match!', parameters.scope.trim(), magistraal.page.current().trim());
 							return;
 						}
