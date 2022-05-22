@@ -10,7 +10,7 @@
     }
 
     function create($formatted) {
-        return \Magister\Session::appointmentCreate(\Magistraal\Appointments\unformat($formatted));
+        return \Magister\Session::appointmentCreate(\Magistraal\Appointments\deformat($formatted));
     }
 
     function delete($id) {
@@ -106,7 +106,7 @@
         return $formatted;
     }
 
-    function unformat($formatted) {
+    function deformat($formatted) {
         return [
             'Id'           => $formatted['id'] ?? 0,
             'Lokatie'      => $formatted['facility'] ?? '',

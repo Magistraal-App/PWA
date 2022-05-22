@@ -2,6 +2,7 @@
     namespace Magistraal\Tenants;
 
     function search($query) {
+        $query    = urlencode($query);
         $response = \Magistraal\Browser\Browser::request("https://accounts.magister.net/challenges/tenant/search?key={$query}");
         $result   = [];
 

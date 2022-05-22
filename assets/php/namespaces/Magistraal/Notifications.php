@@ -83,8 +83,6 @@
                 ],
                 'anonymous' => true
             ]);
-
-            var_dump($res['body']);
         }
     }
 ?>
