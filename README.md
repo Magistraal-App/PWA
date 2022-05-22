@@ -12,7 +12,7 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 - [ ] Maken: Pagina om berekeningen met cijfers uit te voeren
 - [ ] Maken: Meldingen op iOS via Pushcut
 - [ ] Maken: Afsprakenlijst datumkiezer
-- [ ] Maken: Afwezigheid alleen dit schooljaar tonen
+- [x] ~~Maken: Afwezigheid alleen dit schooljaar tonen~~
 - [ ] Maken: Jaarkiezer bij afwezigheid
 - [x] ~~Fixen: Afsprakenlijst scroll gevoeligheid verlagen~~
 - [ ] Maken: 'Prullenbak' map bij berichtenpagina
@@ -21,7 +21,7 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 - [ ] Maken: Ondersteuning voor KWT-uur
 - [ ] Maken: Mogelijkheid om afspraak in te plannen (op verzoek) bij andere Magistraal-gebruikers
 - [ ] Maken: Opdrachtenpagina
-- [ ] Fixen: Nieuwe instellingen worden pas toegepast als pagina voor de tweede keer wordt herladen
+- [x] ~~Fixen: Nieuwe instellingen worden pas toegepast als pagina voor de tweede keer wordt herladen~~
 - [ ] Maken: Leermiddelenpagina
 
 ---
