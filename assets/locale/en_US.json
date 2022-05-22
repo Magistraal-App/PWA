@@ -63,7 +63,7 @@
     "generic.file_type.image": "Image",
     "generic.file_type.audio": "Audio",
     "generic.file_type.video": "Video",
-    "generic.file_type.folder": "File folder",
+    "generic.file_type.folder": "Folder",
     "generic.file_type.pdf": "PDF file",
     "generic.file_type.archive": "Compressed file",
 

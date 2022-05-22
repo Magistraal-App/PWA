@@ -1688,8 +1688,9 @@ const magistraal = {
 					source: parameters.source,
 					cachable: parameters.cachable, 
 					callback: function(response, loadType, request, page) {
+						const listItemSelectedIndex = $('.list-item[data-interesting="true"][data-selected="true"]').index();
 						callback(response, loadType, request, page);
-						magistraal.page.getCallback(response, loadType, request, page);
+						magistraal.page.getCallback(response, loadType, request, page, listItemSelectedIndex);
 					}, 
 				}).then(response => {
 					resolve(response);
@@ -1699,9 +1700,9 @@ const magistraal = {
 			});
 		},
 
-		getCallback: (response, loadType, request, page) => {
-			// Selecteer eerste item in lijst
-			const $li_first = magistraal.element.get('main').find('.list-item[data-interesting="true"]').first();
+		getCallback: (response, loadType, request, page, listItemSelectedIndex = 0) => {
+			// Herselecteer item in lijst
+			const $li_first = magistraal.element.get('main').find(`.list-item[data-interesting="true"]:nth-child(${listItemSelectedIndex+1})`);
 			magistraalStorage.set('sidebar_locked', true);
 			$li_first.click();
 			magistraalStorage.set('sidebar_locked', false);	

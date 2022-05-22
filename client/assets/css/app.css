@@ -121,7 +121,7 @@ p:last-child {
 
 main {
     grid-area: main;
-    overflow: hidden auto !important;
+    overflow: hidden scroll !important;
     padding: var(--spacing-lg) var(--MAIN-padding);
     border-bottom: var(--border-width) solid var(--primary-border);
 }
