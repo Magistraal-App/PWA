@@ -4,17 +4,18 @@
     class Browser {
         public static $cookies = [];
 
-        public static function request($url, $options = []) {
+        public static function request($url, $options = [], $redirect_count = 0) {
             if((!isset($options['payload']) || empty($options['payload'])) && !isset($options['method'])) {
                 $options['method'] = 'get';
             }
 
             $options = array_replace([
-                'payload'   => [],
-                'method'    => 'post',
-                'cookie'    => \Magistraal\Browser\encode_cookie_header(\Magistraal\Browser\Browser::$cookies),
-                'anonymous' => false,
-                'redirects' => true
+                'payload'        => [],
+                'method'         => 'post',
+                'cookie'         => \Magistraal\Browser\encode_cookie_header(\Magistraal\Browser\Browser::$cookies),
+                'anonymous'      => false,
+                'redirects'      => true,
+                'redirects_max'  => 3
             ], $options);
 
             $options['headers'] = array_replace([
@@ -81,22 +82,33 @@
                 \Magistraal\Browser\Browser::$cookies[$cookie_key] = $cookie_data['value'];
             }
 
+            // If http code is 2xx ? true : false
+            $info['success'] = substr($info['http_code'], 0, 1) == '2' ? true : false;
+
             // Redirect
-            if($options['redirects'] != false && (isset($headers['location'])) || isset($body['location'])) {
+            if($options['redirects'] != false && isset($headers['location']) || isset($body['location'])) {
                 $new_url = $headers['location'] ?? $body['location'];
                 if(strpos($new_url, '/') === 0) { // Relative url on same domain
                     $new_url = parse_url($url, PHP_URL_SCHEME).'://'.parse_url($url, PHP_URL_HOST).$new_url;
                 }
 
-                return \Magistraal\Browser\Browser::request($new_url, $options);
+                $redirect_count+=1;
+
+                if($redirect_count >= $options['redirects_max']) {
+                    return [
+                        'headers' => $headers,
+                        'body'    => $body,
+                        'info'    => $info,
+                        'options' => $options
+                    ];
+                }
+
+                return \Magistraal\Browser\Browser::request($new_url, $options, $redirect_count);
             }
 
             if($info['http_code'] == '401') {
                 \Magistraal\Response\error('token_invalid');
             }
-
-            // If http code is 2xx ? true : false
-            $info['success'] = substr($info['http_code'], 0, 1) == '2' ? true : false;
 
             return [
                 'headers' => $headers,

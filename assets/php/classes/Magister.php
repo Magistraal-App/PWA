@@ -409,9 +409,11 @@
 
         public static function fileGetLocation($location) {
             $location = \Magister\Session::$domain.$location.'?redirect_type=body';
-            $location = \Magistraal\Browser\Browser::request($location)['body']['location'] ?? null;
+            $res = \Magistraal\Browser\Browser::request($location, [
+                'redirects_max' => 0
+            ]);
             
-            return $location;
+            return $res['body']['location'] ?? null;
         }
 
         /* ============================ */
