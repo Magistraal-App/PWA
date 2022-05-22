@@ -1,6 +1,6 @@
 # PWA
 ## Wat is Magistraal?
-Magistraal biedt leerlingen een betere en modernere manier om het administratie- en communicatiesysteem Magister van Iddink Group te gebruiken. Magistraal is een PWA (Progressive Web App), wat betekent dat het te gebruiken is als app, maar ook als [website](https://tjalling.net/magistraal/). Beide varianten zijn offline te gebruiken.
+Magistraal biedt leerlingen een betere en modernere manier om het administratie- en communicatiesysteem Magister van Iddink Group te gebruiken. Magistraal is een PWA (Progressive Web App), wat betekent dat het te gebruiken is als app, maar ook als [website](https://tjalling.net/magistraal/). De app heeft meer functionaliteiten dan de website, zoals notificaties en offlinebeschikbaarheid.
 
 ---
 
@@ -22,7 +22,7 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 - [ ] Maken: Mogelijkheid om afspraak in te plannen (op verzoek) bij andere Magistraal-gebruikers
 - [ ] Maken: Opdrachtenpagina
 - [x] ~~Fixen: Nieuwe instellingen worden pas toegepast als pagina voor de tweede keer wordt herladen~~
-- [ ] Maken: Leermiddelenpagina
+- [x] ~~Maken: Leermiddelenpagina~~
 
 ---
 
