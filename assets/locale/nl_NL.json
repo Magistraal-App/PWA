@@ -170,6 +170,7 @@
     "messages.write_message": "Nieuw",
 
     "settings.category.root.appearance.title": "Vormgeving",
+    "settings.category.root.data_usage.title": "Dataverbruik",
     "settings.category.root.notifications.title": "Meldingen",
     "settings.category.root.system.title": "Appinformatie",
     "settings.setting.appearance.animations.title": "Animaties en effecten",
@@ -190,6 +191,9 @@
     "settings.setting.appearance.theme.value.dark.title": "Donker",
     "settings.setting.appearance.theme.value.light.title": "Licht",
     "settings.setting.appearance.theme.value.oled.title": "Oled",
+    "settings.setting.data_usage.prefer_level.title": "Prestaties",
+    "settings.setting.data_usage.prefer_level.value.fewer_data.title": "Lager dataverbruik, lagere prestaties",
+    "settings.setting.data_usage.prefer_level.value.better_performance.title": "Hoger dataverbruik, betere prestaties",
     "settings.setting.notifications.absences.title": "Afwezigheid",
     "settings.setting.notifications.absences.value.off.title": "Uit",
     "settings.setting.notifications.absences.value.on.title": "Aan",

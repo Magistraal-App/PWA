@@ -5,6 +5,11 @@
 
     // Start session to get user uuid
     \Magister\Session::start();
+
+    if(!isset(\Magister\Session::$userUuid)) {
+        header('Location: ../login/');
+        exit();
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">

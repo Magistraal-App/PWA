@@ -46,6 +46,18 @@
                 }
             }
         },
+        "data_usage": {
+            "icon": "fal fa-signal",
+            "items": {
+                "prefer_level": {
+                    "icon": "fal fa-tachometer-alt-fastest",
+                    "values": {
+                        "0": {"title": "fewer_data", "icon": "fal fa-wifi"},
+                        "1": {"title": "better_performance", "icon": "fal fa-tachometer-alt-fastest"}
+                    }
+                }
+            }
+        },
         "notifications": {
             "icon": "fal fa-bell",
             "disabled": true,
@@ -97,6 +109,7 @@
         "appearance.animations": "on",
         "appearance.language": "nl_NL",
         "appearance.carousel_indicator": "on",
+        "data_usage.prefer_level": "1",
         "notifications.setup": "",
         "notifications.appointments": "on",
         "notifications.grades": "on",

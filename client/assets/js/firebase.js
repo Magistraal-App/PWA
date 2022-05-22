@@ -34,8 +34,6 @@ navigator.serviceWorker.register('../../firebase-messaging-sw.js').then(registra
                 user_uuid: magistraalPersistentStorage.get('user_uuid').value || null
             },
             source: 'server_only'
-        }).then(res => {
-            console.log('res from serv', res);
         })
 
         messaging.onMessage(payload => {

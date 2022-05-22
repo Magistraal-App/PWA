@@ -1,8 +1,8 @@
-var _magistraalStorage = {};
+let _magistraalStorage = {};
 
 const magistraalStorage = {
 	get: key => {
-		const result = _magistraalStorage[key] ?? undefined;
+		const result = _magistraalStorage[key];
 
 		if(!isSet(result)) {
 			return {value: undefined, storedAt: Date.now()};
@@ -87,17 +87,16 @@ const magistraalPersistentStorage = {
 const magistraal = {
 	api: {
 		call: (parameters = {}) => {
-			if(!isSet(parameters.callback ))        { parameters.callback = function() {}; }
-			if(!isSet(parameters.source))           { parameters.source = 'both'; }
-			if(!isSet(parameters.scope))            { parameters.scope = magistraal.page.current(); }
-			if(!isSet(parameters.url))              { return false; }
-			if(!isSet(parameters.data))             { parameters.data = {}; }
-			if(!isSet(parameters.cachable))         { parameters.cachable = (parameters.source != 'server_only'); }
-			if(!isSet(parameters.xhrFields))        { parameters.xhrFields = {}; }
-			if(!isSet(parameters.alwaysReturn))     { parameters.alwaysReturn = {}; }
-			if(!isSet(parameters.cacheMaxAge))      { parameters.cacheMaxAge = 3*24*60*60; }
-
-			console.log(parameters);
+			if(!isSet(parameters.callback ))    { parameters.callback = function() {}; }
+			if(!isSet(parameters.source))       { parameters.source = 'both'; }
+			if(!isSet(parameters.scope))        { parameters.scope = magistraal.page.current(); }
+			if(!isSet(parameters.url))          { return false; }
+			if(!isSet(parameters.data))         { parameters.data = {}; }
+			if(!isSet(parameters.cachable))     { parameters.cachable = (parameters.source != 'server_only'); }
+			if(!isSet(parameters.xhrFields))    { parameters.xhrFields = {}; }
+			if(!isSet(parameters.alwaysReturn)) { parameters.alwaysReturn = {}; }
+			if(!isSet(parameters.cacheMaxAge))  { parameters.cacheMaxAge = 3*24*60*60; }
+			if(!isSet(parameters.inBackground)) { parameters.inBackground = false; }
 
 			return new Promise((resolve, reject) => {
 				if(parameters.cachable && parameters.source != 'server_only') {
@@ -105,18 +104,14 @@ const magistraal = {
 					const cache = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`);
 					const cachedResponse = cache.value;
 
-					console.log(parameters.cacheMaxAge);
-
 					if(isSet(cachedResponse)) {
-						console.log('loading from cache: ', parameters.url);
 						// Beantwoord request met response uit cache als deze niet te oud is
 						if(parameters.cacheMaxAge < 0 || parameters.source == 'prefer_cache' && (Date.now() - cache.storedAt) <= parameters.cacheMaxAge*1000) {
 							// Stuur geen meer request naar de server
 							try {
 								resolve(cachedResponse);
 								if(typeof parameters.callback == 'function') {
-									console.log('from cache!');
-									parameters.callback(cachedResponse, 'cache_finala', undefined, parameters.url);
+									parameters.callback(cachedResponse, 'cache_final', undefined, parameters.url);
 								}
 
 								return;
@@ -190,55 +185,53 @@ const magistraal = {
 					},
 
 					error: function(response, err) {
-						console.log('error!', response, err);
+						// Laat de gebruiker opnieuw inloggen als token niet bestaat / onjuist is
+						if(parameters.inBackground !== true && isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info.includes('token_invalid')) {
+							magistraal.console.error();
+							console.error('login error:', response.responseJSON);
+							magistraal.token.delete();
+							magistraal.page.load({
+								page: 'login'
+							});
+							return;
+						}
 
-						// // Laat de gebruiker opnieuw inloggen als token niet bestaat / onjuist is
-						// if(isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info.includes('token_invalid')) {
-						// 	magistraal.console.error();
-						// 	console.error('login error:', response.responseJSON);
-						// 	magistraal.token.delete();
-						// 	magistraal.page.load({
-						// 		page: 'login'
-						// 	});
-						// 	return;
-						// }
+						// Verwerp de response als de pagina niet meer hetzelfde is
+						if(isSet(parameters.scope) && parameters.scope != magistraal.page.current()) {
+							return;
+						}
 
-						// // Verwerp de response als de pagina niet meer hetzelfde is
-						// if(isSet(parameters.scope) && parameters.scope != magistraal.page.current()) {
-						// 	return;
-						// }
+						// Als de gebruiker offline is
+						if(response.readyState == 0 && response.status == 0) {
+							const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`).value;
 
-						// // Als de gebruiker offline is
-						// if(response.readyState == 0 && response.status == 0) {
-						// 	const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`).value;
+							if(isSet(cachedResponse)) {
+								// Voer callback uit met response van cache
+								try {
+									resolve(cachedResponse);
+									if(typeof parameters.callback == 'function') {
+										parameters.callback(cachedResponse, 'cache_final', undefined, parameters.url);
+									}
+								} catch(err) {
+									console.error('An error occured with cached response:', err);
+									magistraal.console.error();
+								}
 
-						// 	if(isSet(cachedResponse)) {
-						// 		// Voer callback uit met response van cache
-						// 		try {
-						// 			resolve(cachedResponse);
-						// 			if(typeof parameters.callback == 'function') {
-						// 				parameters.callback(cachedResponse, 'cache_finalb', undefined, parameters.url);
-						// 			}
-						// 		} catch(err) {
-						// 			console.error('An error occured with cached response:', err);
-						// 			magistraal.console.error();
-						// 		}
+								console.info('bgw om ' + magistraal.locale.formatDate(cachedResponse.storedAt, 'Hi'));
+								return;
+							}
+						} else {
+							// Beantwoord de promise alleen als de response geschikt is om verder te gebruiken
+							if((isSet(response.responseJSON) && isSet(response.responseJSON.info)) || parameters.alwaysReturn) {
+								reject(response);
+								if(typeof parameters.callback == 'function') {
+									parameters.callback(response, 'cache_final', undefined, parameters.url);
+								}
+							}
+						}
 
-						// 		console.info('bgw om ' + magistraal.locale.formatDate(cachedResponse.storedAt, 'Hi'));
-						// 		return;
-						// 	}
-						// } else {
-						// 	// Beantwoord de promise alleen als de response geschikt is om verder te gebruiken
-						// 	if((isSet(response.responseJSON) && isSet(response.responseJSON.info)) || parameters.alwaysReturn) {
-						// 		reject(response);
-						// 		if(typeof parameters.callback == 'function') {
-						// 			parameters.callback(response, 'cache_finalc', undefined, parameters.url);
-						// 		}
-						// 	}
-						// }
-
-						// magistraal.console.error();
-						// console.error(response);
+						magistraal.console.error();
+						console.error(response);
 					}
 				});
 			});
@@ -311,7 +304,6 @@ const magistraal = {
 			let dateTo   = '31-07-'+yearTo;
 			let dateFrom = '01-08-'+(yearTo-1);
 
-			// magistraal.page.load({page: 'sources/list', data: {parent_id: -9}, showBack: true});
 			magistraal.page.load({page: 'absences/list', data: {from: dateFrom, to: dateTo}, scopeIgnoreQuery: true});
 		}
 	},
@@ -591,7 +583,6 @@ const magistraal = {
 		},
 
 		downloadCallback(arrayBuffer, loadType, request, page) {
-			console.log(arrayBuffer, loadType, request);
 			let blob = new Blob([arrayBuffer], {type: request.getResponseHeader('Content-Type')});	
 			let link = document.createElement('a');
 			link.href = URL.createObjectURL(blob);
@@ -742,8 +733,9 @@ const magistraal = {
 						$average.appendTo($averagesGroup);
 					})
 
-					// Toon gemiddelde over alle vakken
-					let termAverage = termGradesSum / termGradesCount;
+					// Toon gemiddelde over alle vakken voor elke periode
+					const termAverage = termGradesSum / termGradesCount;
+					const termAverageDecimals = isSet(averages[0]) && isSet(averages[0].value_str) ? averages[0].value_str.includes(',') || averages[0].value_str.includes('.') : 1;
 
 					const $average = magistraal.template.get('grade-overview-list-item-average');
 					$average.attr({
@@ -751,7 +743,7 @@ const magistraal = {
 						'data-sufficient': termAverage >= 5.5,
 						'data-value': termAverage
 					});
-					$average.find('.list-item-icon').text(termAverage.toFixed(1).toString().replace('.', ','));
+					$average.find('.list-item-icon').text(termAverage.toFixed(termAverageDecimals).toString().replace('.', ','));
 
 					$average.find('.grade-subject').text(magistraal.locale.translate('grades.term_average_total') + ' ' + averages[0].term.description);
 					$average.find('.grade-description').text(termGradesCount + ' ' + magistraal.locale.translate('grades.term_grades_amount'));
@@ -843,10 +835,14 @@ const magistraal = {
 	/* ============================ */
 	messages: {
 		paintList: (response, loadType) => {
-			// Laad de drie nieuwste berichten
-			magistraal.api.call({url: 'messages/info', data: {id: String(response.data[0].id)}, source: 'prefer_cache'});
-			magistraal.api.call({url: 'messages/info', data: {id: String(response.data[1].id)}, source: 'prefer_cache'});
-			magistraal.api.call({url: 'messages/info', data: {id: String(response.data[2].id)}, source: 'prefer_cache'});
+			// Laad nieuwste berichten
+			if(parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
+				for (let i = 0; i < 5; i++) {
+					if(isSet(response.data[i]) && isSet(response.data[i].id)) {
+						magistraal.api.call({url: 'messages/info', data: {id: String(response.data[i].id)}, source: 'prefer_cache'})
+					};
+				}
+			}
 
 			let $html = $('<div></div>');
 
@@ -904,7 +900,6 @@ const magistraal = {
 		},
 
 		view: (id, read = true) => {
-			// Stuur een bericht in de console
 			magistraal.console.loading('console.loading.message_content');
 
 			// Laad het bericht
@@ -969,7 +964,7 @@ const magistraal = {
 			magistraal.sidebar.updateFeed(updatedFeed, undefined);
 
 			// Stuur een bericht in de console
-			if(loadType == 'server_final' || loadType == 'cache_final') {
+			if(loadType.includes('final')) {
 				magistraal.console.success('console.success.message_content');
 			}
 		},
@@ -1129,7 +1124,7 @@ const magistraal = {
 					// Voeg een zoekinput toe
 					let inputObj           = new magistraal.inputs.searchInput($input);
 					const value            = item?.value || item?.default || null;
-					const valueTranslation = magistraal.locale.translate(`settings.setting.${setting}.value.${value}.title`, magistraal.locale.translate('generic.invalid'));
+					const valueTranslation = magistraal.locale.translate(`settings.setting.${setting}.value.${isSet(item.values) && isSet(item.values[value]) && isSet(item.values[value].title) ? item.values[value].title : value}.title`, magistraal.locale.translate('generic.invalid'));
 					let results            = [];
 
 					// Als de waarde van deze instelling kan worden gewijzigd
@@ -1205,18 +1200,12 @@ const magistraal = {
 			$('body').attr('data-settings', trim(settingsString, ','));
 		},
 
+		get: (key) => {
+			return magistraal.settings.get_all()[key];
+		},
+
 		get_all: () => {
-			return new Promise((resolve, reject) => {
-				magistraal.api.call({
-					url: 'user/settings/get_all',
-					alwaysReturn: true
-				}).then(response => {
-					resolve(response.data);
-				}).catch(response => {
-					magistraal.console.error();
-					reject(response.data);
-				})
-			})
+			return magistraalPersistentStorage.get('settings').value;
 		},
 
 		set: (setting, value) => {
@@ -1279,8 +1268,14 @@ const magistraal = {
 				$source.find('.list-item-icon').html(`<i class="${icon}"></i>`);
 				$source.attr('data-search', source.name);
 
+
 				if(source.type == 'folder') {
 					$source.attr('onclick', `magistraal.page.load({page: 'sources/list', data: {parent_id: '${source.id}'}, showBack: true, source: 'prefer_cache'});`);
+					
+					// Laad deze map vantevoren voor snellere navigatie
+					if(parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
+						magistraal.api.call({url: 'sources/list', data: {parent_id: source.id.toString()}, source: 'prefer_cache'});
+					}
 				} else if(source.type == 'file') {
 					$source.attr('onclick', 'magistraal.sidebar.selectFeed($(this))');
 
@@ -1391,6 +1386,13 @@ const magistraal = {
 
 				const settings = magistraalPersistentStorage.get('settings').value;
 
+				if(!isSet(settings)) {
+					// Laad de instellingen
+					magistraal.api.call({url: 'user/settings/get_all', source: 'server_only', inBackground: true}).then(res => {
+						magistraalPersistentStorage.set('settings', res.data);
+					})
+				}
+
 				const language = (isSet(settings) && isSet(settings['appearance.language']) ? settings['appearance.language'] : 'nl_NL');
 
 				magistraalStorage.set('version', parameters?.version);
@@ -1402,14 +1404,22 @@ const magistraal = {
 				}).catch(() => {});
 
 				if(parameters?.doPreCache === true) {
-					// Laad absenties, afspraken, berichten etc. voor offlinegebruik
-					// magistraal.api.call({url: 'absences/list', source: 'prefer_cache'});
-					// magistraal.api.call({url: 'appointments/list', source: 'prefer_cache'});
-					// magistraal.api.call({url: 'grades/list', source: 'prefer_cache'});
-					// magistraal.api.call({url: 'messages/list', source: 'prefer_cache'});
-					// magistraal.api.call({url: 'settings/list', source: 'prefer_cache'});
-					// magistraal.api.call({url: 'settings/list', data: {category: 'appearance'}, source: 'prefer_cache'});
-					// magistraal.api.call({url: 'settings/list', data: {category: 'system'}, source: 'prefer_cache'});
+					// Laad gegevens voor offlinegebruik
+					magistraal.api.call({url: 'absences/list', source: 'prefer_cache', inBackground: true});
+					magistraal.api.call({url: 'appointments/list', source: 'prefer_cache', inBackground: true});
+					magistraal.api.call({url: 'grades/list', source: 'prefer_cache', inBackground: true});
+					magistraal.api.call({url: 'grades/overview', source: 'prefer_cache', inBackground: true});
+					magistraal.api.call({url: 'messages/list', source: 'prefer_cache', inBackground: true});
+					magistraal.api.call({url: 'sources/list', source: 'prefer_cache', inBackground: true});
+					magistraal.api.call({url: 'learningresources/list', source: 'prefer_cache', inBackground: true});
+					
+					// Laad instellingenpagina voor offline gebruik
+					magistraal.api.call({url: 'settings/list', source: 'prefer_cache', inBackground: true}).then(res => {
+						// Laad subpagina's
+						$.each(res.data.items, function(itemNamespace, items) {
+							magistraal.api.call({url: 'settings/list', data: {category: itemNamespace}, source: 'prefer_cache', inBackground: true})
+						})
+					});
 				}
 			} catch(err) {
 				reject();
@@ -1585,19 +1595,11 @@ const magistraal = {
 			if(!isSet(parameters.unobtrusive)) { parameters.unobtrusive = false; }
 			if(!isSet(parameters.cachable))    { parameters.cachable = (parameters.source != 'server_only'); }
 
-			parameters.samePage = (magistraal.page.current(true).trim() == parameters.page.trim());
-
 			if(parameters.page.includes('?')) {
 				// Query string is embedded in url, extract it
 				[parameters.page, parameters.data] = parameters.page.split('?');
 				parameters.data = Object.fromEntries(new URLSearchParams(parameters.data));
 			}
-
-			if(parameters.samePage) {
-				ignoreHashChangeEvent = true;
-			}
-
-			console.log('samepage', parameters.samePage);
 
 			// Aanpassingen per pagina
 			switch(parameters.page) {
@@ -1618,7 +1620,6 @@ const magistraal = {
 			}
 		
 			// Sluit popup(s)
-			console.log('closing all popups!');
 			magistraal.popup.close();
 
 			if(!parameters.unobtrusive) {
@@ -1701,8 +1702,9 @@ const magistraal = {
 		getCallback: (response, loadType, request, page) => {
 			// Selecteer eerste item in lijst
 			const $li_first = magistraal.element.get('main').find('.list-item[data-interesting="true"]').first();
+			magistraalStorage.set('sidebar_locked', true);
 			$li_first.click();
-			magistraal.sidebar.close();
+			magistraalStorage.set('sidebar_locked', false);	
 
 			// Werk paginaknoppen bij
 			const $pageButtonsTemplate = magistraal.template.get(`page-buttons-${page}`);
@@ -1799,7 +1801,6 @@ const magistraal = {
 
 			// Verander url
 			if(currentHash != newHash) {
-				console.log('modifying location to', newHash, 'method=', method);
 				if(method == 'push') {
 					window.history.pushState(newHash, null, '#/' + newHash);
 				} else if(method == 'replace') {
@@ -2250,6 +2251,10 @@ const magistraal = {
 		},
 
 		open: () => {
+			if(magistraalStorage.get('sidebar_locked').value === true) {
+				return false;
+			}
+
 			if(magistraalStorage.get('sidebar_active').value === true) {
 				return false;
 			}
@@ -2263,8 +2268,12 @@ const magistraal = {
 		},
 
 		close: (goBack = false) => {
+			console.log(magistraalStorage.get('sidebar_locked'));
+			if(magistraalStorage.get('sidebar_locked').value === true) {
+				return false;
+			}
+
 			if(magistraalStorage.get('sidebar_active').value === false) {
-				console.log('already closed');
 				return false;
 			}
 

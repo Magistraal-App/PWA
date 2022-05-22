@@ -74,6 +74,9 @@
     
     "generic.search.no_matches": "No matches found.",
 
+     "absences.popup.select_year.title": "Select a school year",
+    "absences.popup.select_year.item.year.title": "School year",
+
     "appointments.popup.create_appointment.item.content.title": "Content",
     "appointments.popup.create_appointment.item.date.title": "Date",
     "appointments.popup.create_appointment.item.description.title": "Description",
@@ -139,6 +142,8 @@
     "grades.grade.info.subject_average": "Average",
     "grades.grade.info.is_sufficient": "Sufficient",
     "grades.term_average": "Average grades of term",
+    "grades.term_average_total": "Average across all subjects of term",
+    "grades.term_grades_amount": "subjects",
     "grades.grade_term": "Term",
     "grades.list": "All grades",
     "grades.overview": "Average grades",
@@ -165,6 +170,7 @@
     "messages.write_message": "Write",
 
     "settings.category.root.appearance.title": "Appearance",
+    "settings.category.root.data_usage.title": "Data usage",
     "settings.category.root.notifications.title": "Notifications",
     "settings.category.root.system.title": "System",
     "settings.setting.appearance.animations.title": "Animations",
@@ -185,6 +191,9 @@
     "settings.setting.appearance.theme.value.dark.title": "Dark",
     "settings.setting.appearance.theme.value.light.title": "Light",
     "settings.setting.appearance.theme.value.oled.title": "Oled",
+    "settings.setting.data_usage.prefer_level.title": "Performance",
+    "settings.setting.data_usage.prefer_level.value.fewer_data.title": "Less data usage, medium performance",
+    "settings.setting.data_usage.prefer_level.value.better_performance.title": "More data usage, higher performance",
     "settings.setting.notifications.absences.title": "Absences",
     "settings.setting.notifications.absences.value.off.title": "Disabled",
     "settings.setting.notifications.absences.value.on.title": "Enabled",

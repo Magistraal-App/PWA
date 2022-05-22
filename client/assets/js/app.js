@@ -218,10 +218,8 @@ $(document).on('magistraal.change', '.setting-list-item input', function(e) {
 
 // If system theme changes
 if(window.matchMedia) {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        const settings = magistraalPersistentStorage.get('settings').value;
-        
-        if(!settings['appearance.theme'].includes('auto')) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {       
+        if(!magistraal.settings.get('appeareance.theme').includes('auto')) {
             return false;
         }
         
@@ -279,8 +277,6 @@ class responsiveCarousel {
         if($slide.length == 0) {
             return this;
         }
-
-        console.log($slide.find('h4').first().text());
         
         this.direction == 'x' ? this.$body.scrollLeft($slide.position().left) : this.$body.scrollTop($slide.position().top);
 
@@ -579,14 +575,11 @@ $(document).on('click', '[data-popup-action]', function(e) {
     let action  = $button.attr('data-popup-action');
     let popup   = $button.parents('[data-magistraal-popup]').first().attr('data-magistraal-popup');
     
-    console.log('closing popup!');
     switch(action) {
         case 'confirm':
-            console.log('confirm');
             magistraal.popup.close(popup);
             break;
         case 'cancel':
-            console.log('cancel!');
             magistraal.popup.close(popup, true, true);
             break;
     }
@@ -599,27 +592,20 @@ $(document).ready(function() {
 })
 
 $(window).on('popstate', function (e) {
-    console.log('popState!');
     magistraal.page.back(false);
 
     if($('.popup.show').length > 0) {
-        console.log('closing popup');
         magistraal.popup.close(undefined, false, true);
         return;
     }
 
-    console.log('closing sidebar');
     magistraal.sidebar.close();
 });
 
 $(window).on('hashchange', function(e) {
-    console.log('hashChange!');
-
     magistraal.page.load({
         page: magistraal.page.current()
     });
-    
-
 })
 
 // Forms moeten via Ajax gesubmit worden
