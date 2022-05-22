@@ -22,7 +22,7 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 - [ ] Maken: Mogelijkheid om afspraak in te plannen (op verzoek) bij andere Magistraal-gebruikers
 - [ ] Maken: Opdrachtenpagina
 - [x] ~~Fixen: Nieuwe instellingen worden pas toegepast als pagina voor de tweede keer wordt herladen~~
-- [ ] Maken: Leermiddelenpagina
+- [x] ~~Maken: Leermiddelenpagina~~
 
 ---
 
