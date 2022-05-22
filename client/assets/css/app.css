@@ -249,12 +249,12 @@ textarea {
     border-bottom: var(--border-width) solid transparent;
 }
 
-.input-search-result:hover,
-.input-search-result[data-selected="true"] {
+.input-search-result[value]:hover,
+.input-search-result[value][data-selected="true"] {
     background-color: var(--primary-accent);
 }
 
-.input-search-result[data-selected="true"] {
+.input-search-result[value][data-selected="true"] {
     border-color: var(--primary-border);
 }
 
@@ -312,6 +312,14 @@ textarea {
     background-color: var(--secondary);
     border-radius: var(--border-radius);
     padding: 0.125rem 0.375rem;
+}
+
+.input-search-result:not([value]) {
+    pointer-events: none !important;
+}
+
+.input-search-result + .input-search-result:not([value]) {
+    display: none;
 }
 
 /* ============================ */

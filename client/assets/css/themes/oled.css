@@ -1,0 +1,25 @@
+/* OLED THEME */
+[data-settings*="appearance.theme=oled"] {
+    --background: #000000;
+    --border-radius: 0.5rem;
+    --danger-accent: #230709;
+    --danger-border: #3b0c11;
+    --danger: #dc3545;
+    --heavy-shadow: 0 0 2.5rem 0 var(--background);
+    --light-shadow: 0 0 0.3rem 0 rgba(0, 0, 0, 0.4);
+    --primary-accent: #121416;
+    --primary-border: #202124;
+    --primary: #000000;
+    --secondary: #0058db;
+    --selection-color: rgba(255, 255, 255, 0.1);
+    --success: #28a745;
+    --teams: #5458af;
+    --text-inverse: #ffffff;
+    --text-muted-inverse: #aaaaaa;
+    --text-muted: #aaaaaa;
+    --text: #ffffff;
+}
+
+[data-settings*="appearance.theme=oled"] input {
+    color-scheme: dark;
+}

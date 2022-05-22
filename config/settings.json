@@ -8,7 +8,7 @@
                     "values": {
                         "dark": {"title": "dark", "icon": "fal fa-moon"},
                         "light": {"title": "light", "icon": "fal fa-sun"},
-                        "silver": {"title": "silver", "icon": "fal fa-eclipse-alt"},
+                        "oled": {"title": "oled", "icon": "fal fa-star"},
                         "auto": {"title": "auto", "icon": "fal fa-magic"}
                     }
                 },

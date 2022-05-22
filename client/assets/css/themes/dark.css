@@ -1,25 +1,25 @@
-/* DARK THEME (DEFAULT VARIANT) */
-[data-settings*="appearance.theme=dark"] {
-    --background: #202124;
+/* DARK THEME (DEFAULT THEME) */
+[data-settings] {
+    --background: #212830;
     --border-radius: 0.5rem;
     --danger-accent: #461217;
     --danger-border: #5e181f;
     --danger: #dc3545;
     --heavy-shadow: 0 0 2.5rem 0 var(--background);
     --light-shadow: 0 0 0.3rem 0 rgba(0, 0, 0, 0.4);
-    --primary-accent: #33343b;
-    --primary-border: #44474c;
-    --primary: #2d2e33;
+    --primary-accent: #2e3842;
+    --primary-border: #323d48;
+    --primary: #283039;
     --secondary: #0058db;
     --selection-color: rgba(255, 255, 255, 0.1);
     --success: #28a745;
-    --teams: #5458af;
+    --teams: #010101;
     --text-inverse: #ffffff;
-    --text-muted-inverse: #aaaaaa;
-    --text-muted: #aaaaaa;
+    --text-muted-inverse: #cccccc;
+    --text-muted: #cccccc;
     --text: #ffffff;
 }
 
-[data-settings*="appearance.theme=dark"] input {
+[data-settings] input {
     color-scheme: dark;
 }

@@ -44,7 +44,7 @@
             <link rel="preload" type="text/css" href="/magistraal/client/assets/css/fontawesome.min.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
             <link rel="preload" type="text/css" href="/magistraal/client/assets/css/media-sm'.$infix.'.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
             <link rel="preload" type="text/css" href="/magistraal/client/assets/css/themes/dark'.$infix.'.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
-            <link rel="preload" type="text/css" href="/magistraal/client/assets/css/themes/silver'.$infix.'.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
+            <link rel="preload" type="text/css" href="/magistraal/client/assets/css/themes/oled'.$infix.'.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
             <link rel="preload" type="text/css" href="/magistraal/client/assets/css/themes/light'.$infix.'.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
             <link rel="preload" type="text/css" href="/magistraal/client/assets/css/media-md'.$infix.'.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
             <link rel="preload" type="text/css" href="/magistraal/client/assets/css/media-lg'.$infix.'.css?v='.$version.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">
