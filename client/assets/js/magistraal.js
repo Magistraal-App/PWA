@@ -97,25 +97,29 @@ const magistraal = {
 			if(!isSet(parameters.alwaysReturn))     { parameters.alwaysReturn = {}; }
 			if(!isSet(parameters.cacheMaxAge))      { parameters.cacheMaxAge = 3*24*60*60; }
 
-			// console.log('new hash 3:', window.location.hash);
+			console.log(parameters);
 
 			return new Promise((resolve, reject) => {
-				if(parameters.cachable) {
+				if(parameters.cachable && parameters.source != 'server_only') {
 					// Laad response voor uit cache, maar alleen als er een callback is opgegeven
 					const cache = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`);
 					const cachedResponse = cache.value;
 
+					console.log(parameters.cacheMaxAge);
+
 					if(isSet(cachedResponse)) {
+						console.log('loading from cache: ', parameters.url);
 						// Beantwoord request met response uit cache als deze niet te oud is
-						if(parameters.source == 'prefer_cache' && (Date.now() - cache.storedAt) <= parameters.cacheMaxAge*1000) {
+						if(parameters.cacheMaxAge < 0 || parameters.source == 'prefer_cache' && (Date.now() - cache.storedAt) <= parameters.cacheMaxAge*1000) {
 							// Stuur geen meer request naar de server
 							try {
 								resolve(cachedResponse);
 								if(typeof parameters.callback == 'function') {
-									parameters.callback(cachedResponse, 'cache_final', undefined, parameters.url);
+									console.log('from cache!');
+									parameters.callback(cachedResponse, 'cache_finala', undefined, parameters.url);
 								}
 
-								console.log('Done w cache only');
+								return;
 							} catch(err) {
 								console.error('An error occured with cached response:', err);
 								magistraal.console.error();
@@ -135,8 +139,6 @@ const magistraal = {
 					}
 				}
 
-				// console.log('new hash 4:', window.location.hash);
-
 				// Stuur cookies mee
 				parameters.xhrFields.withCredentials = true;
 
@@ -149,7 +151,6 @@ const magistraal = {
 					xhrFields: parameters.xhrFields,
 					cache: false,
 					success: function(response, textStatus, request) {
-						// console.log('new hash 5:', window.location.hash);
 						// Als de pagina niet meer hetzelfde is, verwerp de response
 						if(isSet(parameters.scope) && parameters.scope.trim() != magistraal.page.current().trim()) {
 							console.log('scope no match!', parameters.scope.trim(), magistraal.page.current().trim());
@@ -188,56 +189,56 @@ const magistraal = {
 						}
 					},
 
-					error: function(response) {
-						// Laat de gebruiker opnieuw inloggen als token niet bestaat / onjuist is
-						if(isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info.includes('token_invalid')) {
-							magistraal.console.error();
-							console.error('login error:', response.responseJSON);
-							magistraal.token.delete();
-							magistraal.page.load({
-								page: 'login'
-							});
-							return;
-						}
+					error: function(response, err) {
+						console.log('error!', response, err);
 
-						// Verwerp de response als de pagina niet meer hetzelfde is
-						if(isSet(parameters.scope) && parameters.scope != magistraal.page.current()) {
-							return;
-						}
+						// // Laat de gebruiker opnieuw inloggen als token niet bestaat / onjuist is
+						// if(isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info.includes('token_invalid')) {
+						// 	magistraal.console.error();
+						// 	console.error('login error:', response.responseJSON);
+						// 	magistraal.token.delete();
+						// 	magistraal.page.load({
+						// 		page: 'login'
+						// 	});
+						// 	return;
+						// }
 
-						// Als de gebruiker offline is
-						if(response.readyState == 0 && response.status == 0) {
-							console.log('offline:', true);
+						// // Verwerp de response als de pagina niet meer hetzelfde is
+						// if(isSet(parameters.scope) && parameters.scope != magistraal.page.current()) {
+						// 	return;
+						// }
 
-							const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`).value;
-							
-							if(isSet(cachedResponse)) {
-								// Voer callback uit met response van cache
-								try {
-									resolve(cachedResponse);
-									if(typeof parameters.callback == 'function') {
-										parameters.callback(cachedResponse, 'cache_final', undefined, parameters.url);
-									}
-								} catch(err) {
-									console.error('An error occured with cached response:', err);
-									magistraal.console.error();
-								}
+						// // Als de gebruiker offline is
+						// if(response.readyState == 0 && response.status == 0) {
+						// 	const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`).value;
 
-								console.info('bgw om ' + magistraal.locale.formatDate(cachedResponse.storedAt, 'Hi'));
-								return;
-							}
-						} else {
-							// Beantwoord de promise alleen als de response geschikt is om verder te gebruiken
-							if((isSet(response.responseJSON) && isSet(response.responseJSON.info)) || parameters.alwaysReturn) {
-								reject(response);
-								if(typeof parameters.callback == 'function') {
-									parameters.callback(response, 'cache_final', undefined, parameters.url);
-								}
-							}
-						}
+						// 	if(isSet(cachedResponse)) {
+						// 		// Voer callback uit met response van cache
+						// 		try {
+						// 			resolve(cachedResponse);
+						// 			if(typeof parameters.callback == 'function') {
+						// 				parameters.callback(cachedResponse, 'cache_finalb', undefined, parameters.url);
+						// 			}
+						// 		} catch(err) {
+						// 			console.error('An error occured with cached response:', err);
+						// 			magistraal.console.error();
+						// 		}
 
-						magistraal.console.error();
-						console.error(response);
+						// 		console.info('bgw om ' + magistraal.locale.formatDate(cachedResponse.storedAt, 'Hi'));
+						// 		return;
+						// 	}
+						// } else {
+						// 	// Beantwoord de promise alleen als de response geschikt is om verder te gebruiken
+						// 	if((isSet(response.responseJSON) && isSet(response.responseJSON.info)) || parameters.alwaysReturn) {
+						// 		reject(response);
+						// 		if(typeof parameters.callback == 'function') {
+						// 			parameters.callback(response, 'cache_finalc', undefined, parameters.url);
+						// 		}
+						// 	}
+						// }
+
+						// magistraal.console.error();
+						// console.error(response);
 					}
 				});
 			});
@@ -590,6 +591,7 @@ const magistraal = {
 		},
 
 		downloadCallback(arrayBuffer, loadType, request, page) {
+			console.log(arrayBuffer, loadType, request);
 			let blob = new Blob([arrayBuffer], {type: request.getResponseHeader('Content-Type')});	
 			let link = document.createElement('a');
 			link.href = URL.createObjectURL(blob);
@@ -910,7 +912,8 @@ const magistraal = {
 				url: 'messages/info', 
 				data: {id: id},
 				callback: magistraal.messages.viewCallback,
-				source: 'prefer_cache'
+				source: 'prefer_cache',
+				cacheMaxAge: -1
 			}).then(response => {
 				// Markeer het bericht als gelezen als dit nog niet het geval is
 				if(!read) {
@@ -1277,7 +1280,7 @@ const magistraal = {
 				$source.attr('data-search', source.name);
 
 				if(source.type == 'folder') {
-					$source.attr('onclick', `magistraal.page.load({page: 'sources/list', data: {parent_id: '${source.id}'}, showBack: true, source: 'prefer_cache', cacheMaxAge: 900});`);
+					$source.attr('onclick', `magistraal.page.load({page: 'sources/list', data: {parent_id: '${source.id}'}, showBack: true, source: 'prefer_cache'});`);
 				} else if(source.type == 'file') {
 					$source.attr('onclick', 'magistraal.sidebar.selectFeed($(this))');
 
@@ -1641,8 +1644,6 @@ const magistraal = {
 				magistraal.page.modifyLocation(parameters.page, parameters.data, 'push');
 			}
 
-			// console.log('new hash 2', window.location.hash);
-
 			// Verberg carousel indicator
 			const $carouselIndicator = magistraal.element.get('responsive-carousel-indicator');
     		$carouselIndicator.removeClass('show');  
@@ -1680,8 +1681,6 @@ const magistraal = {
 
 				magistraal.console.loading('console.loading.refresh');
 
-				// console.log('new hash x:', window.location.hash);
-
 				magistraal.api.call({
 					url: parameters.page, 
 					data: parameters.data, 
@@ -1702,7 +1701,8 @@ const magistraal = {
 		getCallback: (response, loadType, request, page) => {
 			// Selecteer eerste item in lijst
 			const $li_first = magistraal.element.get('main').find('.list-item[data-interesting="true"]').first();
-			magistraal.sidebar.selectFeed($li_first, false);
+			$li_first.click();
+			magistraal.sidebar.close();
 
 			// Werk paginaknoppen bij
 			const $pageButtonsTemplate = magistraal.template.get(`page-buttons-${page}`);
@@ -1805,7 +1805,6 @@ const magistraal = {
 				} else if(method == 'replace') {
 					window.history.replaceState(newHash, null, '#/' + newHash);
 				}
-				// console.log('new hash:', window.location.hash);
 			}
 		}
 	},
