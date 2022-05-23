@@ -1428,7 +1428,7 @@ const magistraal = {
 					resolve();
 				}).catch(() => {});
 
-				if(parameters?.doPreCache === true) {
+				if(parameters?.doPreCache === true && parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
 					// Laad gegevens voor offlinegebruik
 					magistraal.api.call({url: 'absences/list', source: 'prefer_cache', inBackground: true});
 					magistraal.api.call({url: 'appointments/list', source: 'prefer_cache', inBackground: true});
