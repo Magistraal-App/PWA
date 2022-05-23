@@ -575,14 +575,8 @@ $(document).on('click', '[data-popup-action]', function(e) {
     let action  = $button.attr('data-popup-action');
     let popup   = $button.parents('[data-magistraal-popup]').first().attr('data-magistraal-popup');
     
-    switch(action) {
-        case 'confirm':
-            magistraal.popup.close(popup);
-            break;
-        case 'cancel':
-            magistraal.popup.close(popup, true, true);
-            break;
-    }
+    disablePopstateEvent(50);
+    magistraal.popup.close(popup, true, true);
 })
 
 $(document).ready(function() {
@@ -591,14 +585,30 @@ $(document).ready(function() {
     });
 })
 
+let popstateEventDisabled = false;
+function disablePopstateEvent(duration = 50) {
+    popstateEventDisabled = true;
+
+    setTimeout(() => {
+        popstateEventDisabled = false;
+    }, duration);
+}
+
 $(window).on('popstate', function (e) {
+    if(popstateEventDisabled) {
+        return;
+    }
+
+    console.log('popstate event fired!');
     magistraal.page.back(false);
 
     if($('.popup.show').length > 0) {
+        console.log('closing popup by popstate event');
         magistraal.popup.close(undefined, false, true);
         return;
     }
 
+    console.log('closing sidebar by popstate event');
     magistraal.sidebar.close();
 });
 

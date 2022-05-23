@@ -118,7 +118,7 @@
             <div class="page-search-wrapper w-100">
                 <input type="text" name="page-search" data-translation="generic.action.search" data-magistraal="page-search" data-magistraal-search-target="main" class="form-control">
             </div>
-            <div data-magistraal="page-buttons-container" class="d-none d-md-flex flex-row-reverse"></div>
+            <div data-magistraal="page-buttons-container" class="d-none d-md-flex flex-row"></div>
         </div>
     </header>
     <main data-magistraal="main"></main>
@@ -404,6 +404,14 @@
                 <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.popup.open('messages_write_message');">
                     <i class="btn-icon fal fa-pencil-alt"></i>
                     <span class="btn-text" data-translation="messages.write_message" ></span>
+                </button>
+                <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.page.load({page: 'messages/sentlist'});">
+                    <i class="btn-icon fal fa-paper-plane"></i>
+                    <span class="btn-text" data-translation="messages.sent" ></span>
+                </button>
+                <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.page.load({page: 'messages/binlist'});">
+                    <i class="btn-icon fal fa-trash"></i>
+                    <span class="btn-text" data-translation="messages.bin" ></span>
                 </button>
             </div>
 

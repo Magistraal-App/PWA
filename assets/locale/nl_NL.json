@@ -156,7 +156,7 @@
     "login.hint.username": "Gebruikersnaam",
     "login.hint.password": "Wachtwoord",
 
-    "message.forward.prefix": "Fwd:",
+    "message.forward.prefix": "Fwd",
     "message.reply.prefix": "Re",
     "messages.popup.write_message.item.bcc.title": "BCC",
     "messages.popup.write_message.item.cc.title": "CC",
@@ -168,6 +168,8 @@
     "messages.popup.write_message.title": "Nieuw bericht",
     "messages.subject.no_subject": "(Geen onderwerp)",
     "messages.write_message": "Nieuw",
+    "messages.bin": "Prullenbak",
+    "messages.sent": "Verzonden",
 
     "settings.category.root.appearance.title": "Vormgeving",
     "settings.category.root.data_usage.title": "Dataverbruik",

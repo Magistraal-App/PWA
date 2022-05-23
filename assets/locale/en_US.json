@@ -156,7 +156,7 @@
     "login.hint.username": "Username",
     "login.hint.password": "Password",
 
-    "message.forward.prefix": "Fwd:",
+    "message.forward.prefix": "Fwd",
     "message.reply.prefix": "Re",
     "messages.popup.write_message.item.bcc.title": "Bcc",
     "messages.popup.write_message.item.cc.title": "Cc",
@@ -168,6 +168,8 @@
     "messages.popup.write_message.title": "Write a message",
     "messages.subject.no_subject": "(No subject)",
     "messages.write_message": "Write",
+    "messages.bin": "Bin",
+    "messages.sent": "Sent items",
 
     "settings.category.root.appearance.title": "Appearance",
     "settings.category.root.data_usage.title": "Data usage",

@@ -18,8 +18,8 @@
     // Get tokens per user_uuid
     $tokens = \Magistraal\Database\query("SELECT max(`token_expires`), `token_id`, `user_uuid`, `access_token_expires` FROM `magistraal_tokens` GROUP BY `user_uuid`");
 
-    $iso_from = date_iso(strtotime('today'));               // Start of today
-    $iso_to   = date_iso(strtotime($iso_from) + 86400 * 2); // Start of the day after tomorrow
+    $iso_from = date_iso(strtotime('today'));                     // Start of today
+    $iso_to   = date_iso(strtotime($iso_from) + (86400 * 2) - 1); // End of tomorrow
 
     foreach ($tokens as $token_data) {
         if(!isset($token_data['token_id']) || empty($token_data['token_id']) || !isset($token_data['user_uuid']) || empty($token_data['user_uuid'])) {
@@ -79,9 +79,10 @@
                         'body' => sprintf('Je hebt een bericht ontvangen van %s betreffende %s.', $change['sender']['name'], trim(ucfirst($change['subject'])))
                     ];
                 } else if($category == 'appointments') {
+                    $days_away = round((strtotime($change['start']['time']) - time()) / (60 * 60 * 24));
                     $fcm_notification = [
                         'title' => sprintf('%de uur vervalt', $change['start']['lesson']),
-                        'body' => sprintf('%s vervalt het %de uur (%s).', (strtotime(date('d-m-Y', strtotime($change['start']['time']))) - time() <= 86400 ? 'Vandaag' : 'Morgen'), $change['start']['lesson'], trim(implode(', ', $change['subjects'])))
+                        'body' => sprintf('%s vervalt het %de uur (%s).', ['Vandaag', 'Morgen', 'Overmorgen'][$days_away] ?? null, $change['start']['lesson'], trim(implode(', ', $change['subjects'])))
                     ];
                 } else if($category == 'grades') {
                     $fcm_notification = [

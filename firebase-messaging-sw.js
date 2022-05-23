@@ -36,10 +36,9 @@ messaging.onBackgroundMessage((payload) => {
     return self.registration.showNotification(data.title || undefined, {
         body: data.body || undefined,
         icon: '/magistraal/client/assets/images/app/logo-transparent/512x512.png',
-        badge: '/magistraal/client/assets/images/app/badge/128x128.png'
+        badge: '/magistraal/client/assets/images/app/badge/128x128.png',
+        timestamp: Math.floor(data.timestamp * 1000 || Date.now())
     });
 });
-
-
 
 console.log('[firebase-messaging-sw.js] Loaded!');

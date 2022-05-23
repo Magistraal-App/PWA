@@ -508,7 +508,8 @@ const magistraal = {
 			}).then(data => {
 				magistraal.console.success('console.success.create_appointment');
 				magistraal.page.load({
-					page: 'appointments/list'
+					page: 'appointments/list',
+					unobtrusive: true
 				});
 
 				if($form) {
@@ -549,7 +550,8 @@ const magistraal = {
 			}).then(data => {
 				magistraal.console.success('console.success.delete_appointment');
 				magistraal.page.load({
-					page: 'appointments/list'
+					page: 'appointments/list',
+					unobtrusive: true
 				});
 			}).catch(response => {
 				if(response.responseJSON && response.responseJSON.info) {
@@ -950,7 +952,7 @@ const magistraal = {
 				},
 				actions: {
 					forward: {
-						handler: `magistraal.messages.forward(message)`, 
+						handler: `magistraal.messages.forward(${JSON.stringify(message)})`, 
 						icon: 'fal fa-arrow-alt-right'
 					},
 					reply: {
@@ -975,11 +977,13 @@ const magistraal = {
 			magistraal.api.call({
 				url: 'messages/send', 
 				data: message,
-				source: 'server_only'
+				source: 'server_only',
+				inBackground: true
 			}).then(response => {
 				magistraal.console.success('console.success.send_message');
 				magistraal.page.load({
-					page: 'messages/list'
+					page: 'messages/list',
+					unobtrusive: true
 				});
 
 				if($form) {
@@ -1002,7 +1006,8 @@ const magistraal = {
 			}).then(data => {
 				magistraal.console.success('console.success.delete_message');
 				magistraal.page.load({
-					page: 'messages/list'
+					page: 'messages/list',
+					unobtrusive: true
 				});
 			}).catch(response => {
 				if(response.responseJSON && response.responseJSON.info) {
@@ -1012,12 +1017,32 @@ const magistraal = {
 			})
 		},
 
+		forward: (message) => {
+			const popup = 'messages_write_message';
+			const $form = magistraal.element.get('form-messages_write_message');
+						
+			$form.find('[name="id"]').value(message.id);
+			$form.find('[name="subject"]').value(magistraal.locale.translate('message.forward.prefix')+': '+message.subject);
+		
+			const newContent = `
+				<br><br><br><hr>
+				<b>${magistraal.locale.translate('messages.popup.write_message.item.from.title')}</b>: ${message.sender.name}<br>
+				<b>${magistraal.locale.translate('messages.popup.write_message.item.sent_at.title')}</b>: ${magistraal.locale.formatDate(message.sent_at, 'ldFYHi')}<br>
+				`+(message.recipients.to.list.length > 0 ? `<b>${magistraal.locale.translate('messages.popup.write_message.item.to.title')}</b>: ${message.recipients.to.names.join(', ')}<br>`: '')+`
+				`+(message.recipients.cc.list.length > 0 ? `<b>${magistraal.locale.translate('messages.popup.write_message.item.cc.title')}</b>: ${message.recipients.cc.names.join(', ')}<br>`: '')+`
+				<b>${magistraal.locale.translate('messages.popup.write_message.item.subject.title')}</b>: ${message.subject}<br><br>
+			` + message.content;
+
+			$form.find('[name="content"]').value(newContent);
+			
+			magistraal.popup.open(popup);
+		},
+
 		reply: (message) => {
 			const popup = 'messages_write_message';
 			const $form = magistraal.element.get('form-messages_write_message');
 						
 			$form.find('[name="id"]').value(message.id);
-			$form.find('[name="date"]').value(message.start);
 			$form.find('[name="subject"]').value(magistraal.locale.translate('message.reply.prefix')+': '+message.subject);
 			
 			// Restructure recipients so they can be set as tag
@@ -1032,7 +1057,7 @@ const magistraal = {
 			toValue[message.sender.id] = message.sender.name;
 			$form.find('[name="to"]').setTags(toValue);
 
-			let newContent = `
+			const newContent = `
 				<br><br><br><hr>
 				<b>${magistraal.locale.translate('messages.popup.write_message.item.from.title')}</b>: ${message.sender.name}<br>
 				<b>${magistraal.locale.translate('messages.popup.write_message.item.sent_at.title')}</b>: ${magistraal.locale.formatDate(message.sent_at, 'ldFYHi')}<br>
@@ -1774,7 +1799,6 @@ const magistraal = {
 			if(magistraal.page.previous().includes(magistraal.page.current(true)) && magistraal.page.current().includes('?')) {
 				return true;
 			}
-
 			$('body').removeAttr('data-history');
 		},
 
@@ -2331,7 +2355,10 @@ const magistraal = {
 			if(clearForm) {
 				const $form = $popup.find('form').first();
 				if($form.length) {
-					$form.formReset();
+					// Wait for the popup to finish animating out
+					setTimeout(() => {
+						$form.formReset();
+					}, 250);
 				}
 			}
 
