@@ -405,14 +405,14 @@
                     <i class="btn-icon fal fa-pencil-alt"></i>
                     <span class="btn-text" data-translation="messages.write_message" ></span>
                 </button>
-                <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.page.load({page: 'messages/sentlist'});">
+                <!-- <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.page.load({page: 'messages/sentlist'});">
                     <i class="btn-icon fal fa-paper-plane"></i>
                     <span class="btn-text" data-translation="messages.sent" ></span>
                 </button>
                 <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.page.load({page: 'messages/binlist'});">
                     <i class="btn-icon fal fa-trash"></i>
                     <span class="btn-text" data-translation="messages.bin" ></span>
-                </button>
+                </button> -->
             </div>
 
             <!-- Responsive Carousel Indicator Item -->
