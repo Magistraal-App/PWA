@@ -551,6 +551,8 @@ const magistraal = {
 			}).then(data => {
 				magistraal.console.success('console.success.delete_appointment');
 				$appointment.remove();
+				
+				magistraal.page.selectInterestingListItem();
 				magistraal.sidebar.close();
 			}).catch(response => {
 				if(response.responseJSON && response.responseJSON.info) {
@@ -1010,6 +1012,8 @@ const magistraal = {
 			}).then(data => {
 				magistraal.console.success('console.success.delete_message');
 				$message.remove();
+
+				magistraal.page.selectInterestingListItem();
 				magistraal.sidebar.close();
 			}).catch(response => {
 				if(response.responseJSON && response.responseJSON.info) {
@@ -1741,11 +1745,7 @@ const magistraal = {
 		},
 
 		getCallback: (response, loadType, request, page, listItemSelectedIndex = 0) => {
-			// Herselecteer item in lijst
-			const $li_first = magistraal.element.get('main').find(`.list-item[data-interesting="true"]:nth-child(${listItemSelectedIndex+1})`);
-			magistraalStorage.set('sidebar_locked', true);
-			$li_first.click();
-			magistraalStorage.set('sidebar_locked', false);	
+			magistraal.page.selectInterestingListItem(listItemSelectedIndex);
 
 			// Werk paginaknoppen bij
 			const $pageButtonsTemplate = magistraal.template.get(`page-buttons-${page}`);
@@ -1769,6 +1769,14 @@ const magistraal = {
 			if($pageSearch.value().length > 0) {
 				$pageSearch.trigger('input');
 			}
+		},
+
+		selectInterestingListItem: (index = 0) => {
+			// Herselecteer item in lijst
+			const $li_first = magistraal.element.get('main').find(`.list-item[data-interesting="true"]:nth-child(${index+1})`);
+			magistraalStorage.set('sidebar_locked', true);
+			$li_first.click();
+			magistraalStorage.set('sidebar_locked', false);	
 		},
 
 		current: (ignoreQuery = false) => {
