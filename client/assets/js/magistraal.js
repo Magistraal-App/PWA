@@ -1726,9 +1726,8 @@ const magistraal = {
 				magistraal.api.call({
 					url: parameters.page, 
 					data: parameters.data, 
-					source: 'prefer_cache',
+					source: parameters.source,
 					cachable: parameters.cachable, 
-					cacheMaxAge: (parameters.source == 'prefer_cache' ? undefined : 10),
 					callback: function(response, loadType, request, page) {
 						const listItemSelectedIndex = $('.list-item[data-interesting="true"][data-selected="true"]').index();
 						callback(response, loadType, request, page);
