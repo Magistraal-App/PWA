@@ -507,14 +507,13 @@ const magistraal = {
 				source: 'server_only'
 			}).then(data => {
 				magistraal.console.success('console.success.create_appointment');
-				magistraal.page.load({
-					page: 'appointments/list',
-					unobtrusive: true
-				});
+				magistraal.page.reload();
 
 				if($form) {
 					$form.formReset();
 				}
+
+				magistraal.sidebar.close();
 			}).catch(response => {
 				magistraal.popup.open('appointments_create_appointment');
 
@@ -538,9 +537,11 @@ const magistraal = {
 			$form.find('[name="content"]').value(appointment.content);
 			
 			magistraal.popup.open(popup);
+			magistraal.sidebar.close();
 		},
 
 		delete: (id) => {
+			const $appointment = $(`.appointment-list-item[data-id="${id}"]`);
 			magistraal.console.loading('console.loading.delete_appointment');
 
 			magistraal.api.call({
@@ -549,10 +550,8 @@ const magistraal = {
 				source: 'server_only'
 			}).then(data => {
 				magistraal.console.success('console.success.delete_appointment');
-				magistraal.page.load({
-					page: 'appointments/list',
-					unobtrusive: true
-				});
+				$appointment.remove();
+				magistraal.sidebar.close();
 			}).catch(response => {
 				if(response.responseJSON && response.responseJSON.info) {
 					magistraal.console.error(`console.error.${response.responseJSON.info}`);
@@ -986,14 +985,13 @@ const magistraal = {
 				inBackground: true
 			}).then(response => {
 				magistraal.console.success('console.success.send_message');
-				magistraal.page.load({
-					page: 'messages/list',
-					unobtrusive: true
-				});
+				magistraal.page.reload();
 
 				if($form) {
 					$form.formReset();
 				}
+
+				magistraal.sidebar.close();
 			}).catch(response => {
 				magistraal.popup.open('messages_write_message');
 
@@ -1002,6 +1000,7 @@ const magistraal = {
 		},
 
 		delete: (id) => {
+			const $message = $(`.message-list-item[data-id="${id}"]`);
 			magistraal.console.loading('console.loading.delete_message');
 
 			magistraal.api.call({
@@ -1010,10 +1009,8 @@ const magistraal = {
 				source: 'server_only'
 			}).then(data => {
 				magistraal.console.success('console.success.delete_message');
-				magistraal.page.load({
-					page: 'messages/list',
-					unobtrusive: true
-				});
+				$message.remove();
+				magistraal.sidebar.close();
 			}).catch(response => {
 				if(response.responseJSON && response.responseJSON.info) {
 					magistraal.console.error(`console.error.${response.responseJSON.info}`);
@@ -1041,6 +1038,7 @@ const magistraal = {
 			$form.find('[name="content"]').value(newContent);
 			
 			magistraal.popup.open(popup);
+			magistraal.sidebar.close();
 		},
 
 		reply: (message) => {
@@ -1074,6 +1072,7 @@ const magistraal = {
 			$form.find('[name="content"]').value(newContent);
 			
 			magistraal.popup.open(popup);
+			magistraal.sidebar.close();
 		},
 
 		paintBadge: (response) => {
@@ -1780,6 +1779,10 @@ const magistraal = {
 			}
 
 			return page;
+		},
+
+		reload: () => {
+			magistraal.page.load({page: magistraal.page.current(), unobtrusive: true});
 		},
 
 		previous: () => {
