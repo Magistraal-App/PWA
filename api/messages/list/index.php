@@ -2,8 +2,5 @@
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
     \Magister\Session::start();
 
-    $top  = $_GET['top']  ?? 1000;
-    $skip = $_GET['skip'] ?? 0;
-
-    \Magistraal\Response\success(\Magistraal\Messages\get_all($top, $skip));
+    \Magistraal\Response\success(\Magistraal\Messages\get_all($_POST['top'] ?? null, $_POST['skip'] ?? null, $_POST['folder'] ?? 'inbox', $_POST['filter'] ?? null));
 ?>

@@ -91,6 +91,7 @@
             <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'messages/list'});" data-magistraal="nav-item-messages">
                 <i class="fal fa-envelope"></i>
                 <span data-translation="generic.page.messages/list.title"></span>
+                <span class="nav-item-badge btn btn-sm btn-square btn-primary" data-magistraal="unread-messages-amount-badge" style="display: none;"></span>
             </li>
             <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'account'});" data-magistraal="nav-item-account">
                 <i class="fal fa-user"></i>
@@ -288,9 +289,14 @@
         <!-- MESSAGES -->
             <!-- List item -->
             <div data-magistraal-template="message-list-item" tabindex="0" class="message-list-item list-item list-item-flex" onclick="magistraal.sidebar.selectFeed($(this)); magistraal.messages.view($(this).attr('data-id'), ($(this).attr('data-read') == 'true' ? true : false));">
-                <div class="list-item-icon message-list-item-icon"></div>
-                <p class="list-item-title message-list-item-title"></p>
-                <p class="list-item-content message-list-item-content text-muted"></p>
+                <div class="list-item-icon" data-message-read="true">
+                    <i class="fal fa-envelope"></i>
+                </div>
+                <div class="list-item-icon" data-message-read="false">
+                    <i class="fal fa-envelope-open"></i>
+                </div>
+                <p class="list-item-title"></p>
+                <p class="list-item-content text-muted"></p>
             </div>
 
         <!-- SETTINGS -->
@@ -405,14 +411,36 @@
                     <i class="btn-icon fal fa-pencil-alt"></i>
                     <span class="btn-text" data-translation="messages.write_message" ></span>
                 </button>
-                <!-- <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.page.load({page: 'messages/sentlist'});">
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/sent'});">
                     <i class="btn-icon fal fa-paper-plane"></i>
                     <span class="btn-text" data-translation="messages.sent" ></span>
                 </button>
-                <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.page.load({page: 'messages/binlist'});">
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/bin'});">
                     <i class="btn-icon fal fa-trash"></i>
                     <span class="btn-text" data-translation="messages.bin" ></span>
-                </button> -->
+                </button>
+            </div>
+
+            <div data-magistraal-template="page-buttons-messages/sent">
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/list'});">
+                    <i class="btn-icon fal fa-envelope"></i>
+                    <span class="btn-text" data-translation="messages.inbox" ></span>
+                </button>
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/bin'});">
+                    <i class="btn-icon fal fa-trash"></i>
+                    <span class="btn-text" data-translation="messages.bin" ></span>
+                </button>
+            </div>
+
+            <div data-magistraal-template="page-buttons-messages/bin">
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/list'});">
+                    <i class="btn-icon fal fa-envelope"></i>
+                    <span class="btn-text" data-translation="messages.inbox" ></span>
+                </button>
+                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/sent'});">
+                    <i class="btn-icon fal fa-paper-plane"></i>
+                    <span class="btn-text" data-translation="messages.sent" ></span>
+                </button>
             </div>
 
             <!-- Responsive Carousel Indicator Item -->

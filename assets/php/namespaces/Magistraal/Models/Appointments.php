@@ -124,11 +124,11 @@
         $unix_from = strtotime($iso_from);
         $unix_to   = strtotime($iso_to);
 
-        $formatted = [];
+        $items = [];
 
         // Maak een lijst met alle dagen tussen $iso_from en $iso_to als keys
         for ($unix=$unix_from; $unix <= $unix_to;) { 
-            $formatted[date('Y-m-d', $unix)] = ['time' => date_iso($unix), 'unix' => $unix, 'appointments' => []];
+            $items[date('Y-m-d', $unix)] = ['time' => date_iso($unix), 'unix' => $unix, 'items' => []];
             $unix = strtotime('+1 day', $unix);
         }
 
@@ -136,14 +136,14 @@
             $start_date = date('Y-m-d', strtotime($appointment['Start']));
 
             // Sommige afspraken vallen buiten het gekozen tijdsbestek
-            if(!isset($formatted[$start_date])) {
+            if(!isset($items[$start_date])) {
                 continue;
             }
 
-            $formatted[$start_date]['appointments'][] = \Magistraal\Appointments\format($appointment, $filter);
+            $items[$start_date]['items'][] = \Magistraal\Appointments\format($appointment, $filter);
         }
 
-        return $formatted;
+        return ['items' => $items];
     }
     
     function seperate_lesson_content($content) {

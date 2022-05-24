@@ -148,7 +148,7 @@ const magistraal = {
 					success: function(response, textStatus, request) {
 						// Als de pagina niet meer hetzelfde is, verwerp de response
 						if(parameters.inBackground !== true && isSet(parameters.scope) && parameters.scope.trim() != magistraal.page.current().trim()) {
-							console.log('scope no match!', parameters.scope.trim(), magistraal.page.current().trim());
+							console.log('Page scope doesn\'t match:', parameters.scope.trim(), magistraal.page.current().trim());
 							return;
 						}
 
@@ -315,18 +315,18 @@ const magistraal = {
 		paintList: (response, loadType) => {
 			let carousel = new responsiveCarousel('x');
 			
-			$.each(response.data, function (day, data) {
+			$.each(response.data.items, function (day, data) {
 				// Maak een groep en stel de titel in
 				let $appointmentsGroup = magistraal.template.get('appointments-group');
 				$appointmentsGroup.find('.appointments-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'ldF')));
 
 				// Ga naar de volgende dag ls er geen afspraken op deze dag zijn
-				if(data.appointments.length == 0) {
+				if(data.items.length == 0) {
 					return true;
 				}
 
 				// Ga alle afspraken bij langs
-				$.each(data.appointments, function (i, appointment) {
+				$.each(data.items, function (i, appointment) {
 					// Maak een afspraak
 					let $appointment = magistraal.template.get('appointment');
 
@@ -849,15 +849,16 @@ const magistraal = {
 			let $html = $('<div></div>');
 
 			// Ga alle berichten bij langs
-			$.each(response.data, function (i, message) {
+			$.each(response.data.items, function (i, message) {
 				// Maak een bericht
-				let $message = magistraal.template.get('message-list-item');
+				let $message      = magistraal.template.get('message-list-item');
+				const messageSent = capitalizeFirst(magistraal.locale.formatDate(message.sent_at, 'ldFYHi'));
 
 				// Informatie
 				message.subject = message.subject || magistraal.locale.translate('messages.subject.no_subject');
-				$message.find('.message-list-item-title').text(message.subject);
-				$message.find('.message-list-item-side-title').text();
-				$message.find('.message-list-item-content').text(message.sender.name);
+				$message.find('.list-item-title').text(message.subject);
+				$message.find('.list-item-side-title').text();
+				$message.find('.list-item-content').text(message.sender.name || messageSent);
 
 				// Attributen
 				$message.attr({
@@ -868,19 +869,24 @@ const magistraal = {
 					'data-search': message.subject + message.sender.name
 				});
 
-				// Pictogram
-				const icon = message.read ? 'fal fa-envelope-open' : 'fal fa-envelope';
-				$message.find('.message-list-item-icon').html(`<i class="${icon}"></i>`);
-
 				// Maak een sidebar feed
-				let sidebarFeed = {
-					title: message.subject,
-					subtitle: message.sender.name,
-					table: {
-						'message.sender': message.sender.name,
-						'message.sent_at': capitalizeFirst(magistraal.locale.formatDate(message.sent_at, 'ldFYHi'))
-					}
-				};
+				let sidebarFeed;
+				if(response.folder == 'inbox') {
+					sidebarFeed = {
+						title: message.subject,
+						subtitle: message.sender.name,
+						table: {
+							'message.sender': message.sender.name,
+							'message.sent_at': messageSent
+						}
+					};
+				} else {
+					sidebarFeed = {
+						title: message.subject,
+						subtitle: capitalizeFirst(magistraal.locale.formatDate(message.sent_at, 'ldFYHi')),
+						table: {}
+					};
+				}
 
 				// Voeg de nodige knoppen toe aan de sidebar feed
 				sidebarFeed.actions = {
@@ -902,6 +908,7 @@ const magistraal = {
 		},
 
 		view: (id, read = true) => {
+			const $message = $(`.message-list-item[data-id="${id}"]`);
 			magistraal.console.loading('console.loading.message_content');
 
 			// Laad het bericht
@@ -917,13 +924,10 @@ const magistraal = {
 					magistraal.api.call({
 						url: 'messages/read', 
 						data: {id: id, read: true},
-						source: 'server_only'
+						source: 'server_only',
+						inBackground: true,
 					}).then(response => {
-						magistraal.page.load({
-							page: 'messages/list',
-							unobtrusive: true,
-							source: 'server_only'
-						});
+						$message.attr('data-read', true);
 					})
 				}
 			})
@@ -944,6 +948,7 @@ const magistraal = {
 			// Maak een sidebar feed
 			let updatedFeed = {
 				table: {
+					'message.sender': message.sender.name,
 					'message.to': message.recipients.to.names.join(', '),
 					'message.cc': message.recipients.cc.names.join(', '),
 					'message.bcc': message.recipients.bcc.names.join(', '),
@@ -1069,6 +1074,13 @@ const magistraal = {
 			$form.find('[name="content"]').value(newContent);
 			
 			magistraal.popup.open(popup);
+		},
+
+		paintBadge: (response) => {
+			const amountUnread = response.data.amount_unread || 0;
+			const $badge       = magistraal.element.get('unread-messages-amount-badge');
+
+			$badge.text(amountUnread).toggle(amountUnread > 0);
 		}
 	},
 
@@ -1430,11 +1442,13 @@ const magistraal = {
 
 				if(parameters?.doPreCache === true && parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
 					// Laad gegevens voor offlinegebruik
-					magistraal.api.call({url: 'absences/list', source: 'prefer_cache', inBackground: true});
 					magistraal.api.call({url: 'appointments/list', source: 'prefer_cache', inBackground: true});
 					magistraal.api.call({url: 'grades/list', source: 'prefer_cache', inBackground: true});
-					magistraal.api.call({url: 'grades/overview', source: 'prefer_cache', inBackground: true});
 					magistraal.api.call({url: 'messages/list', source: 'prefer_cache', inBackground: true});
+					magistraal.api.call({url: 'messages/list', source: 'server_only', data: {filter: ['id']}, inBackground: true, callback: magistraal.messages.paintBadge});
+					magistraal.api.call({url: 'messages/sent', source: 'prefer_cache', inBackground: true});
+					magistraal.api.call({url: 'messages/bin', source: 'prefer_cache', inBackground: true});
+					magistraal.api.call({url: 'grades/overview', source: 'prefer_cache', inBackground: true});
 					magistraal.api.call({url: 'sources/list', source: 'prefer_cache', inBackground: true});
 					magistraal.api.call({url: 'learningresources/list', source: 'prefer_cache', inBackground: true});
 					
@@ -1692,6 +1706,8 @@ const magistraal = {
 				'grades/calculator':      magistraal.grades.paintCalculator,
 				'learningresources/list': magistraal.learningresources.paintList,
 				'messages/list':          magistraal.messages.paintList,
+				'messages/sent':          magistraal.messages.paintList,
+				'messages/bin':          magistraal.messages.paintList,
 				'logout':                 magistraal.logout.logout,
 				'settings/list':          magistraal.settings.paintList,
 				'sources/list':           magistraal.sources.paintList
@@ -1710,8 +1726,9 @@ const magistraal = {
 				magistraal.api.call({
 					url: parameters.page, 
 					data: parameters.data, 
-					source: parameters.source,
+					source: 'prefer_cache',
 					cachable: parameters.cachable, 
+					cacheMaxAge: (parameters.source == 'prefer_cache' ? undefined : 10),
 					callback: function(response, loadType, request, page) {
 						const listItemSelectedIndex = $('.list-item[data-interesting="true"][data-selected="true"]').index();
 						callback(response, loadType, request, page);
@@ -1771,18 +1788,24 @@ const magistraal = {
 		},
 		
 		setContent: ($el, unwrap = true, loadType) => {
+			const $main           = $('main');
 			const $newContent     = unwrap ? $el.children() : $el;
-			const $currentContent = $('main').children();
+			const $currentContent = $main.children();
 
 			// Sla de scrollposities op
-			const scrollTop = $('main').scrollTop();
-			const scrollLeft = $('main').find('.responsive-carousel[data-carousel-direction="x"]').first().scrollLeft();
+			const scrollTop = $main.scrollTop();
+			const scrollLeft = $main.find('.responsive-carousel[data-carousel-direction="x"]').first().scrollLeft();
 
-			$('main').empty().append($newContent);
+			$main.empty().append($newContent);
 
 			if(loadType.includes('final')) {
-				$('main').scrollTop(scrollTop);
-				$('main').find('.responsive-carousel[data-carousel-direction="x"]').first().scrollLeft(scrollLeft)
+				$main.scrollTop(scrollTop);
+				$main.find('.responsive-carousel[data-carousel-direction="x"]').first().scrollLeft(scrollLeft)
+			}
+
+			// Toon bericht als de inhoud leeg is
+			if($main.children().length == 0) {
+				magistraal.element.get('page-search-no-matches').addClass('show');
 			}
 		},
 
@@ -2251,18 +2274,22 @@ const magistraal = {
 			newFeed.subtitle = updatedFeed?.subtitle || currentFeed.subtitle; 
 
 			// Merge table
-			let i = 1;
-			$.each(currentFeed.table, function(currentTableKey, currentTableValue) {
-				newFeed.table[currentTableKey] = currentTableValue;
+			if(Object.keys(currentFeed.table).length > 0) {
+				let i = 1;
+				$.each(currentFeed.table, function(currentTableKey, currentTableValue) {
+					newFeed.table[currentTableKey] = currentTableValue;
 
-			    if(currentTableKey == insertTableAfterKey || i == currentFeedTableLength) {
-					$.each(updatedFeed.table, function(updateTableKey, updateTableValue) {
-						newFeed.table[updateTableKey] = updateTableValue;
-					})
-				}
+					if(currentTableKey == insertTableAfterKey || i == currentFeedTableLength) {
+						$.each(updatedFeed.table, function(updateTableKey, updateTableValue) {
+							newFeed.table[updateTableKey] = updateTableValue;
+						})
+					}
 
-				i++;
-			})
+					i++;
+				})
+			} else {
+				newFeed.table = updatedFeed.table;
+			}
 
 			// Merge actions
 			Object.assign(newFeed.actions, currentFeed.actions, updatedFeed?.actions);
@@ -2293,7 +2320,6 @@ const magistraal = {
 		},
 
 		close: (goBack = false) => {
-			console.log(magistraalStorage.get('sidebar_locked'));
 			if(magistraalStorage.get('sidebar_locked').value === true) {
 				return false;
 			}

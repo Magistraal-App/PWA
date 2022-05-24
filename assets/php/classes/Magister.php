@@ -450,11 +450,10 @@
         /*           Messages           */
         /* ============================ */
 
-        public static function messageList($top = 1000) {
-            $res = \Magistraal\Api\call(\Magister\Session::$domain.'/api/berichten/mappen/alle/');
-            $folders  = $res['body']['items'] ?? [];
-           
-            $res = \Magistraal\Api\call(\Magister\Session::$domain."{$folders[0]['links']['berichten']['href']}?top={$top}");
+        public static function messageList($top = 1000, $skip = 0, $folder = 'inbox') {    
+            $magister_folder = ['inbox' => 'postvakin', 'sent' => 'verzondenitems', 'bin' => 'prullenbak'][$folder] ?? $folder;
+
+            $res = \Magistraal\Api\call(\Magister\Session::$domain."/api/berichten/{$magister_folder}/berichten?top={$top}&skip={$skip}");
             $messages = $res['body']['items'] ?? [];
 
             return $messages;

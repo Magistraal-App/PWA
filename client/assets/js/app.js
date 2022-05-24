@@ -599,16 +599,13 @@ $(window).on('popstate', function (e) {
         return;
     }
 
-    console.log('popstate event fired!');
     magistraal.page.back(false);
 
     if($('.popup.show').length > 0) {
-        console.log('closing popup by popstate event');
         magistraal.popup.close(undefined, false, true);
         return;
     }
 
-    console.log('closing sidebar by popstate event');
     magistraal.sidebar.close();
 });
 

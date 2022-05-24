@@ -51,6 +51,8 @@
     "generic.page.studyguides/list.title": "Studiewijzers",
     "generic.page.tasks/list.title": "Opdrachten",
     "generic.page.messages/list.title": "Berichten",
+    "generic.page.messages/sent.title": "Verzonden",
+    "generic.page.messages/bin.title": "Prullenbak",
     "generic.page.account/list.title": "Account",
     "generic.page.settings/list.title": "Instellingen",
     "generic.page.logout.title": "Uitloggen",
@@ -168,6 +170,7 @@
     "messages.popup.write_message.title": "Nieuw bericht",
     "messages.subject.no_subject": "(Geen onderwerp)",
     "messages.write_message": "Nieuw",
+    "messages.inbox": "Inbox",
     "messages.bin": "Prullenbak",
     "messages.sent": "Verzonden",
 
