@@ -19,9 +19,9 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 
 ## Love naar
 
-[@netlob](https://github.com/netlob)
-[@stingalleman](https://github.com/stingalleman)
-@Anish
+- [@netlob](https://github.com/netlob)
+- [@stingalleman](https://github.com/stingalleman)
+- @Anish
 
 
 Magistraal is niet verbonden met of onderdeel van Iddink Group.
