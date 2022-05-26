@@ -451,7 +451,7 @@
         /* ============================ */
 
         public static function messageList($top = 1000, $skip = 0, $folder = 'inbox') {    
-            $magister_folder = ['inbox' => 'postvakin', 'sent' => 'verzondenitems', 'bin' => 'prullenbak'][$folder] ?? $folder;
+            $magister_folder = ['inbox' => 'postvakin', 'sent' => 'verzondenitems', 'bin' => 'verwijderdeitems'][$folder] ?? $folder;
 
             $res = \Magistraal\Api\call(\Magister\Session::$domain."/api/berichten/{$magister_folder}/berichten?top={$top}&skip={$skip}");
             $messages = $res['body']['items'] ?? [];
@@ -562,28 +562,28 @@
             return $sources;
         }
 
-        // public function accountList() {
-        //     $this->requireAuth('bearer', 'user_info');
+        /* ============================ */
+        /*            Account           */
+        /* ============================ */
 
-        //     $this->obtainEnrollments();
+        public static function accountList() {
+            // Laad naam
+            $personal = \Magistraal\Browser\Browser::request(
+                \Magister\Session::$domain.'/api/account/'
+            )['body'] ?? null;
 
-        //     // Load profile (phone number and email address)
-        //     $profile = $this->obtainUrlData(
-        //         "https://{$this->tenant_domain}/api/personen/{$this->user['id']}/profiel/"
-        //     );
+            // Laad email en telefoonnummer
+            $contact = \Magistraal\Browser\Browser::request(
+                \Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId.'/profiel/'
+            )['body'] ?? null;
 
-        //     // Load addresses
-        //     $addresses = $this->obtainUrlData(
-        //         "https://{$this->tenant_domain}/api/personen/{$this->user['id']}/adressen/"
-        //     );
+            // Laad adressen
+            $residences = \Magistraal\Browser\Browser::request(
+                \Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId.'/adressen/'
+            )['body']['items'] ?? null;
 
-        //     // Load profile picture
-        //     $profile_picture = $this->visitUrl(
-        //         "https://{$this->tenant_domain}/api/leerlingen/{$this->user['id']}/foto?redirect_type=body"
-        //     )['body'];
-
-        //     return $this->accountListFormat($this->user, $profile, $addresses['items'], $profile_picture);
-        // }
+            return ['personal' => $personal, 'contact' => $contact, 'residences' => $residences];
+        }
 
         // private function accountListFormat($user, $profile, $addresses, $profile_picture) {
         //     $account = [];

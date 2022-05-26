@@ -1,6 +1,6 @@
 <?php 
     include_once("{$_SERVER['DOCUMENT_ROOT']}/magistraal/autoload.php");
-    $Magister->loginHeaderToken();
+    \Magister\Session::start();
 
-    \Magister\Response\success($Magister->accountList());
+    \Magistraal\Response\success(\Magistraal\Account\get_all());
 ?>

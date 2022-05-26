@@ -79,6 +79,14 @@
     "absences.popup.select_year.title": "Kies een schooljaar",
     "absences.popup.select_year.item.year.title": "Schooljaar",
 
+    "account.group.residences.title": "Woonplaats",
+    "account.group.personal.title": "Persoonlijk",
+    "account.group.contact.title": "Contactgegevens",
+    "account.item.email.title": "E-mailadres",
+    "account.item.phone.title": "Telefoonnummer",
+    "account.item.full_name.title": "Naam",
+    "account.item.full_name_official.title": "Officiële naam",
+
     "appointments.popup.create_appointment.item.content.title": "Inhoud",
     "appointments.popup.create_appointment.item.date.title": "Datum",
     "appointments.popup.create_appointment.item.description.title": "Omschrijving",

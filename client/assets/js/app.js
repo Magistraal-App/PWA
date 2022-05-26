@@ -579,6 +579,11 @@ $(document).on('click', '[data-popup-action]', function(e) {
     magistraal.popup.close(popup, true, true);
 })
 
+$(document).on('click', '.sidebar-action[data-action]', function() {
+    const $action = $(this);
+    magistraal.sidebar.actionStarted($action.attr('data-action'));
+})
+
 $(document).ready(function() {
     $('input[type="date"]').each(function() {
         $(this).value(null);

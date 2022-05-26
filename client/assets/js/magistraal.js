@@ -190,8 +190,7 @@ const magistraal = {
 							magistraal.console.error();
 							console.error('login error:', response.responseJSON);
 							magistraal.token.delete();
-							magistraal.page.load({
-								page: 'login'
+							magistraal.page.load({ page: 'login'
 							});
 							return;
 						}
@@ -305,6 +304,60 @@ const magistraal = {
 			let dateFrom = '01-08-'+(yearTo-1);
 
 			magistraal.page.load({page: 'absences/list', data: {from: dateFrom, to: dateTo}, scopeIgnoreQuery: true});
+		}
+	},
+
+	/* ============================ */
+	/*           Account            */
+	/* ============================ */
+	account: {
+		paintList: (response, loadType) => {
+			let $html = $('<div></div>');
+		
+			const groups = {
+				personal: ['full_name', 'full_name_official'], 
+				contact: ['email', 'phone']
+			};
+
+			// Gegevens
+			$.each(groups, function(group, items) {
+				const $group = magistraal.template.get('account-group');
+				$group.find('.account-group-title').text(magistraal.locale.translate(`account.group.${group}.title`));
+
+				$.each(items, function(i, item) {
+					const $item = magistraal.template.get('account-list-item');
+
+					$item.find('.list-item-title').text(magistraal.locale.translate(`account.item.${item}.title`));
+					$item.find('.list-item-content').text(response.data[group][item] || magistraal.locale.translate('generic.invalid'));
+					$item.find('.list-item-icon').html(`<i class="${magistraal.mapping.icons('account_items_icons', item)}"></i>`);
+					$item.attr('data-search', response.data[group][item] || null);
+					$item.appendTo($group);
+				})
+
+				$group.appendTo($html);
+			})
+
+			// Woonplaats(en)
+			const $group = magistraal.template.get('account-group');
+			$group.find('.account-group-title').text(magistraal.locale.translate('account.group.residences.title'));
+
+			$.each(response.data.residences, function(i, residence) {
+				if(residence.type != 'live') {
+					return true;
+				}
+
+				const $item   = magistraal.template.get('account-list-item');
+
+				$item.find('.list-item-title').text(`${residence.street} ${residence.street_number}${residence.street_number_suffix}`);
+				$item.find('.list-item-content').html(`${residence.postal_code}, ${residence.place}`);
+				$item.find('.list-item-icon').html(`<i class="${magistraal.mapping.icons('account_items_icons', 'residence')}"></i>`);
+				$item.attr('data-search', `${residence.street} ${residence.street_number}${residence.street_number_suffix} ${residence.postal_code}, ${residence.place}`)
+				$item.appendTo($group);
+			})
+
+			$group.appendTo($html);
+
+			magistraal.page.setContent($html, true, loadType);
 		}
 	},
 
@@ -492,6 +545,7 @@ const magistraal = {
 
 		create: (appointment, $form = undefined) => {
 			magistraal.console.loading('console.loading.create_appointment');
+			magistraal.sidebar.actionEnded('create', true);
 
 			let start = new Date(appointment.date);
 			start.setHours(appointment.start.hours, appointment.start.minutes, 0);
@@ -512,8 +566,6 @@ const magistraal = {
 				if($form) {
 					$form.formReset();
 				}
-
-				magistraal.sidebar.close();
 			}).catch(response => {
 				magistraal.popup.open('appointments_create_appointment');
 
@@ -537,7 +589,7 @@ const magistraal = {
 			$form.find('[name="content"]').value(appointment.content);
 			
 			magistraal.popup.open(popup);
-			magistraal.sidebar.close();
+			magistraal.sidebar.actionEnded('edit', true);
 		},
 
 		delete: (id) => {
@@ -551,14 +603,13 @@ const magistraal = {
 			}).then(data => {
 				magistraal.console.success('console.success.delete_appointment');
 				$appointment.remove();
-				
-				magistraal.page.selectInterestingListItem();
-				magistraal.sidebar.close();
 			}).catch(response => {
 				if(response.responseJSON && response.responseJSON.info) {
 					magistraal.console.error(`console.error.${response.responseJSON.info}`);
 					return false;
 				}
+			}).finallly(response => {
+				magistraal.sidebar.actionEnded('delete', true);
 			})
 		}
 	},
@@ -841,8 +892,8 @@ const magistraal = {
 			// Laad nieuwste berichten
 			if(parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
 				for (let i = 0; i < 5; i++) {
-					if(isSet(response.data[i]) && isSet(response.data[i].id)) {
-						magistraal.api.call({url: 'messages/info', data: {id: String(response.data[i].id)}, source: 'prefer_cache'})
+					if(isSet(response.data.items[i]) && isSet(response.data.items[i].id)) {
+						magistraal.api.call({url: 'messages/info', data: {id: String(response.data.items[i].id)}, source: 'prefer_cache'})
 					};
 				}
 			}
@@ -866,6 +917,7 @@ const magistraal = {
 					'data-id': message.id,
 					'data-interesting': true,
 					'data-priority': message.priority,
+					'data-has-attachments': message.has_attachments,
 					'data-read': message.read,
 					'data-search': message.subject + message.sender.name
 				});
@@ -972,13 +1024,14 @@ const magistraal = {
 			magistraal.sidebar.updateFeed(updatedFeed, undefined);
 
 			// Stuur een bericht in de console
-			if(loadType.includes('final')) {
+			if(loadType.includes('final') && $(`.message-list-item[data-id="${message.id}"]`).length > 0) {
 				magistraal.console.success('console.success.message_content');
 			}
 		},
 
 		send: (message, $form = undefined) => {
 			magistraal.console.loading('console.loading.send_message');
+			magistraal.sidebar.actionEnded('send', true);
 
 			magistraal.api.call({
 				url: 'messages/send', 
@@ -992,8 +1045,6 @@ const magistraal = {
 				if($form) {
 					$form.formReset();
 				}
-
-				magistraal.sidebar.close();
 			}).catch(response => {
 				magistraal.popup.open('messages_write_message');
 
@@ -1014,12 +1065,13 @@ const magistraal = {
 				$message.remove();
 
 				magistraal.page.selectInterestingListItem();
-				magistraal.sidebar.close();
 			}).catch(response => {
 				if(response.responseJSON && response.responseJSON.info) {
 					magistraal.console.error(`console.error.${response.responseJSON.info}`);
 					return false;
 				}
+			}).finallly(response => {
+				magistraal.sidebar.actionEnded('delete', true);
 			})
 		},
 
@@ -1042,7 +1094,7 @@ const magistraal = {
 			$form.find('[name="content"]').value(newContent);
 			
 			magistraal.popup.open(popup);
-			magistraal.sidebar.close();
+			magistraal.sidebar.actionEnded('forward', true);
 		},
 
 		reply: (message) => {
@@ -1076,7 +1128,7 @@ const magistraal = {
 			$form.find('[name="content"]').value(newContent);
 			
 			magistraal.popup.open(popup);
-			magistraal.sidebar.close();
+			magistraal.sidebar.actionEnded('reply', true);
 		},
 
 		paintBadge: (response) => {
@@ -1703,6 +1755,7 @@ const magistraal = {
 			// Lijst van callbacks
 			const callbacks = {
 				'absences/list':          magistraal.absences.paintList,
+				'account/list':           magistraal.account.paintList,
 				'appointments/list':      magistraal.appointments.paintList,
 				'grades/list':            magistraal.grades.paintList,
 				'grades/overview':        magistraal.grades.paintOverview,
@@ -1719,8 +1772,8 @@ const magistraal = {
 			return new Promise((resolve, reject) => {
 				// Juiste callback kiezen
 				if(!isSet(callbacks[parameters.page])) {
-					reject();
-					return false;
+					console.error(`Failed to load page ${parameters.page}: No callback was set.`);
+					return;
 				}
 				const callback = callbacks[parameters.page];
 
@@ -1814,9 +1867,7 @@ const magistraal = {
 			}
 
 			// Toon bericht als de inhoud leeg is
-			if($main.children().length == 0) {
-				magistraal.element.get('page-search-no-matches').addClass('show');
-			}
+			magistraal.element.get('page-search-no-matches').toggleClass('show', $main.children().length == 0);
 		},
 
 		pushState: (data, unused, string) => {
@@ -2352,6 +2403,23 @@ const magistraal = {
 			} else {
 				magistraal.sidebar.open();
 			}
+		},
+
+		actionStarted: (action) => {
+			const $action = $(`.sidebar-action[data-action="${action}"]`);
+			$action.attr('disabled', 'true');
+		},
+
+		actionEnded: (action, doClose) => {
+			setTimeout(() => {
+				const $action = $(`.sidebar-action[data-action="${action}"]`);
+				$action.removeAttr('disabled');
+
+				if(doClose) {
+					magistraal.page.selectInterestingListItem();
+					magistraal.sidebar.close();
+				}
+			}, 100);
 		}
 	},
 	popup: {
@@ -2544,6 +2612,20 @@ const magistraal = {
 					} else {
 						return 'fal fa-school';
 					}
+
+				case 'account_items_icons': {
+					if(selector == 'full_name') {
+						return 'fal fa-user';
+					} else if(selector == 'full_name_official') {
+						return 'fal fa-address-card';
+					} else if(selector == 'phone') {
+						return 'fal fa-phone-alt';
+					} else if(selector == 'email') {
+						return 'fal fa-envelope';
+					} else if(selector == 'residence') {
+						return 'fal fa-home';
+					}
+				}
 			}
 
 			return 'fal fa-question';

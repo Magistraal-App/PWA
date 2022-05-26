@@ -93,7 +93,7 @@
                 <span data-translation="generic.page.messages/list.title"></span>
                 <span class="nav-item-badge btn btn-sm btn-square btn-primary" data-magistraal="unread-messages-amount-badge" style="display: none;"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'account'});" data-magistraal="nav-item-account">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'account/list'});" data-magistraal="nav-item-account">
                 <i class="fal fa-user"></i>
                 <span data-translation="generic.page.account/list.title"></span>
             </li>
@@ -127,11 +127,11 @@
         <h3 data-magistraal="sidebar-title" class="mb-1 text-ellipsis"></h3>
         <p data-magistraal="sidebar-subtitle" class="text-muted"></p>
         <div data-magistraal="sidebar-table" class="sidebar-table"></div>
-        <div data-magistraal="sidebar-actions" class="d-none d-md-flex"></div>
+        <div data-magistraal="sidebar-actions" class="flex-row d-none d-md-flex scrollbar-hidden"></div>
     </div>
     <footer class="scrollbar-hidden">
         <div data-magistraal="page-buttons-container" class="flex-row d-md-none mr-auto"></div>
-        <div data-magistraal="sidebar-actions" class="flex-row d-md-none mr-auto"></div>
+        <div data-magistraal="sidebar-actions" class="flex-row d-md-none mr-auto scrollbar-hidden"></div>
         <div class="col px-0 ml-auto d-flex align-items-center justify-content-end" style="width: 0px;">
             <span data-magistraal="console"></span>
         </div>
@@ -145,66 +145,22 @@
 
             <!-- List item -->
             <div data-magistraal-template="absence-list-item" tabindex="0" class="absence-list-item list-item" onclick="magistraal.sidebar.selectFeed($(this));">
-                <div class=" list-item-icon font-heading"></div>
-                <p class="list-item-title "></p>
+                <div class="list-item-icon font-heading"></div>
+                <p class="list-item-title"></p>
                 <p class="list-item-content text-muted"></p>
             </div>
         
         <!-- ACCOUNT -->
-            <!-- Account information -->
-            <div data-magistraal-template="account-info" class="account-info row mx-n1">
-                <div class="col-12 col-lg-6 p-1">
-                    <div class="account-info-tile tile account-info-basic">
-                        <h4 data-translation="account.info.basic.heading"></h4>
-                        <!-- <div class="account-info-item account-info-picture" style="opacity: 0.01;"></div> -->
-                        <div class="account-info-item account-info-name">
-                            <h5 data-translation="account.info.basic.name"></h5>
-                            <span></span>
-                        </div>
-                        <div class="account-info-item account-info-name-official">
-                            <h5 data-translation="account.info.basic.name_official"></h5>
-                            <span></span>
-                        </div>
-                        <div class="account-info-item account-info-birth-date">
-                            <h5 data-translation="account.info.basic.birth_date"></h5>
-                            <span></span>
-                        </div>
-                        <div class="account-info-item account-info-address">
-                            <h5 data-translation="account.info.basic.address"></h5>
-                            <span></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-lg-6 p-1">
-                    <div class="account-info-tile tile account-info-contact">
-                        <h4 data-translation="account.info.contact.heading"></h4>
-                        <div class="account-info-item account-info-email">
-                            <h5 data-translation="account.info.contact.email"></h5>
-                            <span></span>
-                        </div>
-                        <div class="account-info-item account-info-phone">
-                            <h5 data-translation="account.info.contact.phone"></h5>
-                            <span></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-lg-6 p-1">
-                    <div class="account-info-tile tile account-info-education">
-                        <h4 data-translation="account.info.education.heading"></h4>
-                        <div class="account-info-item account-info-study">
-                            <h5 data-translation="account.info.education.study"></h5>
-                            <span></span>
-                        </div>
-                        <div class="account-info-item account-info-curriculum">
-                            <h5 data-translation="account.info.education.curriculum"></h5>
-                            <span></span>
-                        </div>
-                        <div class="account-info-item account-info-class">
-                            <h5 data-translation="account.info.education.class"></h5>
-                            <span></span>
-                        </div>
-                    </div>
-                </div>
+            <!-- Group -->
+            <div data-magistraal-template="account-group" class="account-group list-item-group">
+                <h4 class="account-group-title"></h4>
+            </div>
+
+            <!-- List item -->
+            <div data-magistraal-template="account-list-item" tabindex="0" class="account-list-item list-item">
+                <div class="list-item-icon"></div>
+                <p class="list-item-title"></p>
+                <p class="list-item-content text-muted"></p>
             </div>
 
         <!-- APPOINTMENTS -->
@@ -289,11 +245,14 @@
         <!-- MESSAGES -->
             <!-- List item -->
             <div data-magistraal-template="message-list-item" tabindex="0" class="message-list-item list-item list-item-flex" onclick="magistraal.sidebar.selectFeed($(this)); magistraal.messages.view($(this).attr('data-id'), ($(this).attr('data-read') == 'true' ? true : false));">
-                <div class="list-item-icon" data-message-read="true">
+                <div class="list-item-icon" data-message-read="true" data-message-has-attachments="false">
                     <i class="fal fa-envelope"></i>
                 </div>
-                <div class="list-item-icon" data-message-read="false">
+                <div class="list-item-icon" data-message-read="false" data-message-has-attachments="false">
                     <i class="fal fa-envelope-open"></i>
+                </div>
+                <div class="list-item-icon" data-message-has-attachments="true">
+                    <i class="fal fa-paperclip"></i>
                 </div>
                 <p class="list-item-title"></p>
                 <p class="list-item-content text-muted"></p>
@@ -411,17 +370,17 @@
                     <i class="btn-icon fal fa-pencil-alt"></i>
                     <span class="btn-text" data-translation="messages.write_message" ></span>
                 </button>
-                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/sent'});">
+                <!-- <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/sent'});">
                     <i class="btn-icon fal fa-paper-plane"></i>
                     <span class="btn-text" data-translation="messages.sent" ></span>
                 </button>
                 <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/bin'});">
                     <i class="btn-icon fal fa-trash"></i>
                     <span class="btn-text" data-translation="messages.bin" ></span>
-                </button>
+                </button> -->
             </div>
 
-            <div data-magistraal-template="page-buttons-messages/sent">
+            <!-- <div data-magistraal-template="page-buttons-messages/sent">
                 <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/list'});">
                     <i class="btn-icon fal fa-envelope"></i>
                     <span class="btn-text" data-translation="messages.inbox" ></span>
@@ -430,9 +389,9 @@
                     <i class="btn-icon fal fa-trash"></i>
                     <span class="btn-text" data-translation="messages.bin" ></span>
                 </button>
-            </div>
+            </div> -->
 
-            <div data-magistraal-template="page-buttons-messages/bin">
+            <!-- <div data-magistraal-template="page-buttons-messages/bin">
                 <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/list'});">
                     <i class="btn-icon fal fa-envelope"></i>
                     <span class="btn-text" data-translation="messages.inbox" ></span>
@@ -441,7 +400,7 @@
                     <i class="btn-icon fal fa-paper-plane"></i>
                     <span class="btn-text" data-translation="messages.sent" ></span>
                 </button>
-            </div>
+            </div> -->
 
             <!-- Responsive Carousel Indicator Item -->
             <div data-magistraal-template="responsive-carousel-indicator-item" class="responsive-carousel-indicator-item"></div>
