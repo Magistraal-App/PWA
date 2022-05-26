@@ -380,7 +380,7 @@
                 </button> -->
             </div>
 
-            <!-- <div data-magistraal-template="page-buttons-messages/sent">
+            <div data-magistraal-template="page-buttons-messages/sent">
                 <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/list'});">
                     <i class="btn-icon fal fa-envelope"></i>
                     <span class="btn-text" data-translation="messages.inbox" ></span>
@@ -389,9 +389,9 @@
                     <i class="btn-icon fal fa-trash"></i>
                     <span class="btn-text" data-translation="messages.bin" ></span>
                 </button>
-            </div> -->
+            </div>
 
-            <!-- <div data-magistraal-template="page-buttons-messages/bin">
+            <div data-magistraal-template="page-buttons-messages/bin">
                 <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/list'});">
                     <i class="btn-icon fal fa-envelope"></i>
                     <span class="btn-text" data-translation="messages.inbox" ></span>
@@ -400,7 +400,7 @@
                     <i class="btn-icon fal fa-paper-plane"></i>
                     <span class="btn-text" data-translation="messages.sent" ></span>
                 </button>
-            </div> -->
+            </div>
 
             <!-- Responsive Carousel Indicator Item -->
             <div data-magistraal-template="responsive-carousel-indicator-item" class="responsive-carousel-indicator-item"></div>
