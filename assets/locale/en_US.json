@@ -76,8 +76,16 @@
     
     "generic.search.no_matches": "No matches found.",
 
-     "absences.popup.select_year.title": "Select a school year",
+    "absences.popup.select_year.title": "Select a school year",
     "absences.popup.select_year.item.year.title": "School year",
+
+    "account.group.residences.title": "Residences",
+    "account.group.personal.title": "Personal",
+    "account.group.contact.title": "Contact details",
+    "account.item.email.title": "Email address",
+    "account.item.phone.title": "Phone number",
+    "account.item.full_name.title": "Name",
+    "account.item.full_name_official.title": "Official name",
 
     "appointments.popup.create_appointment.item.content.title": "Content",
     "appointments.popup.create_appointment.item.date.title": "Date",
