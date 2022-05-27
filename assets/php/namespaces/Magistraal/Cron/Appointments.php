@@ -6,11 +6,11 @@
         $new_items = [];
 
         // Load appointments for today and tomorrow
-        $appointments = \Magistraal\Appointments\get_all($iso_start, $iso_end);
+        $appointments = \Magistraal\Appointments\get_all($iso_start, $iso_end)['items'] ?? [];
         
         if(isset($appointments)) {
             foreach ($appointments as $day) {
-                foreach ($day['appointments'] as $appointment) {
+                foreach ($day['items'] as $appointment) {
                     // Continue if appointment is invalid or if it is not canceled
                     if(!isset($appointment['id']) || !isset($appointment['status']) || $appointment['status'] != 'canceled') {
                         continue;

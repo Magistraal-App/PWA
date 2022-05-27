@@ -27,8 +27,6 @@
         }
 
         $timestamp1 = \Magistraal\Debug\get_timestamp();
-
-        $timestamp2 = \Magistraal\Debug\get_timestamp();
         // Start session without checking if the token has expired
         if(!\Magister\Session::start($token_data['token_id'], false)) {
             // Failed to start session, delete token and continue
@@ -36,18 +34,16 @@
             continue;
         }
 
-        $timestamp3 = \Magistraal\Debug\get_timestamp();
+        $timestamp2 = \Magistraal\Debug\get_timestamp();
 
         // Grab appointment ids, message ids and grade ids for this user_uuid
         $notification_data = \Magistraal\Database\query("SELECT `notification_data` FROM `magistraal_userdata` WHERE `user_uuid`=?", [$token_data['user_uuid']])[0]['notification_data'] ?? null;
         
-        $timestamp4 = \Magistraal\Debug\get_timestamp();
+        $timestamp3 = \Magistraal\Debug\get_timestamp();
 
 
         // Decode notification data
         $notification_data = json_decode($notification_data, true) ?? ['appointments' => [], 'grades' => [], 'messages' => []];
-
-        $timestamp5 = \Magistraal\Debug\get_timestamp();
 
         // Search for new appointments, grades and messages
         $changes = [
@@ -63,12 +59,12 @@
             'messages'     => $changes['messages']['new_entry']
         ]);
 
-        $timestamp6 = \Magistraal\Debug\get_timestamp();
+        $timestamp4 = \Magistraal\Debug\get_timestamp();
 
         // Store the new notification data
         \Magistraal\Database\query("UPDATE `magistraal_userdata` SET `notification_data`=? WHERE `user_uuid`=?", [$new_notification_data, $token_data['user_uuid']]);
 
-        $timestamp7 = \Magistraal\Debug\get_timestamp();
+        $timestamp5 = \Magistraal\Debug\get_timestamp();
 
         // Notify the user of any changes
         foreach ($changes as $category => $items) {
@@ -106,7 +102,7 @@
             }
         }
 
-        $timestamp8 = \Magistraal\Debug\get_timestamp();
+        $timestamp6 = \Magistraal\Debug\get_timestamp();
 
         
         if(\Magistraal\Config\get('debugging') === true) { 
@@ -116,14 +112,12 @@
             \Magistraal\Debug\print_value('Tenant', 1, str_replace(['https://', 'http://', '.magister.net', '/'], '', \Magister\Session::$domain));
             \Magistraal\Debug\print_value('User', 1, substr(\Magister\Session::$userUuid, 0, 8));
             \Magistraal\Debug\print_heading('Timings', 1, 1);
-            \Magistraal\Debug\print_timing('Creating userdata row', 1, $timestamp1, $timestamp2, $timestamp1, $timestamp8);
-            \Magistraal\Debug\print_timing('Starting session', 1, $timestamp2, $timestamp3, $timestamp1, $timestamp8);
-            \Magistraal\Debug\print_timing('Getting userdata', 1, $timestamp3, $timestamp4, $timestamp1, $timestamp8);
-            \Magistraal\Debug\print_timing('Parsing userdata', 1, $timestamp4, $timestamp5, $timestamp1, $timestamp8);
-            \Magistraal\Debug\print_timing('Finding changes', 1, $timestamp5, $timestamp6, $timestamp1, $timestamp8);
-            \Magistraal\Debug\print_timing('Storing changes', 1, $timestamp6, $timestamp7, $timestamp1, $timestamp8);
-            \Magistraal\Debug\print_timing('Sending notifications', 1, $timestamp7, $timestamp8, $timestamp1, $timestamp8);
-            \Magistraal\Debug\print_timing('Total', 1, $timestamp1, $timestamp8, $timestamp1, $timestamp8);
+            \Magistraal\Debug\print_timing('Starting session', 1, $timestamp1, $timestamp2, $timestamp1, $timestamp6);
+            \Magistraal\Debug\print_timing('Getting userdata', 1, $timestamp2, $timestamp3, $timestamp1, $timestamp6);
+            \Magistraal\Debug\print_timing('Finding changes', 1, $timestamp3, $timestamp4, $timestamp1, $timestamp6);
+            \Magistraal\Debug\print_timing('Storing changes', 1, $timestamp4, $timestamp5, $timestamp1, $timestamp6);
+            \Magistraal\Debug\print_timing('Sending notifications', 1, $timestamp5, $timestamp6, $timestamp1, $timestamp6);
+            \Magistraal\Debug\print_timing('Total', 1, $timestamp1, $timestamp6, $timestamp1, $timestamp6);
             \Magistraal\Debug\print_heading('Results', 1, 1);
             \Magistraal\Debug\print_value('Canceled appointments', 1, count($changes['appointments']['new_items']));
             \Magistraal\Debug\print_value('Grades', 1, count($changes['grades']['new_items']));

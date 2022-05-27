@@ -6,7 +6,7 @@
         $new_items = [];
 
         // Load top 3 messages
-        $messages = \Magistraal\messages\get_all(3);
+        $messages = \Magistraal\Messages\get_all(3, 0, 'inbox');
 
         // Return if messages could not be loaded
         if(!isset($messages)) {
