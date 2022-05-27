@@ -512,9 +512,9 @@ $(document).on('magistraal.ready', function() {
     })
 })
 
-$(document).on('input', '[data-magistraal-search-target]', function() {
+$(document).on('input', '[data-magistraal-target]', function() {
     const $input         = $(this);
-    const target         = $input.attr('data-magistraal-search-target');
+    const target         = $input.attr('data-magistraal-target');
     const $target        = magistraal.element.get(target);
     const $searchResults = $target.find('[data-search]');
     const query          = $(this).val().toLowerCase();
@@ -541,6 +541,30 @@ $(document).on('input', '[data-magistraal-search-target]', function() {
         } else {
             magistraal.element.get('page-search-no-matches').removeClass('show');
         }
+    }
+})
+
+$(document).on('click', '.dropdown .btn-dropdown', function() {
+    const $btn     = $(this);
+    const $wrapper = $btn.closest('.dropdown');
+    const $target  = $wrapper.find('.dropdown-menu');
+
+    if($target.length == 0) {
+        return;
+    }
+
+    $wrapper.toggleClass('active');
+})
+
+$(document).on('click', function(e) {
+    if(isSet($(e.target).attr('data-ignore-event')) && $(e.target).attr('data-ignore-event').includes('click')) {
+        return;
+    }
+
+    if($(e.target).closest('.dropdown.active').length == 0 || $(e.target).hasClass('dropdown-item')) {
+        setTimeout(() => {
+            $('.dropdown.active').removeClass('active');
+        }, 10);
     }
 })
 

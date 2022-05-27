@@ -13,11 +13,18 @@
                     }
                 },
                 "buttons": {
-                    "icon": "fal fa-hand-pointer",
+                    "icon": "fal fa-comment-edit",
                     "values": {
                         "both": {"title": "both", "icon": "fal fa-comment-edit"},
                         "icon": {"title": "icon", "icon": "fal fa-pencil-alt"},
                         "text": {"title": "text", "icon": "fal fa-comment"}
+                    }
+                },
+                "best_handed": {
+                    "icon": "fal fa-hand-paper",
+                    "values": {
+                        "right": {"title": "right", "icon": "fal fa-hand-point-right"},
+                        "left": {"title": "left", "icon": "fal fa-hand-point-left"}
                     }
                 },
                 "animations": {
@@ -108,6 +115,7 @@
         "appearance.buttons": "both",
         "appearance.animations": "on",
         "appearance.language": "nl_NL",
+        "appearance.best_handed": "right",
         "appearance.carousel_indicator": "on",
         "data_usage.prefer_level": "1",
         "notifications.setup": "",

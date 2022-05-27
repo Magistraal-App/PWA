@@ -166,7 +166,7 @@ const magistraal = {
 									parameters.callback(response, 'server_final', request, parameters.url);
 								}
 							} catch(err) {
-								console.error('An error occured with succesful live response from:', err);
+								console.error(`Failed to load page ${parameters.page}:`, err);
 								magistraal.console.error();
 							}
 						} else {
@@ -178,7 +178,7 @@ const magistraal = {
 									}
 								}
 							} catch(err) {
-								console.error('An error occured with failed live response from:', err);
+								console.error(`Failed to load page ${parameters.page}:`, err);
 								magistraal.console.error();
 							}
 						}
@@ -188,10 +188,8 @@ const magistraal = {
 						// Laat de gebruiker opnieuw inloggen als token niet bestaat / onjuist is
 						if(parameters.inBackground !== true && isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info.includes('token_invalid')) {
 							magistraal.console.error();
-							console.error('login error:', response.responseJSON);
 							magistraal.token.delete();
-							magistraal.page.load({ page: 'login'
-							});
+							magistraal.page.load({page: 'login'});
 							return;
 						}
 
@@ -205,18 +203,16 @@ const magistraal = {
 							const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`).value;
 
 							if(isSet(cachedResponse)) {
-								// Voer callback uit met response van cache
+								// Voer callback uit met response uit cache
 								try {
 									resolve(cachedResponse);
 									if(typeof parameters.callback == 'function') {
 										parameters.callback(cachedResponse, 'cache_final', undefined, parameters.url);
 									}
 								} catch(err) {
-									console.error('An error occured with cached response:', err);
+									console.error(`Failed to load page ${parameters.page}:`, err);
 									magistraal.console.error();
 								}
-
-								console.info('bgw om ' + magistraal.locale.formatDate(cachedResponse.storedAt, 'Hi'));
 								return;
 							}
 						} else {
@@ -1150,7 +1146,7 @@ const magistraal = {
 			let $html = $('<div></div>');
 
 			// Ga alle mogelijke instellingen bij langs
-			$.each(response.data.items, function (itemNamespace, item) {
+			$.each(response.data.items.items, function (itemNamespace, item) {
 				let $item = $('<div></div>');
 
 				// Als item een categorie is
@@ -1159,7 +1155,7 @@ const magistraal = {
 					$item = magistraal.template.get('setting-category');
 
 					// Informatie
-					$item.find('.setting-category-title').text(magistraal.locale.translate(`settings.category.${response.data.category}.${itemNamespace}.title`));
+					$item.find('.setting-category-title').text(magistraal.locale.translate(`settings.category.${response.data.items.category}.${itemNamespace}.title`));
 					$item.find('.setting-category-icon').html(`<i class="${item?.icon || 'cog'}"></i>`); 
 					
 					// Beschrijving (bestaat uit de namen van de sub-items in deze categorie)
@@ -1184,7 +1180,7 @@ const magistraal = {
 				} else {
 					$item       = magistraal.template.get('setting-list-item');
 					let $input  = $('<input class="form-control input-search">')
-					let setting = `${response.data.category}.${itemNamespace}`;
+					let setting = `${response.data.items.category}.${itemNamespace}`;
 					$input.appendTo($item.find('.list-item-content'));
 
 					if(isSet(currentSettings[setting])) {
@@ -1250,13 +1246,13 @@ const magistraal = {
 
 					// Attributen
 					$item.attr({
-						'data-setting': `${response.data.category}.${itemNamespace}`,
+						'data-setting': `${response.data.items.category}.${itemNamespace}`,
 						'data-reload': item?.options?.do_reload || false
 					})
 
 					// Pictogram en titel
 					$item.find('.list-item-icon').html(`<i class="${item?.icon || 'cog'}"></i>`); 
-					$item.find('.list-item-title').text(magistraal.locale.translate(`settings.setting.${response.data.category}.${itemNamespace}.title`));
+					$item.find('.list-item-title').text(magistraal.locale.translate(`settings.setting.${response.data.items.category}.${itemNamespace}.title`));
 				}
 
 				// Voeg item toe aan de inhoud
@@ -1445,12 +1441,13 @@ const magistraal = {
 			$('.console-message').remove();
 
 			magistraal.element.get('console').prepend(`
-								<div class="console-message" data-magistraal="console-message-${messageId}">
-										<span class="console-message-content">${message}</span>
-										<span class="console-message-icon pl-1"><i class="fal fa-${style.icon}" style="color: ${style.color};"></i></span>
-								</div>
-						`); // Delete message after duration passed
-
+				<div class="console-message d-flex flex-row" data-magistraal="console-message-${messageId}">
+					<span class="console-message-icon"><i class="fal fa-${style.icon}" style="color: ${style.color};"></i></span>
+					<span class="console-message-content">${message}</span>
+				</div>
+			`); 
+			
+			// Delete message after duration passed
 			if(duration >= 0) {
 				setTimeout(() => {
 					magistraal.element.get(`console-message-${messageId}`).remove();
@@ -1478,12 +1475,36 @@ const magistraal = {
 
 				const settings = magistraalPersistentStorage.get('settings').value;
 
-				if(!isSet(settings)) {
-					// Laad de instellingen
-					magistraal.api.call({url: 'user/settings/get_all', source: 'server_only', inBackground: true}).then(res => {
-						magistraalPersistentStorage.set('settings', res.data);
-					})
-				}
+				// Laad de instellingen
+				magistraal.api.call({url: 'user/settings/get_all', source: 'prefer_cache', inBackground: true}).then(res => {
+					magistraalPersistentStorage.set('settings', res.data);
+
+					if(parameters?.doPreCache === true && parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
+						// Laad pagina's voor offlinegebruik
+						magistraal.api.call({url: 'appointments/list', source: 'prefer_cache', inBackground: true});
+						magistraal.api.call({url: 'grades/list', source: 'prefer_cache', inBackground: true});
+						magistraal.api.call({url: 'messages/list', source: 'prefer_cache', inBackground: true});
+						magistraal.api.call({url: 'messages/list', source: 'server_only', data: {filter: ['id']}, inBackground: true, callback: magistraal.messages.paintBadge});
+						magistraal.api.call({url: 'messages/sent', source: 'prefer_cache', inBackground: true});
+						magistraal.api.call({url: 'absences/list', source: 'prefer_cache', inBackground: true});
+						magistraal.api.call({url: 'account/list', source: 'prefer_cache', inBackground: true});
+						magistraal.api.call({url: 'messages/bin', source: 'prefer_cache', inBackground: true});
+						magistraal.api.call({url: 'grades/overview', source: 'prefer_cache', inBackground: true});
+						magistraal.api.call({url: 'sources/list', source: 'prefer_cache', inBackground: true});
+						magistraal.api.call({url: 'learningresources/list', source: 'prefer_cache', inBackground: true});
+						
+						// Laad instellingenpagina voor offline gebruik
+						magistraal.api.call({url: 'settings/list', source: 'prefer_cache', inBackground: true}).then(res => {
+							// Sla user uuid op
+							magistraalPersistentStorage.set('user_uuid', res.data.user_uuid);
+
+							// Laad subpagina's
+							$.each(res.data.items.items, function(itemNamespace, items) {
+								magistraal.api.call({url: 'settings/list', data: {category: itemNamespace}, source: 'prefer_cache', inBackground: true})
+							})
+						});
+					}
+				})
 
 				const language = (isSet(settings) && isSet(settings['appearance.language']) ? settings['appearance.language'] : 'nl_NL');
 
@@ -1494,27 +1515,6 @@ const magistraal = {
 					$(document).trigger('magistraal.ready');
 					resolve();
 				}).catch(() => {});
-
-				if(parameters?.doPreCache === true && parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
-					// Laad gegevens voor offlinegebruik
-					magistraal.api.call({url: 'appointments/list', source: 'prefer_cache', inBackground: true});
-					magistraal.api.call({url: 'grades/list', source: 'prefer_cache', inBackground: true});
-					magistraal.api.call({url: 'messages/list', source: 'prefer_cache', inBackground: true});
-					magistraal.api.call({url: 'messages/list', source: 'server_only', data: {filter: ['id']}, inBackground: true, callback: magistraal.messages.paintBadge});
-					magistraal.api.call({url: 'messages/sent', source: 'prefer_cache', inBackground: true});
-					magistraal.api.call({url: 'messages/bin', source: 'prefer_cache', inBackground: true});
-					magistraal.api.call({url: 'grades/overview', source: 'prefer_cache', inBackground: true});
-					magistraal.api.call({url: 'sources/list', source: 'prefer_cache', inBackground: true});
-					magistraal.api.call({url: 'learningresources/list', source: 'prefer_cache', inBackground: true});
-					
-					// Laad instellingenpagina voor offline gebruik
-					magistraal.api.call({url: 'settings/list', source: 'prefer_cache', inBackground: true}).then(res => {
-						// Laad subpagina's
-						$.each(res.data.items, function(itemNamespace, items) {
-							magistraal.api.call({url: 'settings/list', data: {category: itemNamespace}, source: 'prefer_cache', inBackground: true})
-						})
-					});
-				}
 			} catch(err) {
 				reject();
 			}
@@ -1785,7 +1785,7 @@ const magistraal = {
 					source: parameters.source,
 					cachable: parameters.cachable, 
 					callback: function(response, loadType, request, page) {
-						const listItemSelectedIndex = $('.list-item[data-interesting="true"][data-selected="true"]').index();
+						const listItemSelectedIndex = Math.max($('.list-item[data-interesting="true"][data-selected="true"]').index(), 0);
 						callback(response, loadType, request, page);
 						magistraal.page.getCallback(response, loadType, request, page, listItemSelectedIndex);
 					}, 
@@ -1798,18 +1798,20 @@ const magistraal = {
 		},
 
 		getCallback: (response, loadType, request, page, listItemSelectedIndex = 0) => {
-			magistraal.page.selectInterestingListItem(listItemSelectedIndex);
-
 			// Werk paginaknoppen bij
 			const $pageButtonsTemplate = magistraal.template.get(`page-buttons-${page}`);
 			const $pageButtonsContainer = magistraal.element.get('page-buttons-container');
-			$pageButtonsContainer.html($pageButtonsTemplate.length >= 1 ? $pageButtonsTemplate.html() : '');
 
-			// Werk de paginatitel bij
-			const $pageTitle = magistraal.element.get('page-title');
-			const pageTitle  = magistraal.locale.translate(`generic.page.${page}.title`);
-			$pageTitle.text(pageTitle);
-			document.title = `${pageTitle} | Magistraal`;
+			// Dit wordt alleen uitgevoerd als de pagina voor de eerste keer wordt geladen
+			if($pageButtonsContainer.attr('data-for-page') != page) {
+				$pageButtonsContainer.attr('data-for-page', page).html($pageButtonsTemplate.length >= 1 ? $pageButtonsTemplate.html() : '');
+
+				// Werk de paginatitel bij
+				const $pageTitle = magistraal.element.get('page-title');
+				const pageTitle  = magistraal.locale.translate(`generic.page.${page}.title`);
+				$pageTitle.text(pageTitle);
+				document.title = `${pageTitle} | Magistraal`;
+			}
 
 			if(loadType == 'server_final') {
 				magistraal.console.success('console.success.refresh');
@@ -1822,14 +1824,20 @@ const magistraal = {
 			if($pageSearch.value().length > 0) {
 				$pageSearch.trigger('input');
 			}
+
+			magistraal.page.selectInterestingListItem(listItemSelectedIndex);
 		},
 
 		selectInterestingListItem: (index = 0) => {
 			// Herselecteer item in lijst
-			const $li_first = magistraal.element.get('main').find(`.list-item[data-interesting="true"]:nth-child(${index+1})`);
+			const $firstLi = magistraal.element.get('main').find(`.list-item[data-interesting="true"]:nth-child(${index+1})`);
+			$firstLi.attr('data-ignore-event', 'click');
 			magistraalStorage.set('sidebar_locked', true);
-			$li_first.click();
-			magistraalStorage.set('sidebar_locked', false);	
+			$firstLi.click();
+			setTimeout(() => {
+				magistraalStorage.set('sidebar_locked', false);	
+				$firstLi.removeAttr('data-ignore-event');	
+			}, 10);
 		},
 
 		current: (ignoreQuery = false) => {
@@ -1969,7 +1977,7 @@ const magistraal = {
 					
 					setTimeout(() => {
 						this.$dialog.addClass('show');
-					}, 1);
+					}, 10);
 
 					this.$dialog.find(`[data-dialog-action="${this.parameters.defaultAnswer}"]`).attr('data-selected', true);
 					magistraal.element.get('dialog-backdrop').addClass('show');
@@ -2055,7 +2063,7 @@ const magistraal = {
 			eventFocusOut(e) {
 				setTimeout(() => {
 					this.$inputGhost.removeClass('focus');	
-				}, 1);
+				}, 10);
 			}
 
 			eventChange(e) {
@@ -2083,7 +2091,7 @@ const magistraal = {
 
 			setup() {
 				if(this.$input.closest('.input-wrapper').length == 0) {
-					this.$input.wrap('<div class="input-wrapper"></div>');
+					this.$input.wrap('<div class="input-wrapper dropdown"></div>');
 				}
 
 				this.$input.data('searchInput', this);
@@ -2093,8 +2101,8 @@ const magistraal = {
 
 				this.$wrapper = this.$input.closest('.input-wrapper');
 				this.$wrapper.addClass('input-search-wrapper');
-				this.$results = $('<ul class="input-search-results"></ul>');
-				this.$results.append(`<li class="input-search-result">${magistraal.locale.translate('generic.search.no_matches')}</li>`);
+				this.$results = $('<ul class="input-search-results dropdown-menu"></ul>');
+				this.$results.append(`<li class="input-search-result dropdown-item">${magistraal.locale.translate('generic.search.no_matches')}</li>`);
 				this.$results.appendTo(this.$wrapper);
 				if(!this.$input.attr('placeholder')) {
 					this.$input.attr('placeholder', magistraal.locale.translate('generic.action.search'));
@@ -2114,7 +2122,7 @@ const magistraal = {
 					this.$input.on('input', e => {
 						this.eventInput(e);
 					});
-					this.$input.attr('data-magistraal-search-target', 'magistraal-input-results')
+					this.$input.attr('data-magistraal-target', 'magistraal-input-results')
 				} else {
 					this.$input.on('input', debounce(e => {
 						this.eventInput(e);
@@ -2133,7 +2141,7 @@ const magistraal = {
 			eventFocusOut(e) {
 				setTimeout(() => {
 					this.$wrapper.removeClass('active');	
-				}, 1);
+				}, 10);
 			}
 
 			eventInput(e) {
@@ -2189,9 +2197,9 @@ const magistraal = {
 
 					$.each(results, function (i, result) {
 						if(!isSet(result.icon) || !isSet(result.description)) {
-							html += `<li class="input-search-result" value="${result?.value}"><span class="input-search-result-title">${result?.title}</span></li>`;
+							html += `<li class="input-search-result dropdown-item" value="${result?.value}"><span class="input-search-result-title">${result?.title}</span></li>`;
 						} else {
-							html += `<li class="input-search-result input-search-result-rich" value="${result?.value}"><i class="input-search-result-icon ${result?.icon}"></i><span class="input-search-result-title">${result?.title}</span><span class="input-search-result-description">${result?.description}</span></li>`;
+							html += `<li class="input-search-result input-search-result-rich dropdown-item" value="${result?.value}"><i class="input-search-result-icon ${result?.icon}"></i><span class="input-search-result-title">${result?.title}</span><span class="input-search-result-description">${result?.description}</span></li>`;
 						}
 					});
 					
@@ -2419,7 +2427,7 @@ const magistraal = {
 					magistraal.page.selectInterestingListItem();
 					magistraal.sidebar.close();
 				}
-			}, 100);
+			}, 10);
 		}
 	},
 	popup: {

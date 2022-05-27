@@ -117,7 +117,7 @@
         <h2 data-magistraal="page-title" class="col px-1"></h2>
         <div class="ml-auto d-flex flex-row col col-md-8 col-lg-8 col-xl-7 px-0" data-magistraal="header-items">
             <div class="page-search-wrapper w-100">
-                <input type="text" name="page-search" data-translation="generic.action.search" data-magistraal="page-search" data-magistraal-search-target="main" class="form-control">
+                <input type="text" name="page-search" data-translation="generic.action.search" data-magistraal="page-search" data-magistraal-target="main" class="form-control">
             </div>
             <div data-magistraal="page-buttons-container" class="d-none d-md-flex flex-row"></div>
         </div>
@@ -130,11 +130,11 @@
         <div data-magistraal="sidebar-actions" class="flex-row d-none d-md-flex scrollbar-hidden"></div>
     </div>
     <footer class="scrollbar-hidden">
-        <div data-magistraal="page-buttons-container" class="flex-row d-md-none mr-auto"></div>
-        <div data-magistraal="sidebar-actions" class="flex-row d-md-none mr-auto scrollbar-hidden"></div>
-        <div class="col px-0 ml-auto d-flex align-items-center justify-content-end" style="width: 0px;">
+        <div class="col px-0 d-flex align-items-center" style="width: 0px;" data-magistraal="console-wrapper">
             <span data-magistraal="console"></span>
         </div>
+        <div data-magistraal="page-buttons-container" class="flex-row d-md-none mr-auto"></div>
+        <div data-magistraal="sidebar-actions" class="flex-row d-md-none mr-auto scrollbar-hidden"></div>
     </footer>
     <div data-magistraal="templates" class="d-none" aria-hidden="true">
         <!-- ABSENCES -->
@@ -364,42 +364,80 @@
                 </button>
             </div>
 
-            <!-- Messages -->
+            <!-- Messages (Inbox) -->
             <div data-magistraal-template="page-buttons-messages/list">
                 <button class="btn btn-secondary btn-with-icon online-only" onclick="magistraal.popup.open('messages_write_message');">
                     <i class="btn-icon fal fa-pencil-alt"></i>
                     <span class="btn-text" data-translation="messages.write_message" ></span>
                 </button>
-                <!-- <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/sent'});">
-                    <i class="btn-icon fal fa-paper-plane"></i>
-                    <span class="btn-text" data-translation="messages.sent" ></span>
-                </button>
-                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/bin'});">
-                    <i class="btn-icon fal fa-trash"></i>
-                    <span class="btn-text" data-translation="messages.bin" ></span>
-                </button> -->
+                <div class="dropdown">
+                    <button class="btn btn-secondary btn-with-icon btn-dropdown">
+                        <i class="btn-icon fal fa-folder"></i>
+                        <span class="btn-text" data-translation="messages.select_folder" ></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-item dropdown-item-with-icon" data-selected="true">
+                            <i class="fal fa-envelope dropdown-item-icon"></i>
+                            <span class="dropdown-item-text" data-translation="messages.inbox"></span>
+                        </li>
+                        <li class="dropdown-item dropdown-item-with-icon" onclick="magistraal.page.load({page: 'messages/sent'});">
+                            <i class="fal fa-paper-plane dropdown-item-icon"></i>
+                            <span class="dropdown-item-text" data-translation="messages.sent"></span>
+                        </li>
+                        <li class="dropdown-item dropdown-item-with-icon" onclick="magistraal.page.load({page: 'messages/bin'});">
+                            <i class="fal fa-trash dropdown-item-icon"></i>
+                            <span class="dropdown-item-text" data-translation="messages.bin"></span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-
+            
+            <!-- Messages (Sent) -->
             <div data-magistraal-template="page-buttons-messages/sent">
-                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/list'});">
-                    <i class="btn-icon fal fa-envelope"></i>
-                    <span class="btn-text" data-translation="messages.inbox" ></span>
-                </button>
-                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/bin'});">
-                    <i class="btn-icon fal fa-trash"></i>
-                    <span class="btn-text" data-translation="messages.bin" ></span>
-                </button>
+                <div class="dropdown">
+                    <button class="btn btn-secondary btn-with-icon btn-dropdown">
+                        <i class="btn-icon fal fa-folder"></i>
+                        <span class="btn-text" data-translation="messages.select_folder" ></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-item dropdown-item-with-icon" onclick="magistraal.page.load({page: 'messages/list'});">
+                            <i class="fal fa-envelope dropdown-item-icon"></i>
+                            <span class="dropdown-item-text" data-translation="messages.inbox"></span>
+                        </li>
+                        <li class="dropdown-item dropdown-item-with-icon" data-selected="true">
+                            <i class="fal fa-paper-plane dropdown-item-icon"></i>
+                            <span class="dropdown-item-text" data-translation="messages.sent"></span>
+                        </li>
+                        <li class="dropdown-item dropdown-item-with-icon" onclick="magistraal.page.load({page: 'messages/bin'});">
+                            <i class="fal fa-trash dropdown-item-icon"></i>
+                            <span class="dropdown-item-text" data-translation="messages.bin"></span>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
+            <!-- Messages (Bin) -->
             <div data-magistraal-template="page-buttons-messages/bin">
-                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/list'});">
-                    <i class="btn-icon fal fa-envelope"></i>
-                    <span class="btn-text" data-translation="messages.inbox" ></span>
-                </button>
-                <button class="btn btn-secondary btn-with-icon" onclick="magistraal.page.load({page: 'messages/sent'});">
-                    <i class="btn-icon fal fa-paper-plane"></i>
-                    <span class="btn-text" data-translation="messages.sent" ></span>
-                </button>
+                <div class="dropdown">
+                    <button class="btn btn-secondary btn-with-icon btn-dropdown">
+                        <i class="btn-icon fal fa-folder"></i>
+                        <span class="btn-text" data-translation="messages.select_folder" ></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-item dropdown-item-with-icon" onclick="magistraal.page.load({page: 'messages/list'});">
+                            <i class="fal fa-envelope dropdown-item-icon"></i>
+                            <span class="dropdown-item-text" data-translation="messages.inbox"></span>
+                        </li>
+                        <li class="dropdown-item dropdown-item-with-icon" onclick="magistraal.page.load({page: 'messages/sent'});">
+                            <i class="fal fa-paper-plane dropdown-item-icon"></i>
+                            <span class="dropdown-item-text" data-translation="messages.sent"></span>
+                        </li>
+                        <li class="dropdown-item dropdown-item-with-icon" data-selected="true">
+                            <i class="fal fa-trash dropdown-item-icon"></i>
+                            <span class="dropdown-item-text" data-translation="messages.bin"></span>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
             <!-- Responsive Carousel Indicator Item -->
@@ -418,11 +456,11 @@
                             <span data-translation="absences.popup.select_year.item.year.title"></span>
                         </h5>
                         <div class="popup-item-value">
-                            <input type="text" name="year_to" class="input-search form-control w-100" data-magistraal-search-target="absences-select_year-years">
+                            <input type="text" name="year_to" class="input-search form-control w-100" data-magistraal-target="absences-select_year-years">
                             <script>
                                 // Add search results to input
                                 $(document).on('magistraal.ready', function() {
-                                    const $input = $('[data-magistraal-search-target="absences-select_year-years"]');
+                                    const $input = $('[data-magistraal-target="absences-select_year-years"]');
 
                                     let results     = [];
                                     let currentYear = parseInt(new Date().getFullYear());
