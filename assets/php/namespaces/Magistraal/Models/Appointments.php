@@ -143,7 +143,7 @@
             $items[$start_date]['items'][] = \Magistraal\Appointments\format($appointment, $filter);
         }
 
-        return ['items' => $items];
+        return $items;
     }
     
     function seperate_lesson_content($content) {

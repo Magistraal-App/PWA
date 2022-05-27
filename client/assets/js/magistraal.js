@@ -364,7 +364,7 @@ const magistraal = {
 		paintList: (response, loadType) => {
 			let carousel = new responsiveCarousel('x');
 			
-			$.each(response.data.items, function (day, data) {
+			$.each(response.data, function (day, data) {
 				// Maak een groep en stel de titel in
 				let $appointmentsGroup = magistraal.template.get('appointments-group');
 				$appointmentsGroup.find('.appointments-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'ldF')));
@@ -1469,15 +1469,15 @@ const magistraal = {
 
 				// If current version is not equal to new one, soft-clear cache
 				if(magistraalPersistentStorage.get('version').value != parameters?.version) {
-					console.log(`New version (${parameters?.version}) was found!`);
+					console.log(`New version (${parameters?.version}) was detected!`);
 					magistraalPersistentStorage.clear(true);
 				}
 
 				const settings = magistraalPersistentStorage.get('settings').value;
 
 				// Laad de instellingen
-				magistraal.api.call({url: 'user/settings/get_all', source: 'prefer_cache', inBackground: true}).then(res => {
-					magistraalPersistentStorage.set('settings', res.data);
+				magistraal.api.call({url: 'user/settings/get_all', source: 'server_only', inBackground: true}).then(res => {
+					magistraal.settings.updateClient(res.data);
 
 					if(parameters?.doPreCache === true && parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
 						// Laad pagina's voor offlinegebruik
@@ -1504,6 +1504,15 @@ const magistraal = {
 							})
 						});
 					}
+
+					// Check of thema ingesteld is op automatisch en het thema niet overeenkomt
+					const currentTheme = magistraal.settings.get('appearance.theme');  
+					const prefersScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+					if(isSet(currentTheme) && currentTheme.includes('auto') && currentTheme == `${prefersScheme}_auto`) {
+						return false;
+					}
+
+					magistraal.settings.set('appearance.theme', `${prefersScheme}_auto`);
 				})
 
 				const language = (isSet(settings) && isSet(settings['appearance.language']) ? settings['appearance.language'] : 'nl_NL');

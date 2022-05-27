@@ -218,8 +218,9 @@ $(document).on('magistraal.change', '.setting-list-item input', function(e) {
 
 // If system theme changes
 if(window.matchMedia) {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {       
-        if(!magistraal.settings.get('appeareance.theme').includes('auto')) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        const currentTheme = magistraal.settings.get('appearance.theme');  
+        if(!isSet(currentTheme) || !currentTheme.includes('auto')) {
             return false;
         }
         

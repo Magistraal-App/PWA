@@ -6,7 +6,7 @@
         $new_items = [];
 
         // Load appointments for today and tomorrow
-        $appointments = \Magistraal\Appointments\get_all($iso_start, $iso_end)['items'] ?? [];
+        $appointments = \Magistraal\Appointments\get_all($iso_start, $iso_end) ?? [];
         
         if(isset($appointments)) {
             foreach ($appointments as $day) {
