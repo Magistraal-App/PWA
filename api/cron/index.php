@@ -133,5 +133,5 @@
     \Magistraal\Status\set('notifications.new_grades_count', 0);
     \Magistraal\Status\set('notifications.new_messages_count', 0);
 
-    echo('success');
+    echo("success\n");
 ?>
