@@ -1668,7 +1668,8 @@ const magistraal = {
 		load: (locale) => {
 			return new Promise((resolve, reject) => {
 				magistraal.api.call({
-					url: `locale?locale=${locale}`, 
+					url: 'locale', 
+					data: {locale: locale},
 					source: 'both',
 					callback: magistraal.locale.loadCallback
 				}).finally(() => {
