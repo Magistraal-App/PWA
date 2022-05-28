@@ -841,7 +841,7 @@ const magistraal = {
 				const $learningResource = magistraal.template.get('learning-resource');
 
 				// $learningResource.find('.list-item-icon').html(`<i class="${magistraal.mapping.icons('subject_icons', learningResource.subject.description)}"></i>`);
-				$learningResource.find('.list-item-icon').html('<i class="fal fa-school"></i>');
+				$learningResource.find('.list-item-icon').html('<i class="fal fa-books"></i>');
 				$learningResource.find('.list-item-title').text(learningResource.description);
 				$learningResource.find('.list-item-content').text(learningResource.subject.description);
 
@@ -1374,11 +1374,16 @@ const magistraal = {
 				const $studyguide = magistraal.template.get('studyguide-list-item');
 
 				$studyguide.find('.list-item-title').text(studyguide.description);
-				$studyguide.find('.list-item-icon').html('<i class="fal fa-school"></i>');
+				$studyguide.find('.list-item-icon').html('<i class="fal fa-map-signs"></i>');
 				$studyguide.attr({
 					'data-search': studyguide.description,
 					'onclick':     `magistraal.studyguides.viewDetails('${studyguide.id}');`
 				});
+
+				// Laad de details vantevoren voor snellere navigatie
+				if(parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
+					magistraal.api.call({url: 'studyguides/info', data: {id: studyguide.id.toString()}, source: 'prefer_cache', inBackground: true});
+				}
 
 				$studyguide.appendTo($html);
 			})
@@ -1402,13 +1407,13 @@ const magistraal = {
 			$.each(response.data.details || [], function(i, detail) {
 				const $detail = magistraal.template.get('studyguide-list-item');
 
-				// Laad deze map vantevoren voor snellere navigatie
+				// Laad de bronnen vantevoren voor snellere navigatie
 				if(parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
 					magistraal.api.call({url: 'studyguides/sources', data: {id: response.data.id.toString(), detail_id: detail.id.toString()}, source: 'prefer_cache', inBackground: true});
 				}
 
 				$detail.find('.list-item-title').text(detail.name);
-				$detail.find('.list-item-icon').html('<i class="fal fa-school"></i>');
+				$detail.find('.list-item-icon').html('<i class="fal fa-folder"></i>');
 				$detail.find('.list-item-content').text(detail.description);
 				$detail.get(0).style.setProperty('--list-item-icon-background', detail.color);
 				$detail.attr({
@@ -1461,6 +1466,7 @@ const magistraal = {
 					}
 				} else if(source.type == 'file') {
 					$source.attr('onclick', 'magistraal.sidebar.selectFeed($(this))');
+					$source.attr('data-interesting', true);
 
 					let sidebarFeed = {
 						title: source.name,
@@ -1476,9 +1482,11 @@ const magistraal = {
 						}
 					};
 
+
 					magistraal.sidebar.addFeed($source, sidebarFeed);
 				} else if(source.type == 'link') {
 					$source.attr('onclick', 'magistraal.sidebar.selectFeed($(this))');
+					$source.attr('data-interesting', true);
 
 					let sidebarFeed = {
 						title: source.name,
@@ -2720,7 +2728,7 @@ const magistraal = {
 					} else if(selector.includes('geschie')) {      // Geschiedenis
 						return 'fal fa-castle';
 					} else if(selector.includes('latijn')) {       // Latijn
-						return 'fal fa-helmet-battle';
+						return 'fal fa-university';
 					} else if(selector.includes('grieks')) {       // Grieks
 						return 'fal fa-omega';
 					} else if(selector.includes('rekenen')) {      // Rekenen
