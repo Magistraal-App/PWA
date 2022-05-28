@@ -244,6 +244,7 @@ textarea {
     cursor: pointer;
     border-top: var(--border-width) solid transparent;
     border-bottom: var(--border-width) solid transparent;
+    white-space: nowrap;
 }
 
 .dropdown-item:hover,
