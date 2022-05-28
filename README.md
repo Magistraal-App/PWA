@@ -8,8 +8,6 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 - [ ] Maken: Meldingen op iOS via Pushcut
 - [ ] Maken: Afsprakenlijst datumkiezer
 - [ ] Maken: Jaarkiezer bij afwezigheid
-- [ ] Maken: 'Prullenbak' map bij berichtenpagina
-- [ ] Maken: 'Verzonden' map bij berichtenpagina
 - [ ] Maken: Homepagina
 - [ ] Maken: Ondersteuning voor KWT-uur
 - [ ] Maken: Mogelijkheid om afspraak in te plannen (op verzoek) bij andere Magistraal-gebruikers
@@ -17,7 +15,20 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 
 ---
 
-## Love naar
+- [x] ~~Maken: 'Prullenbak' map bij berichtenpagina~~
+- [x] ~~Maken: 'Verzonden' map bij berichtenpagina~~
+- [x] ~~Maken: Systeem maken om te kijken of een gebruiker nieuwe cijfers, afspraken of berichten heeft~~
+- [x] ~~Maken: Meldingen op Android via Google Firebase~~
+- [x] ~~Maken: Statuswebsite~~
+- [x] ~~Maken: Gemiddelde cijferspagina~~
+- [x] ~~Maken: Afwezigheid alleen dit schooljaar tonen~~
+- [x] ~~Fixen: Afsprakenlijst scroll gevoeligheid verlagen~~
+- [x] ~~Fixen: Nieuwe instellingen worden pas toegepast als pagina voor de tweede keer wordt herladen~~
+- [x] ~~Maken: Leermiddelenpagina~~
+
+---
+
+## Thanks to
 
 - [@netlob](https://github.com/netlob)
 - [@stingalleman](https://github.com/stingalleman)
