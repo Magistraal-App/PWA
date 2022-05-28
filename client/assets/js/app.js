@@ -292,9 +292,10 @@ class responsiveCarousel {
         return Math.round((scrollPos / maxScrollPos) * slideCount);
     }
 
-    scrollCallback() {
+    scrollCallback(e) {
+        console.log('scroll!', e);
         const $carouselIndicator = magistraal.element.get('responsive-carousel-indicator');
-        const slideIndex        = this.getSlideIndex();
+        const slideIndex         = this.getSlideIndex();
 
         $carouselIndicator.find('.responsive-carousel-indicator-item.active').removeClass('active');
         $carouselIndicator.find(`.responsive-carousel-indicator-item:nth-child(${slideIndex + 1})`).addClass('active');

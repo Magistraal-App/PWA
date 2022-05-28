@@ -49,6 +49,8 @@
     "generic.page.sources/list.title": "Bronnen",
     "generic.page.learningresources/list.title": "Leermiddelen",
     "generic.page.studyguides/list.title": "Studiewijzers",
+    "generic.page.studyguides/info.title": "Onderdelen",
+    "generic.page.studyguides/sources.title": "Bronnen",
     "generic.page.tasks/list.title": "Opdrachten",
     "generic.page.messages/list.title": "Berichten",
     "generic.page.messages/sent.title": "Verzonden",
@@ -261,6 +263,8 @@
     "sidebar.table.info.message.sent_at": "Verzonden op",
     "sidebar.table.info.message.to": "Aan",
     "sidebar.table.info.message.attachments": "Bijlage",
+    "sidebar.table.info.sources.size": "Bestandsgrootte",
+    "sidebar.table.info.sources.link": "Link",
 
     "tooltip.hint.appointment_finish": "Afspraak afronden",
     "tooltip.hint.appointment_join_ms_teams": "Deelnemen aan online vergadering",

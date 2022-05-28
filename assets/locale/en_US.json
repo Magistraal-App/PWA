@@ -49,6 +49,7 @@
     "generic.page.sources/list.title": "Files",
     "generic.page.learningresources/list.title": "Education",
     "generic.page.studyguides/list.title": "Study guides",
+    "generic.page.studyguides/info.title": "Assets",
     "generic.page.tasks/list.title": "Tasks",
     "generic.page.messages/list.title": "Messages",
     "generic.page.messages/sent.title": "Sent items",
@@ -261,6 +262,8 @@
     "sidebar.table.info.message.sent_at": "Sent on",
     "sidebar.table.info.message.to": "To",
     "sidebar.table.info.message.attachments": "Attachments",
+    "sidebar.table.info.sources.size": "File size",
+    "sidebar.table.info.sources.link": "Location",
 
     "tooltip.hint.appointment_finish": "Finish appointment",
     "tooltip.hint.appointment_join_ms_teams": "Join online meeting",

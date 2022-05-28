@@ -78,7 +78,7 @@
                 <i class="fal fa-books"></i>
                 <span data-translation="generic.page.learningresources/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'studyguides'});" data-magistraal="nav-item-studyguides">
+            <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'studyguides/list'});" data-magistraal="nav-item-studyguides">
                 <i class="fal fa-map-signs"></i>
                 <span data-translation="generic.page.studyguides/list.title"></span>
             </li>
@@ -277,6 +277,14 @@
             <!-- Source list item -->
             <div data-magistraal-template="source-list-item" tabindex="0" class="source-list-item list-item">
                 <div class="list-item-icon"></div>
+                <p class="list-item-title"></p>
+                <p class="list-item-content text-muted"></p>
+            </div>
+
+        <!-- STUDY GUIDES -->
+            <!-- List item -->
+            <div data-magistraal-template="studyguide-list-item" tabindex="0" class="studyguide-list-item list-item">
+                <div class="list-item-icon font-heading"></div>
                 <p class="list-item-title"></p>
                 <p class="list-item-content text-muted"></p>
             </div>

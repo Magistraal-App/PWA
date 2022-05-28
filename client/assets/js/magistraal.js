@@ -117,10 +117,12 @@ const magistraal = {
 								return;
 							} catch(err) {
 								console.error('An error occured with cached response:', err);
-								magistraal.console.error();
+								if(parameters.inBackground !== true) {
+									magistraal.console.error();
+								}
 							}
 						} else {
-							// Stuur nog wel een request naar de server
+							// Stuur nog wel een request naar de server maar antwoord eerst met de gecachete versie
 							try {
 								resolve(cachedResponse);
 								if(typeof parameters.callback == 'function') {
@@ -128,7 +130,9 @@ const magistraal = {
 								}
 							} catch(err) {
 								console.error('An error occured with cached response:', err);
-								magistraal.console.error();
+								if(parameters.inBackground !== true) {
+									magistraal.console.error();
+								}
 							}
 						}
 					}
@@ -167,7 +171,9 @@ const magistraal = {
 								}
 							} catch(err) {
 								console.error(`Failed to load page ${parameters.page}:`, err);
-								magistraal.console.error();
+								if(parameters.inBackground !== true) {
+									magistraal.console.error();
+								}
 							}
 						} else {
 							try {
@@ -179,7 +185,9 @@ const magistraal = {
 								}
 							} catch(err) {
 								console.error(`Failed to load page ${parameters.page}:`, err);
-								magistraal.console.error();
+								if(parameters.inBackground !== true) {
+									magistraal.console.error();
+								}
 							}
 						}
 					},
@@ -187,7 +195,9 @@ const magistraal = {
 					error: function(response, err) {
 						// Laat de gebruiker opnieuw inloggen als token niet bestaat / onjuist is
 						if(parameters.inBackground !== true && isSet(response.responseJSON) && isSet(response.responseJSON.info) && response.responseJSON.info.includes('token_invalid')) {
+							console.error('login error', response);
 							magistraal.console.error();
+							return;
 							magistraal.token.delete();
 							magistraal.page.load({page: 'login'});
 							return;
@@ -224,9 +234,11 @@ const magistraal = {
 								}
 							}
 						}
-
-						magistraal.console.error();
+						
 						console.error(response);
+						if(parameters.inBackground !== true) {
+							magistraal.console.error();
+						}
 					}
 				});
 			});
@@ -248,7 +260,7 @@ const magistraal = {
 
 				// Maak een groep en stel de titel in
 				let $absencesGroup = magistraal.template.get('absences-group');
-				$absencesGroup.find('.absences-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'Fy')));
+				$absencesGroup.find('.absences-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'F y')));
 				
 				// Ga alle absenties bij langs
 				$.each(data.absences, function (i, absence) {
@@ -256,7 +268,7 @@ const magistraal = {
 					let $absence = magistraal.template.get('absence-list-item');
 
 					// Informatie
-					$absence.find('.list-item-title').html(absence.appointment.description + '<span class="bullet"></span>' + magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'Hi'));
+					$absence.find('.list-item-title').html(absence.appointment.description + '<span class="bullet"></span>' + magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'H:i'));
 					$absence.find('.list-item-icon').text(absence.lesson || absence.abbr);
 					$absence.find('.list-item-content').text(absence.description);
 					
@@ -273,8 +285,8 @@ const magistraal = {
 						'title': absence.appointment.description,
 						'subtitle': absence.description,
 						'table': {
-							'absence.date': capitalizeFirst(magistraal.locale.formatDate(absence.appointment.start.time, 'ldFY')),
-							'absence.time': magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'Hi'),
+							'absence.date': capitalizeFirst(magistraal.locale.formatDate(absence.appointment.start.time, 'l d F Y')),
+							'absence.time': magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'H:i'),
 							'absence.lesson': absence.lesson,
 							'absence.permitted': magistraal.locale.formatBoolean(absence.permitted)
 						}
@@ -308,7 +320,7 @@ const magistraal = {
 	/* ============================ */
 	account: {
 		paintList: (response, loadType) => {
-			let $html = $('<div></div>');
+			const $html = $('<div></div>');
 		
 			const groups = {
 				personal: ['full_name', 'full_name_official'], 
@@ -367,7 +379,7 @@ const magistraal = {
 			$.each(response.data, function (day, data) {
 				// Maak een groep en stel de titel in
 				let $appointmentsGroup = magistraal.template.get('appointments-group');
-				$appointmentsGroup.find('.appointments-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'ldF')));
+				$appointmentsGroup.find('.appointments-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'l d F')));
 
 				// Ga naar de volgende dag ls er geen afspraken op deze dag zijn
 				if(data.items.length == 0) {
@@ -411,7 +423,7 @@ const magistraal = {
 					}
 
 					// Informatie (tijd, omschrijving en inhoud)
-					$appointment.find('.appointment-time').text(magistraal.locale.formatDate(appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(appointment.end.time, 'Hi'));
+					$appointment.find('.appointment-time').text(magistraal.locale.formatDate(appointment.start.time, 'H:i') + ' - ' + magistraal.locale.formatDate(appointment.end.time, 'H:i'));
 					$appointment.find('.appointment-description').text(appointment.facility == '' ? appointment.description : `${appointment.description} (${appointment.facility})`);
 					$appointment.find('.list-item-content').html(appointment['content_text']); // Set type
 
@@ -422,11 +434,11 @@ const magistraal = {
 					// Maak een sidebar feed
 					let sidebarFeed = {
 						title: appointment['description'],
-						subtitle: `${magistraal.locale.formatDate(appointment.start.time, 'Hi')} - ${magistraal.locale.formatDate(appointment.end.time, 'Hi')}`,
+						subtitle: `${magistraal.locale.formatDate(appointment.start.time, 'Hi')} - ${magistraal.locale.formatDate(appointment.end.time, 'H:i')}`,
 						table: {
 							'appointment.facility': appointment.facility,
-							'appointment.start': capitalizeFirst(magistraal.locale.formatDate(appointment.start.time, 'ldFYHi')),
-							'appointment.end': capitalizeFirst(magistraal.locale.formatDate(appointment.end.time, 'ldFYHi')),
+							'appointment.start': capitalizeFirst(magistraal.locale.formatDate(appointment.start.time, 'l d F Y H:i')),
+							'appointment.end': capitalizeFirst(magistraal.locale.formatDate(appointment.end.time, 'l d F Y H:i')),
 							'appointment.school_subject': appointment.subjects.join(', '),
 						},
 						actions: {}
@@ -649,11 +661,11 @@ const magistraal = {
 	/* ============================ */
 	grades: {
 		paintList: (response, loadType) => {
-			let $html = $('<div></div>');
+			const $html = $('<div></div>');
 			
 			$.each(response.data, function (i, grade) {
-				let $grade    = magistraal.template.get('grade-list-item');
-				let enteredAt = magistraal.locale.formatDate(grade.entered_at, 'dFYHi');
+				const $grade    = magistraal.template.get('grade-list-item');
+				const enteredAt = magistraal.locale.formatDate(grade.entered_at, 'l d F Y H:i');
 
 				$grade.attr({
 					'data-counts': grade.counts,
@@ -749,7 +761,7 @@ const magistraal = {
 						termGradesCount += 1;
 						
 						const $average           = magistraal.template.get('grade-overview-list-item');
-						const enteredAt          = magistraal.locale.formatDate(average.entered_at, 'dFYHi');
+						const enteredAt          = magistraal.locale.formatDate(average.entered_at, 'l d F Y H:i');
 						const averageDescription = magistraal.locale.translate('grades.term_average')+' '+average.term.description;
 
 						$average.find('.list-item-icon').text(average.value_str);
@@ -828,7 +840,8 @@ const magistraal = {
 			$.each(response.data, function(i, learningResource) {
 				const $learningResource = magistraal.template.get('learning-resource');
 
-				$learningResource.find('.list-item-icon').html(`<i class="fal fa-school"></i>`);
+				// $learningResource.find('.list-item-icon').html(`<i class="${magistraal.mapping.icons('subject_icons', learningResource.subject.description)}"></i>`);
+				$learningResource.find('.list-item-icon').html('<i class="fal fa-school"></i>');
 				$learningResource.find('.list-item-title').text(learningResource.description);
 				$learningResource.find('.list-item-content').text(learningResource.subject.description);
 
@@ -894,13 +907,13 @@ const magistraal = {
 				}
 			}
 
-			let $html = $('<div></div>');
+			const $html = $('<div></div>');
 
 			// Ga alle berichten bij langs
 			$.each(response.data.items, function (i, message) {
 				// Maak een bericht
-				let $message      = magistraal.template.get('message-list-item');
-				const messageSent = capitalizeFirst(magistraal.locale.formatDate(message.sent_at, 'ldFYHi'));
+				const $message    = magistraal.template.get('message-list-item');
+				const messageSent = capitalizeFirst(magistraal.locale.formatDate(message.sent_at, 'l d F Y H:i'));
 
 				// Informatie
 				message.subject = message.subject || magistraal.locale.translate('messages.subject.no_subject');
@@ -932,7 +945,7 @@ const magistraal = {
 				} else {
 					sidebarFeed = {
 						title: message.subject,
-						subtitle: capitalizeFirst(magistraal.locale.formatDate(message.sent_at, 'ldFYHi')),
+						subtitle: capitalizeFirst(magistraal.locale.formatDate(message.sent_at, 'l d F Y H:i')),
 						table: {}
 					};
 				}
@@ -1081,7 +1094,7 @@ const magistraal = {
 			const newContent = `
 				<br><br><br><hr>
 				<b>${magistraal.locale.translate('messages.popup.write_message.item.from.title')}</b>: ${message.sender.name}<br>
-				<b>${magistraal.locale.translate('messages.popup.write_message.item.sent_at.title')}</b>: ${magistraal.locale.formatDate(message.sent_at, 'ldFYHi')}<br>
+				<b>${magistraal.locale.translate('messages.popup.write_message.item.sent_at.title')}</b>: ${magistraal.locale.formatDate(message.sent_at, 'l d F Y H:i')}<br>
 				`+(message.recipients.to.list.length > 0 ? `<b>${magistraal.locale.translate('messages.popup.write_message.item.to.title')}</b>: ${message.recipients.to.names.join(', ')}<br>`: '')+`
 				`+(message.recipients.cc.list.length > 0 ? `<b>${magistraal.locale.translate('messages.popup.write_message.item.cc.title')}</b>: ${message.recipients.cc.names.join(', ')}<br>`: '')+`
 				<b>${magistraal.locale.translate('messages.popup.write_message.item.subject.title')}</b>: ${message.subject}<br><br>
@@ -1115,7 +1128,7 @@ const magistraal = {
 			const newContent = `
 				<br><br><br><hr>
 				<b>${magistraal.locale.translate('messages.popup.write_message.item.from.title')}</b>: ${message.sender.name}<br>
-				<b>${magistraal.locale.translate('messages.popup.write_message.item.sent_at.title')}</b>: ${magistraal.locale.formatDate(message.sent_at, 'ldFYHi')}<br>
+				<b>${magistraal.locale.translate('messages.popup.write_message.item.sent_at.title')}</b>: ${magistraal.locale.formatDate(message.sent_at, 'l d F Y H:i')}<br>
 				`+(message.recipients.to.list.length > 0 ? `<b>${magistraal.locale.translate('messages.popup.write_message.item.to.title')}</b>: ${message.recipients.to.names.join(', ')}<br>`: '')+`
 				`+(message.recipients.cc.list.length > 0 ? `<b>${magistraal.locale.translate('messages.popup.write_message.item.cc.title')}</b>: ${message.recipients.cc.names.join(', ')}<br>`: '')+`
 				<b>${magistraal.locale.translate('messages.popup.write_message.item.subject.title')}</b>: ${message.subject}<br><br>
@@ -1141,13 +1154,13 @@ const magistraal = {
 	settings: {
 		paintList: (response, loadType) => {
 			// Laad de huidige instellingen
-			let currentSettings = magistraalPersistentStorage.get('settings').value || [];
+			const currentSettings = magistraalPersistentStorage.get('settings').value || [];
 
-			let $html = $('<div></div>');
+			const $html = $('<div></div>');
 
 			// Ga alle mogelijke instellingen bij langs
-			$.each(response.data.items.items, function (itemNamespace, item) {
-				let $item = $('<div></div>');
+			$.each(response.data.items, function (itemNamespace, item) {
+				let $item;
 
 				// Als item een categorie is
 				if(isSet(item.items)) {
@@ -1155,18 +1168,25 @@ const magistraal = {
 					$item = magistraal.template.get('setting-category');
 
 					// Informatie
-					$item.find('.setting-category-title').text(magistraal.locale.translate(`settings.category.${response.data.items.category}.${itemNamespace}.title`));
-					$item.find('.setting-category-icon').html(`<i class="${item?.icon || 'cog'}"></i>`); 
-					
+					const title = magistraal.locale.translate(`settings.category.${response.data.category}.${itemNamespace}.title`);
+					$item.find('.setting-category-title').text(title);
+					$item.find('.setting-category-icon').html(`<i class="${item?.icon || 'afal fa-cog'}"></i>`); 
+
 					// Beschrijving (bestaat uit de namen van de sub-items in deze categorie)
-					let $content = $('<div></div>');
+					let content = '';
+					const $content = $('<div></div>');
+
 					$.each(item.items, function (childItemNamespace, childItem) {
 						if(isSet(childItem.items)) {
 							// Sub-item is een categorie
-							$content.append(`<span>${magistraal.locale.translate(`settings.category.${itemNamespace}.${childItemNamespace}.title`)}</span><span class="bullet"></span>`);
+							const title = magistraal.locale.translate(`settings.category.${itemNamespace}.${childItemNamespace}.title`);
+							$content.append(`<span>${title}</span><span class="bullet"></span>`);
+							content += ' ' + title;
 						} else {
 							// Sub-item is een instelling
-							$content.append(`<span>${magistraal.locale.translate(`settings.setting.${itemNamespace}.${childItemNamespace}.title`)}</span><span class="bullet"></span>`);
+							const title = magistraal.locale.translate(`settings.setting.${itemNamespace}.${childItemNamespace}.title`);
+							$content.append(`<span>${title}</span><span class="bullet"></span>`);
+							content += ' ' + title;
 						}
 					});
 
@@ -1175,12 +1195,12 @@ const magistraal = {
 
 					$item.find('.setting-category-content').html($content.html());
 					$item.attr('onclick', `magistraal.page.load({page: 'settings/list', data: {'category': '${itemNamespace}'}, showBack: true});`);
-				
+					$item.attr('data-search', title + ' ' + content);
 				// Als item een instelling is
 				} else {
-					$item       = magistraal.template.get('setting-list-item');
+					$item = magistraal.template.get('setting-list-item');
 					let $input  = $('<input class="form-control input-search">')
-					let setting = `${response.data.items.category}.${itemNamespace}`;
+					let setting = `${response.data.category}.${itemNamespace}`;
 					$input.appendTo($item.find('.list-item-content'));
 
 					if(isSet(currentSettings[setting])) {
@@ -1190,7 +1210,7 @@ const magistraal = {
 					// Aanpassingen per instelling
 					switch(setting) {
 						case 'appearance.theme':
-							// Remap dark_auto en light_auto naar auto
+							// Verander dark_auto en light_auto in auto
 							if(isSet(item.value) && (item.value == 'dark_auto' || item.value == 'light_auto')) {
 								item.value = 'auto';
 							}
@@ -1219,13 +1239,13 @@ const magistraal = {
 					if(!isSet(item.enabled) || item.enabled == 'true') {
 						// Ga alle mogelijke waarden van deze instelling bij langs
 						$.each(item.values, function(itemValue, itemInfo) {
-							const itemTitle = magistraal.locale.translate(`settings.setting.${setting}.value.${itemInfo?.title}.title`);
+							const valueTitle = magistraal.locale.translate(`settings.setting.${setting}.value.${itemInfo?.title}.title`);
 							
 							results.push({
-								title: itemTitle,
+								title: valueTitle,
 								value: itemValue,
 								icon: itemInfo?.icon,
-								description: itemInfo?.description || itemTitle
+								description: itemInfo?.description || valueTitle
 							});
 						})
 
@@ -1244,15 +1264,17 @@ const magistraal = {
 						$item.find('.list-item-content').text(value);
 					}
 
+					// Pictogram en titel
+					const itemTitle = magistraal.locale.translate(`settings.setting.${response.data.category}.${itemNamespace}.title`);
+					$item.find('.list-item-title').text(itemTitle);
+					$item.find('.list-item-icon').html(`<i class="${item?.icon || 'fal fa-cog'}"></i>`); 
+
 					// Attributen
 					$item.attr({
-						'data-setting': `${response.data.items.category}.${itemNamespace}`,
-						'data-reload': item?.options?.do_reload || false
+						'data-setting': `${response.data.category}.${itemNamespace}`,
+						'data-reload': item?.options?.do_reload || false,
+						'data-search': itemTitle
 					})
-
-					// Pictogram en titel
-					$item.find('.list-item-icon').html(`<i class="${item?.icon || 'cog'}"></i>`); 
-					$item.find('.list-item-title').text(magistraal.locale.translate(`settings.setting.${response.data.items.category}.${itemNamespace}.title`));
 				}
 
 				// Voeg item toe aan de inhoud
@@ -1303,7 +1325,8 @@ const magistraal = {
 				magistraal.api.call({
 					url: 'user/settings/set',
 					data: {setting: setting, value: value},
-					source: 'server_only'
+					source: 'server_only',
+					inBackground: true
 				}).then(response => {
 					magistraal.settings.updateClient(response.data);
 
@@ -1324,7 +1347,8 @@ const magistraal = {
 				magistraal.api.call({
 					url: 'user/settings/set_all',
 					data: {settings: settings},
-					source: 'server_only'
+					source: 'server_only',
+					inBackground: true
 				}).then(response => {
 					magistraal.settings.updateClient(response.data);
 
@@ -1340,11 +1364,82 @@ const magistraal = {
 	},
 
 	/* ============================ */
+	/*          Study guides        */
+	/* ============================ */
+	studyguides: {
+		paintList: (response, loadType) => {
+			const $html = $('<div></div>');
+
+			$.each(response.data, function(i, studyguide) {
+				const $studyguide = magistraal.template.get('studyguide-list-item');
+
+				$studyguide.find('.list-item-title').text(studyguide.description);
+				$studyguide.find('.list-item-icon').html('<i class="fal fa-school"></i>');
+				$studyguide.attr({
+					'data-search': studyguide.description,
+					'onclick':     `magistraal.studyguides.viewDetails('${studyguide.id}');`
+				});
+
+				$studyguide.appendTo($html);
+			})
+
+			magistraal.page.setContent($html);
+		},
+
+		viewDetails: (id) => {
+			magistraal.page.load({
+				page: 'studyguides/info',
+				data: {id: id}, 
+				showBack: true,
+				source: 'prefer_cache',
+				scope: `studyguides/info?id=${id}`
+			});
+		},
+
+		paintDetails: (response, loadType) => {
+			const $html = $('<div></div>');
+
+			$.each(response.data.details || [], function(i, detail) {
+				const $detail = magistraal.template.get('studyguide-list-item');
+
+				// Laad deze map vantevoren voor snellere navigatie
+				if(parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
+					magistraal.api.call({url: 'studyguides/sources', data: {id: response.data.id.toString(), detail_id: detail.id.toString()}, source: 'prefer_cache', inBackground: true});
+				}
+
+				$detail.find('.list-item-title').text(detail.name);
+				$detail.find('.list-item-icon').html('<i class="fal fa-school"></i>');
+				$detail.find('.list-item-content').text(detail.description);
+				$detail.get(0).style.setProperty('--list-item-icon-background', detail.color);
+				$detail.attr({
+					'data-search': detail.title + ' ' + detail.description,
+					'onclick':     `magistraal.studyguides.viewSources('${response.data.id}', '${detail.id}');`,
+				});
+
+
+				$detail.appendTo($html);
+			})
+			
+			magistraal.page.setContent($html);
+		},
+
+		viewSources: (studyguideId, detailId) => {
+			magistraal.page.load({
+				page: 'studyguides/sources',
+				data: {id: studyguideId, detail_id: detailId}, 
+				showBack: true,
+				source: 'prefer_cache',
+				scope: `studyguides/sources?id=${studyguideId}&detail_id=${detailId}`
+			});
+		}
+	},
+
+	/* ============================ */
 	/*            Sources           */
 	/* ============================ */
 	sources: {
 		paintList: (response, loadType) => {
-			$html = $('<div></div>');
+			const $html = $('<div></div>');
 
 			$.each(response.data, function(i, source) {
 				const $source     = magistraal.template.get('source-list-item');
@@ -1362,7 +1457,7 @@ const magistraal = {
 					
 					// Laad deze map vantevoren voor snellere navigatie
 					if(parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
-						magistraal.api.call({url: 'sources/list', data: {parent_id: source.id.toString()}, source: 'prefer_cache'});
+						magistraal.api.call({url: 'sources/list', data: {parent_id: source.id.toString()}, source: 'prefer_cache', inBackground: true});
 					}
 				} else if(source.type == 'file') {
 					$source.attr('onclick', 'magistraal.sidebar.selectFeed($(this))');
@@ -1370,10 +1465,31 @@ const magistraal = {
 					let sidebarFeed = {
 						title: source.name,
 						subtitle: description,
+						table: {
+							'sources.size': magistraal.locale.formatFileSize(source.size)
+						},
 						actions: {
 							download: {
 								handler: `$(this).attr('disabled', 'disabled'); magistraal.files.download('${source.location}').then(response => { $(this).removeAttr('disabled'); })`, 
 								icon: 'fal fa-arrow-to-bottom'
+							}
+						}
+					};
+
+					magistraal.sidebar.addFeed($source, sidebarFeed);
+				} else if(source.type == 'link') {
+					$source.attr('onclick', 'magistraal.sidebar.selectFeed($(this))');
+
+					let sidebarFeed = {
+						title: source.name,
+						subtitle: description,
+						table: {
+							'sources.link': source.location
+						},
+						actions: {
+							open: {
+								handler: `window.open('${source.location}', '_blank', 'noopener')`, 
+								icon: 'fal fa-external-link'
 							}
 						}
 					};
@@ -1479,40 +1595,42 @@ const magistraal = {
 				magistraal.api.call({url: 'user/settings/get_all', source: 'server_only', inBackground: true}).then(res => {
 					magistraal.settings.updateClient(res.data);
 
-					if(parameters?.doPreCache === true && parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
-						// Laad pagina's voor offlinegebruik
-						magistraal.api.call({url: 'appointments/list', source: 'prefer_cache', inBackground: true});
-						magistraal.api.call({url: 'grades/list', source: 'prefer_cache', inBackground: true});
-						magistraal.api.call({url: 'messages/list', source: 'prefer_cache', inBackground: true});
-						magistraal.api.call({url: 'messages/list', source: 'server_only', data: {filter: ['id']}, inBackground: true, callback: magistraal.messages.paintBadge});
-						magistraal.api.call({url: 'messages/sent', source: 'prefer_cache', inBackground: true});
-						magistraal.api.call({url: 'absences/list', source: 'prefer_cache', inBackground: true});
-						magistraal.api.call({url: 'account/list', source: 'prefer_cache', inBackground: true});
-						magistraal.api.call({url: 'messages/bin', source: 'prefer_cache', inBackground: true});
-						magistraal.api.call({url: 'grades/overview', source: 'prefer_cache', inBackground: true});
-						magistraal.api.call({url: 'sources/list', source: 'prefer_cache', inBackground: true});
-						magistraal.api.call({url: 'learningresources/list', source: 'prefer_cache', inBackground: true});
-						
-						// Laad instellingenpagina voor offline gebruik
-						magistraal.api.call({url: 'settings/list', source: 'prefer_cache', inBackground: true}).then(res => {
-							// Sla user uuid op
-							magistraalPersistentStorage.set('user_uuid', res.data.user_uuid);
+					setTimeout(() => {
+						if(parameters?.doPreCache === true && parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
+							// Laad pagina's voor offlinegebruik
+							magistraal.api.call({url: 'appointments/list', source: 'prefer_cache', inBackground: true});
+							magistraal.api.call({url: 'grades/list', source: 'prefer_cache', inBackground: true});
+							magistraal.api.call({url: 'messages/list', source: 'prefer_cache', inBackground: true});
+							magistraal.api.call({url: 'messages/list', source: 'server_only', data: {filter: ['id']}, inBackground: true, callback: magistraal.messages.paintBadge});
+							magistraal.api.call({url: 'messages/sent', source: 'prefer_cache', inBackground: true});
+							magistraal.api.call({url: 'absences/list', source: 'prefer_cache', inBackground: true});
+							magistraal.api.call({url: 'account/list', source: 'prefer_cache', inBackground: true});
+							magistraal.api.call({url: 'messages/bin', source: 'prefer_cache', inBackground: true});
+							magistraal.api.call({url: 'grades/overview', source: 'prefer_cache', inBackground: true});
+							magistraal.api.call({url: 'sources/list', source: 'prefer_cache', inBackground: true});
+							magistraal.api.call({url: 'learningresources/list', source: 'prefer_cache', inBackground: true});
+							
+							// Laad instellingenpagina voor offline gebruik
+							magistraal.api.call({url: 'settings/list', source: 'prefer_cache', inBackground: true}).then(res => {
+								// Sla user uuid op
+								magistraalPersistentStorage.set('user_uuid', res.data.user_uuid);
 
-							// Laad subpagina's
-							$.each(res.data.items.items, function(itemNamespace, items) {
-								magistraal.api.call({url: 'settings/list', data: {category: itemNamespace}, source: 'prefer_cache', inBackground: true})
-							})
-						});
-					}
+								// Laad subpagina's
+								$.each(res.data.items.items, function(itemNamespace, items) {
+									magistraal.api.call({url: 'settings/list', data: {category: itemNamespace}, source: 'prefer_cache', inBackground: true})
+								})
+							});
+						}
 
-					// Check of thema ingesteld is op automatisch en het thema niet overeenkomt
-					const currentTheme = magistraal.settings.get('appearance.theme');  
-					const prefersScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-					if(isSet(currentTheme) && currentTheme.includes('auto') && currentTheme == `${prefersScheme}_auto`) {
-						return false;
-					}
+						// Check of thema ingesteld is op automatisch en het thema niet overeenkomt
+						const currentTheme = magistraal.settings.get('appearance.theme');  
+						const prefersScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+						if(isSet(currentTheme) && !currentTheme.includes('auto') || (currentTheme.includes('auto') && currentTheme == `${prefersScheme}_auto`)) {
+							return false;
+						}
 
-					magistraal.settings.set('appearance.theme', `${prefersScheme}_auto`);
+						magistraal.settings.set('appearance.theme', `${prefersScheme}_auto`);
+					}, 100);
 				})
 
 				const language = (isSet(settings) && isSet(settings['appearance.language']) ? settings['appearance.language'] : 'nl_NL');
@@ -1594,78 +1712,58 @@ const magistraal = {
 
 			let output = '';
 
-			switch (format) {
-				case 'Hi':
-					output += addLeadingZero(date.getHours()) + ':';
-					output += addLeadingZero(date.getMinutes());
-					break;
+			let formatSplit = format.split('');
 
-				case 'dF':
-					output += date.getDate() + ' ';
-					output += magistraal.locale.translate(`generic.month.${date.getMonth()}`);
-					break;
-
-				case 'ldF':
-					output += magistraal.locale.translate(`generic.day.${date.getDay()}`) + ' ';
-					output += date.getDate() + ' ';
-					output += magistraal.locale.translate(`generic.month.${date.getMonth()}`);
-					break;
-
-				case 'Fy':
-					output += magistraal.locale.translate(`generic.month.${date.getMonth()}`) + ' ';
-					output += date.getFullYear();
-					break;
-
-				case 'dFY':
-					output += date.getDate() + ' ';
-					output += magistraal.locale.translate(`generic.month.${date.getMonth()}`) + ' ';
-					output += date.getFullYear();
-					break;
-
-				case 'dmY':
-					output += addLeadingZero(date.getDate()) + '-';
-					output += addLeadingZero(date.getMonth() + 1) + '-';
-					output += date.getFullYear();
-					break;
-
-				case 'ldFY':
-					output += magistraal.locale.translate(`generic.day.${date.getDay()}`) + ' ';
-					output += date.getDate() + ' ';
-					output += magistraal.locale.translate(`generic.month.${date.getMonth()}`) + ' ';
-					output += date.getFullYear();
-					break;
-
-				case 'dmYHi':
-					output += addLeadingZero(date.getDate()) + '-';
-					output += addLeadingZero(date.getMonth() + 1) + '-';
-					output += date.getFullYear() + ' ';
-					output += magistraal.locale.translate('generic.date_time_seperator') + ' ';
-					output += addLeadingZero(date.getHours()) + ':';
-					output += addLeadingZero(date.getMinutes());
-					break;
-
-				case 'dFYHi':
-					output += date.getDate() + ' ';
-					output += magistraal.locale.translate(`generic.month.${date.getMonth()}`) + ' ';
-					output += date.getFullYear() + ' ';
-					output += magistraal.locale.translate('generic.date_time_seperator') + ' ';
-					output += addLeadingZero(date.getHours()) + ':';
-					output += addLeadingZero(date.getMinutes());
-					break;
-
-				case 'ldFYHi':
-				default:
-					output += magistraal.locale.translate(`generic.day.${date.getDay()}`) + ' ';
-					output += date.getDate() + ' ';
-					output += magistraal.locale.translate(`generic.month.${date.getMonth()}`) + ' ';
-					output += date.getFullYear() + ' ';
-					output += magistraal.locale.translate('generic.date_time_seperator') + ' ';
-					output += addLeadingZero(date.getHours()) + ':';
-					output += addLeadingZero(date.getMinutes());
-					break;
-			}
+			$.each(formatSplit, function(i, char) {
+				switch(char) {
+					case 'H': // Uur
+						output += addLeadingZero(date.getHours());
+						break;
+					case 'i': // Minuut
+						output += addLeadingZero(date.getMinutes());
+						break;
+					case 'd': // Dag (nummer)
+						output += date.getDate();
+						break;
+					case 'l': // Dag (v)
+						output += magistraal.locale.translate(`generic.day.${date.getDay()}`);
+						break;
+					case 'm': // Maand (nummer)
+						output += addLeadingZero(date.getMonth() + 1) + '-';
+						break;
+					case 'F': // Maand (Vertaling)
+						output += magistraal.locale.translate(`generic.month.${date.getMonth()}`);
+						break;
+					case 'Y': // Jaar
+						output += date.getFullYear();
+						break;
+					default:
+						output += char;
+						break;
+				}
+			})
 
 			return output;
+		},
+
+		formatFileSize: (bytes, precision = 2) => {
+			const thresh = 1000;
+
+			if (Math.abs(bytes) < thresh) {
+				return bytes + ' B';
+			}
+
+			const units = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+			let u = -1;
+  			const r = 10**precision;
+
+			do {
+				bytes /= thresh;
+				++u;
+			} while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+
+
+  			return bytes.toFixed(precision) + ' ' + units[u];
 		}
 	},
 
@@ -1696,6 +1794,8 @@ const magistraal = {
 			if(!isSet(parameters.source))      { parameters.source = 'both'; }
 			if(!isSet(parameters.showBack))    { parameters.showBack = false; }
 			if(!isSet(parameters.unobtrusive)) { parameters.unobtrusive = false; }
+			if(!isSet(parameters.scope))       { parameters.scope = null; }
+			if(!isSet(parameters.callback))    { parameters.callback = null; }
 			if(!isSet(parameters.cachable))    { parameters.cachable = (parameters.source != 'server_only'); }
 
 			if(parameters.page.includes('?')) {
@@ -1708,20 +1808,28 @@ const magistraal = {
 			switch(parameters.page) {
 				case 'login':
 					window.location.href = '../login/';
-					return;
+					break;
 				
 				case 'main':
 					window.location.href = '../main';
-					return;
+					break;
+
 				case 'sources/list':
 					parameters.source = 'prefer_cache';
-					parameters.cacheMaxAge = 900;
+					parameters.cacheMaxAge = 120;
+					break;
+
+				case 'studyguides/info':
+				case 'studyguides/sources':
+					parameters.source = 'prefer_cache';
+					parameters.cacheMaxAge = 120;
+					break;
 				
 				case 'settings/list':
 					parameters.source = 'prefer_cache';
 					break;
 			}
-		
+
 			// Sluit popup(s)
 			magistraal.popup.close();
 
@@ -1772,19 +1880,27 @@ const magistraal = {
 				'learningresources/list': magistraal.learningresources.paintList,
 				'messages/list':          magistraal.messages.paintList,
 				'messages/sent':          magistraal.messages.paintList,
-				'messages/bin':          magistraal.messages.paintList,
+				'messages/bin':           magistraal.messages.paintList,
 				'logout':                 magistraal.logout.logout,
 				'settings/list':          magistraal.settings.paintList,
+				'studyguides/info':       magistraal.studyguides.paintDetails,
+				'studyguides/sources':    magistraal.sources.paintList,
+				'studyguides/list':       magistraal.studyguides.paintList,
 				'sources/list':           magistraal.sources.paintList
 			};
 
 			return new Promise((resolve, reject) => {
-				// Juiste callback kiezen
-				if(!isSet(callbacks[parameters.page])) {
-					console.error(`Failed to load page ${parameters.page}: No callback was set.`);
-					return;
+				// Juiste callback kiezen als er niet al een callback ingesteld is
+				let callback;
+				if(isSet(parameters.callback) && typeof parameters.callback == 'function') {
+					callback = parameters.callback;
+				} else {
+					if(!isSet(callbacks[parameters.page])) {
+						console.error(`Failed to load page ${parameters.page}: No callback was set.`);
+						return;
+					}
+					callback = callbacks[parameters.page];
 				}
-				const callback = callbacks[parameters.page];
 
 				magistraal.console.loading('console.loading.refresh');
 
@@ -1793,6 +1909,7 @@ const magistraal = {
 					data: parameters.data, 
 					source: parameters.source,
 					cachable: parameters.cachable, 
+					scope: parameters.scope,
 					callback: function(response, loadType, request, page) {
 						const listItemSelectedIndex = Math.max($('.list-item[data-interesting="true"][data-selected="true"]').index(), 0);
 						callback(response, loadType, request, page);
@@ -1868,21 +1985,15 @@ const magistraal = {
 		},
 		
 		setContent: ($el, unwrap = true, loadType) => {
-			const $main           = $('main');
+			const $main           = magistraal.element.get('main');
 			const $newContent     = unwrap ? $el.children() : $el;
-			const $currentContent = $main.children();
 
 			// Sla de scrollposities op
-			const scrollTop = $main.scrollTop();
-			const scrollLeft = $main.find('.responsive-carousel[data-carousel-direction="x"]').first().scrollLeft();
+			const scrollTop  = $main.scrollTop();
+			const scrollLeft = $main.find('.responsive-carousel[data-carousel-direction="x"] .responsive-carousel-body').first().scrollLeft();
 
 			$main.empty().append($newContent);
-
-			if(loadType.includes('final')) {
-				$main.scrollTop(scrollTop);
-				$main.find('.responsive-carousel[data-carousel-direction="x"]').first().scrollLeft(scrollLeft)
-			}
-
+		
 			// Toon bericht als de inhoud leeg is
 			magistraal.element.get('page-search-no-matches').toggleClass('show', $main.children().length == 0);
 		},
@@ -1897,7 +2008,7 @@ const magistraal = {
 				window.history.back();
 			}
 
-			if(magistraal.page.previous().includes(magistraal.page.current(true)) && magistraal.page.current().includes('?')) {
+			if(magistraal.page.previous().includes(magistraal.page.current().split('/')[0]) && magistraal.page.current().includes('?')) {
 				return true;
 			}
 			$('body').removeAttr('data-history');
@@ -2585,6 +2696,8 @@ const magistraal = {
 						return 'fal fa-file-archive';
 					} else if(selector == 'folder') {
 						return 'fal fa-folder';
+					} else if(selector == 'link') {
+						return 'fal fa-paperclip';
 					} else {
 						return 'fal fa-file';
 					}

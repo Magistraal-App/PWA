@@ -585,268 +585,32 @@
             return ['personal' => $personal, 'contact' => $contact, 'residences' => $residences];
         }
 
-        // private function accountListFormat($user, $profile, $addresses, $profile_picture) {
-        //     $account = [];
+        /* ============================ */
+        /*          Study guides        */
+        /* ============================ */
 
-        //     $account = [
-        //         'phone'           => $profile['Mobiel'],
-        //         'emailaddress'    => $profile['EmailAdres'],
-        //         'profile_picture' => base64_encode($profile_picture),
-        //         'addresses'       => []
-        //     ];
+        public static function studyguideList() {
+            $studyguides = \Magistraal\Browser\Browser::request(
+                \Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId.'/studiewijzers'
+            )['body']['Items'] ?? null;
 
-        //     foreach ($addresses as $address) {
-        //         if($address['isGeheim'] || $address['type'] != 'Woon') {
-        //             continue;
-        //         }
+            return $studyguides;
+        }
 
-        //         $account['addresses'][] = [
-        //             'street'       => $address['straat'],
-        //             'house_number' => $address['huisnummer'],
-        //             'addition'     => $address['toevoeging'] ? $address['toevoeging'] : '',
-        //             'zip'          => $address['postcode'],
-        //             'place'        => $address['plaats'],
-        //             'country'      => $address['land']
-        //         ];
-        //     }
+        public static function studyguideSourceList($id, $detail_id) {
+            $sources = \Magistraal\Browser\Browser::request(
+                \Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId."/studiewijzers/{$id}/onderdelen/{$detail_id}?gebruikMappenStructuur=true"
+            )['body']['Bronnen'] ?? null;
 
-        //     $account = array_merge($account, $user);
+            return $sources;
+        }
 
-        //     if(is_null($account['infix'])) {
-        //         $account['infix'] = '';
-        //     }
+        public static function studyguideGet($id) {
+            $studyguide = \Magistraal\Browser\Browser::request(
+                \Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId.'/studiewijzers/'.$id
+            )['body'] ?? null;
 
-        //     if(is_null($account['official_infix'])) {
-        //         $account['official_infix'] = '';
-        //     }
-
-        //     return $account;
-        // }
-
-        // public function gradesOverview() {
-        //     $this->requireAuth('bearer', 'user_info');
-
-        //     $this->obtainEnrollments();
-
-        //     $all_grades = $all_subjects = $all_terms = [];
-
-        //     foreach ($this->enrollments as $enrollment) {
-        //         // Load terms
-        //         $terms_request_url = "https://{$this->tenant_domain}/api/personen/{$this->user['id']}/aanmeldingen/{$enrollment['id']}/cijfers/cijferperiodenvooraanmelding";
-
-        //         $terms_request_body = $this->visitUrl($terms_request_url)['body'];
-
-        //         if(!($terms = @json_decode($terms_request_body, true))) {
-        //             \Magistraal\Response\error('Failed to load terms.', 'terms_loading_failed');
-        //         }
-
-        //         if(!isset($terms['Items'])) {
-        //             \Magistraal\Response\error('Failed to load terms.', 'terms_loading_failed');
-        //         }
-
-        //         $all_terms[$enrollment['id']] = $terms['Items'];
-
-
-        //         // Load subjects
-        //         $subjects_request_url = "https://{$this->tenant_domain}/api/personen/{$this->user['id']}/aanmeldingen/{$enrollment['id']}/vakken/";
-
-        //         $subjects_request_body = $this->visitUrl($subjects_request_url)['body'];
-
-        //         if(!($subjects = @json_decode($subjects_request_body, true))) {
-        //             \Magistraal\Response\error('Failed to load subjects.', 'subjects_loading_failed');
-        //         }
-
-        //         $all_subjects[$enrollment['id']] = $subjects;
-
-
-        //         // Load grades
-        //         $grades_request_url = "https://{$this->tenant_domain}/api/personen/{$this->user['id']}/aanmeldingen/{$enrollment['id']}/cijfers/cijferoverzichtvooraanmelding?actievePerioden=false&alleenBerekendeKolommen=false&alleenPTAKolommen=false";
-
-        //         $grades_request_body = $this->visitUrl($grades_request_url)['body'];
-
-        //         if(!($grades = @json_decode($grades_request_body, true))) {
-        //             \Magistraal\Response\error('Failed to load grades.', 'grades_loading_failed');
-        //         }
-
-        //         if(!isset($grades['Items'])) {
-        //             \Magistraal\Response\error('Failed to load grades.', 'grades_loading_failed');
-        //         }
-
-        //         if(!empty($grades['Items'])) {
-        //             $all_grades[$enrollment['id']] = $grades['Items'];
-        //         }
-        //     }
-
-        //     return $this->gradesOverviewFormat($all_grades, $all_subjects, $all_terms);
-        // }
-
-        // private function gradesOverviewFormat($grades, $subjects, $terms) {
-        //     $formatted = [];
-
-        //     foreach ($subjects as $enrollment_id => $subjects_list) {
-        //         foreach ($subjects_list as $subject_i => $subject) {
-        //             // Change keys
-        //             $subjects[$enrollment_id][$subject['id']] = $subjects[$enrollment_id][$subject_i];
-        //             unset($subjects[$enrollment_id][$subject_i]);
-
-        //             $formatted[$enrollment_id]['subjects'][] = [
-        //                 'code'        => $subject['afkorting'],
-        //                 'description' => $subject['omschrijving'],
-        //                 'end'         => strtotime($subject['einddatum']),
-        //                 'exemption'   => $subject['vrijstelling'] || $subject['heeftOntheffing'] ? true : false,
-        //                 'id'          => $subject['id'],
-        //                 'seq_number'  => $subject['volgnr'],
-        //                 'start'       => strtotime($subject['begindatum']),
-        //                 'teacher'     => $subject['docent']
-        //             ];
-        //         }
-
-        //         usort($formatted[$enrollment_id]['subjects'], function($a, $b) {
-        //             return $a['description'] <=> $b['description'];
-        //         });
-        //     }
-
-        //     foreach ($terms as $enrollment_id => $terms_list) {
-        //         foreach ($terms_list as $term_i => $term) {
-        //             // Change keys
-        //             $terms[$enrollment_id][$term['VolgNummer']] = $terms[$enrollment_id][$term_i];
-        //             unset($terms[$enrollment_id][$term_i]);
-
-        //             $formatted[$enrollment_id]['terms'][$term['VolgNummer']] = [
-        //                 'description' => $term['Omschrijving'],
-        //                 'end'         => strtotime($term['Einde']),
-        //                 'name'        => $term['Naam'],
-        //                 'seq_number'  => $term['VolgNummer'],
-        //                 'start'       => strtotime($term['Start'])
-        //             ];
-        //         }
-        //     }
-            
-        //     foreach ($grades as $enrollment_id => $gradesList) {
-        //         foreach ($gradesList as $grade) {
-        //             if(!isset($subjects[$enrollment_id][$grade['Vak']['Id']])) {
-        //                 continue;
-        //             }
-
-        //             if(!isset($grade['CijferStr'])) {
-        //                 continue;
-        //             }
-
-        //             if(!isset($formatted[$enrollment_id]['columns'][$grade['CijferKolom']['KolomVolgNummer']])) {
-        //                 $formatted[$enrollment_id]['columns'][$grade['CijferKolom']['KolomVolgNummer']] = [
-        //                     'description' => $grade['CijferKolom']['KolomOmschrijving'],
-        //                     'id'          => $grade['CijferKolom']['Id'],
-        //                     'name'        => $grade['CijferKolom']['KolomNaam'],
-        //                     'number'      => $grade['CijferKolom']['KolomNummer'],
-        //                     'seq_number'  => $grade['CijferKolom']['KolomVolgNummer'],
-        //                     'term'        => [
-        //                         'name'        => $grade['CijferPeriode']['Naam'],
-        //                         'id'          => $grade['CijferPeriode']['Id'],
-        //                         'seq_number'  => $grade['CijferPeriode']['VolgNummer']
-        //                     ],
-        //                     'type'        => $grade['CijferKolom']['KolomSoort'] === 1 ? 'grades' : 'averages'
-        //                 ];
-        //             }
-
-        //             $formatted[$enrollment_id]['grades'][$grade['CijferId']] = [
-        //                 'column'      => [
-        //                     'id'          => $grade['CijferKolom']['Id'],
-        //                     'number'      => $grade['CijferKolom']['KolomNummer'],
-        //                     'seq_number'  => $grade['CijferKolom']['KolomVolgNummer']
-        //                 ],
-        //                 'entered_at'  => strtotime($grade['DatumIngevoerd']),
-        //                 'id'          => $grade['CijferId'],
-        //                 'passed'      => $grade['IsVoldoende'],
-        //                 'subject'     => [
-        //                     'code'        => $grade['Vak']['Afkorting'],
-        //                     'description' => $grade['Vak']['Omschrijving'],
-        //                     'id'          => $grade['Vak']['Id']
-        //                 ],
-        //                 'value'       => $this->gradeStrToFloat($grade['CijferStr']),
-        //                 'value_str'   => $grade['CijferStr']
-        //             ];
-        //         }
-        //     }
-
-        //     return $formatted;
-        // }
-
-        // public static function obtainCourses() {
-        //     $from_date = '2012-01-01';
-        //     $end_date  = date('Y-m-d', strtotime('+1 year'));
-
-        //     $courses = \Magistraal\Api\call(\Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId."/aanmeldingen/?begin={$from_date}&einde={$end_date}")['body']['items'] ?? \Magistraal\Response\error('error_obtaining_courses');
-
-        //     $formatted = [];
-
-        //     foreach ($courses as $course) {
-        //         $formatted[$course['id']] = [
-        //             'id'    => $course['id'],
-        //             'start' => [
-        //                 'unix' => strtotime($course['begin'])
-        //             ],
-        //             'end'   => [
-        //                 'unix' => strtotime($course['einde'])
-        //             ]
-        //         ];
-        //     }
-
-        //     \Magister\Session::$courses = $formatted;
-        // }
-
-        // private function obtainEnrollmentsFormat($enrollments) {
-        //     $formatted = [];
-
-        //     foreach ($enrollments as $enrollment) {
-        //         $formatted[$enrollment['id']] = [
-        //             'id'    => $enrollment['id'],
-        //             'start' => strtotime($enrollment['begin']),
-        //             'end'   => strtotime($enrollment['einde'])
-        //         ];
-        //     }
-
-        //     return $formatted;
-        // }
-
-        // // public function subjects_list() {
-        // //     $this->requireAuth('bearer', 'user_info');
-
-        // //     $this->obtainEnrollments();
-
-        // //     foreach ($this->enrollments as $enrollment) {
-        // //         $request_url = "https://{$this->tenant_domain}/api/personen/{$this->user['id']}/aanmeldingen/{$enrollment['id']}/vakken/";
-
-        // //         $request_body = $this->visitUrl($request_url)['body'];
-
-        // //         if(!($subjects = @json_decode($request_body, true))) {
-        // //             \Magistraal\Response\error('Failed to load subjects.', 'subjects_loading_failed');
-        // //         }
-        // //     }
-
-        // //     return $this->subjects_list_format($subjects);
-        // // }
-
-        // // private function subjects_list_format($subjects) {
-        // //     $formatted = [];
-
-        // //     foreach ($subjects as $subject) {
-        // //         $formatted[$subject['id']] = [
-        // //             'code'             => $subject['afkorting'],
-        // //             'description'      => $subject['omschrijving'],
-        // //             'end'              => strtotime($subject['einddatum']),
-        // //             'exemption'        => $subject['vrijstelling'],
-        // //             'higher_level'     => $subject['hogerNiveau'],
-        // //             'id'               => $subject['id'],
-        // //             'niveau'           => $subject['niveau'],
-        // //             'number'           => $subject['volgnr'],
-        // //             'start'            => strtotime($subject['begindatum']),
-        // //             'study_id'         => $subject['studieId'],
-        // //             'study_subject_id' => $subject['studieVakId'],
-        // //             'teacher'          => $subject['docent']
-        // //         ];
-        // //     }
-
-        // //     return $formatted;
-        // // }
+            return $studyguide;
+        }
     }
 ?>

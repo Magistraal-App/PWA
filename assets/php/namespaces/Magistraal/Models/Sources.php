@@ -6,15 +6,18 @@
     }
 
     function format($source) {
-        return [
+        $formatted = [
             'id'           => $source['Id'] ?? null,
             'name'         => $source['Naam'] ?? '',
             'content_type' => $source['ContentType'] ?? null,
             'reference'    => $source['Referentie'] ?? null,
             'size'         => $source['Grootte'] ?? null,
             'type'         => \Magistraal\Sources\remap_type($source['BronSoort'] ?? 0),
-            'location'     => \array_item_sibling('Rel', 'Contents', 'Href', $source['Links'])
+            'location'     => \array_item_sibling('Rel', 'Contents', 'Href', $source['Links']),
+            'order'        => $source['Volgnr'] ?? null
         ];
+
+        return $formatted;
     }
 
     function format_all($sources) {
@@ -23,6 +26,10 @@
         foreach ($sources as $source) {
             $formatted[] = \Magistraal\Sources\format($source);
         }
+
+        uasort($formatted, function($a, $b) {
+            return $a['order'] > $b['order'];
+        });
 
         return $formatted;
     }
@@ -33,6 +40,8 @@
                 return 'folder';
             case 1:
                 return 'file';
+            case 3:
+                return 'link';
         }
 
         return 'unknown';
