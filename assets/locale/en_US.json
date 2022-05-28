@@ -28,11 +28,12 @@
     "generic.action.forward": "Forward",
     "generic.action.join_meeting": "Join",
     "generic.action.login": "Sign in",
+    "generic.action.open": "Open",
     "generic.action.reply": "Reply",
+    "generic.action.retry": "Try again",
     "generic.action.save": "Save",
     "generic.action.search": "Search...",
     "generic.action.send": "Send",
-    "generic.action.open": "Open",
 
     "generic.date_time_seperator": "at",
 
@@ -187,6 +188,9 @@
     "messages.inbox": "Inbox",
     "messages.bin": "Bin",
     "messages.sent": "Sent items",
+    
+    "offline.header": "Offline",
+    "offline.content": "It looks like you've lost connection to the internet.",
 
     "settings.category.root.appearance.title": "Appearance",
     "settings.category.root.data_usage.title": "Data usage",

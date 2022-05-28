@@ -25,14 +25,15 @@
     "generic.action.download": "Downloaden",
     "generic.action.edit": "Bewerken",
     "generic.action.finish": "Afronden",
+    "generic.action.forward": "Doorsturen",
     "generic.action.join_meeting": "Deelnemen",
     "generic.action.login": "Inloggen",
+    "generic.action.open": "Openen",
+    "generic.action.reply": "Beantwoorden",
+    "generic.action.retry": "Opnieuw proberen",
     "generic.action.save": "Opslaan",
     "generic.action.search": "Zoeken...",
     "generic.action.send": "Verzenden",
-    "generic.action.reply": "Beantwoorden",
-    "generic.action.forward": "Doorsturen",
-    "generic.action.open": "Openen",
     
     "generic.date_time_seperator": "om",
 
@@ -187,6 +188,9 @@
     "messages.inbox": "Inbox",
     "messages.bin": "Prullenbak",
     "messages.sent": "Verzonden",
+
+    "offline.header": "Offline",
+    "offline.content": "Het lijkt erop dat je op dit moment geen internetverbinding hebt.",
 
     "settings.category.root.appearance.title": "Vormgeving",
     "settings.category.root.data_usage.title": "Dataverbruik",

@@ -58,6 +58,10 @@ self.addEventListener('install', function (e) {
     console.log('[service-worker.js] Installed!');
     e.waitUntil(
         caches.open(cacheName).then(function (cache) {
+            cache.add(new Request('/magistraal/client/', {cache: 'reload'}));
+            cache.add(new Request('/magistraal/client/main/', {cache: 'reload'}));
+            cache.add(new Request('/magistraal/client/login/', {cache: 'reload'}));
+            cache.add(new Request('/magistraal/client/offline/', {cache: 'reload'}));
             return cache.addAll(resources)
         })
     )

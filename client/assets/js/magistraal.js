@@ -145,7 +145,7 @@ const magistraal = {
 				// Verstuur request naar de server
 				$.ajax({
 					method: 'POST',
-					url: `${magistraalStorage.get('api').value}${parameters.url}/`,
+					url: `/magistraal/api/${parameters.url}/`,
 					data: parameters.data,
 					headers: {'Accept': '*/*'},
 					xhrFields: parameters.xhrFields,
@@ -211,7 +211,7 @@ const magistraal = {
 
 						// Als de gebruiker offline is
 						if(response.readyState == 0 && response.status == 0) {
-							console.error(`Failed to load page ${parameters.page}:`, 'User is offline');
+							console.error(`Failed to load url ${parameters.url}:`, 'User is offline');
 							const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`);
 
 							if(isSet(cachedResponse.value)) {
@@ -226,10 +226,12 @@ const magistraal = {
 									const formattedDate = magistraal.locale.formatDate(cachedResponse.storedAt / 1000, (cacheFromToday ? 'H:i' :'d-m-Y H:i'));
 									magistraal.console.info(`${magistraal.locale.translate('console.info.last_updated')} ${formattedDate}`);
 								} catch(err) {
-									console.error(`Failed to load page ${parameters.page}:`, err);
+									console.error(`Failed to load url ${parameters.url}:`, err);
 									magistraal.console.error();
 								}
 							} else {
+								console.log(`Rejecting promise for url ${parameters.url}`);
+								reject();
 								magistraal.console.error('console.error.because_offline');
 							}
 
@@ -1593,8 +1595,6 @@ const magistraal = {
 	load: (parameters = {}) => {
 		return new Promise((resolve, reject) => {
 			try {
-				magistraalStorage.set('api', '/magistraal/api/');
-
 				if(!isSet(parameters.version)) {
 					reject();
 				}
@@ -1615,6 +1615,7 @@ const magistraal = {
 					// Werk UI bij
 					magistraal.settings.updateClient(res.data);
 
+					// Wacht totdat de mogelijke nieuwe token is opgeslagen en ga dan verder
 					setTimeout(() => {
 						if(parameters?.doPreCache === true && parseInt(magistraal.settings.get('data_usage.prefer_level')) > 0) {
 							// Laad pagina's voor offlinegebruik
@@ -1649,7 +1650,7 @@ const magistraal = {
 						}
 
 						magistraal.settings.set('appearance.theme', `${prefersScheme}_auto`);
-					}, 100);
+					}, 25);
 				})
 
 				const language = (isSet(settings) && isSet(settings['appearance.language']) ? settings['appearance.language'] : 'nl_NL');
@@ -1677,28 +1678,38 @@ const magistraal = {
 					url: 'locale', 
 					data: {locale: locale},
 					source: 'prefer_cache',
-					callback: magistraal.locale.loadCallback
-				}).finally(() => {
+					callback: magistraal.locale.loadCallback,
+					alwaysReturn: true
+				}).then(() => {
+					console.log('failed to load locale!');
 					resolve();
-				}).catch(() => {});
+				}).catch(() => {
+					reject();
+				});
 			});
 		},
 
 		loadCallback: (response, source) => {
 			magistraalStorage.set('translations', response.data);
 			$('[data-translation]').each(function () {
+				const translationKey = $(this).attr('data-translation');
+				const translation    = magistraal.locale.translate(translationKey, '');
+
 				if(this.tagName.toLowerCase() === 'input' || this.tagName.toLowerCase() === 'textarea') {
 					// Set placeholder on input or textarea elements
-					$(this).attr('placeholder', magistraal.locale.translate($(this).attr('data-translation')));
+					$(this).attr('placeholder', (translation || $(this).attr('placeholder') || translationKey));
 				} else {
 					// Set text on other types of elements
-					$(this).text(magistraal.locale.translate($(this).attr('data-translation')));
+					$(this).text((translation || $(this).text() || translationKey));
 				}
 			});
 		},
 
 		translate: (key, fallback = undefined) => {
-			fallback = fallback || key;
+			if(!isSet(fallback)) {
+				fallback = key;
+			}
+
 			let translations = magistraalStorage.get('translations').value;
 
 			if(!isSet(translations) || !isSet(translations[key])) {
@@ -1830,8 +1841,8 @@ const magistraal = {
 				case 'login':
 				case 'main':
 				case 'offline':
-					window.location.href = `../${page}/`;
-					break;
+					window.location.href = `../${parameters.page}/`;
+					return;
 
 				case 'sources/list':
 					parameters.source = 'prefer_cache';
