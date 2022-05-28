@@ -507,7 +507,8 @@ const magistraal = {
 			magistraal.api.call({
 				url: 'appointments/info', 
 				data: {id: id},
-				callback: magistraal.appointments.viewCallback
+				callback: magistraal.appointments.viewCallback,
+				inBackground: true
 			});
 		},
 
@@ -973,7 +974,8 @@ const magistraal = {
 				data: {id: id},
 				callback: magistraal.messages.viewCallback,
 				source: 'prefer_cache',
-				cacheMaxAge: -1
+				cacheMaxAge: -1,
+				inBackground: true
 			}).then(response => {
 				// Markeer het bericht als gelezen als dit nog niet het geval is
 				if(!read) {
@@ -1666,8 +1668,7 @@ const magistraal = {
 		load: (locale) => {
 			return new Promise((resolve, reject) => {
 				magistraal.api.call({
-					url: 'locale', 
-					data: {locale: locale},
+					url: `locale?locale=${locale}`, 
 					source: 'both',
 					callback: magistraal.locale.loadCallback
 				}).finally(() => {
