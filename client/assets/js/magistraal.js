@@ -260,7 +260,7 @@ const magistraal = {
 
 				// Maak een groep en stel de titel in
 				let $absencesGroup = magistraal.template.get('absences-group');
-				$absencesGroup.find('.absences-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'F y')));
+				$absencesGroup.find('.absences-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'F Y')));
 				
 				// Ga alle absenties bij langs
 				$.each(data.absences, function (i, absence) {
