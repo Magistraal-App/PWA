@@ -1,12 +1,12 @@
 <?php 
     namespace Magistraal\Cron\Appointments;
 
-    function find_changes(array $current_entry, string $iso_start, string $iso_end) {
+    function find_changes(array $current_entry, string $iso_from, string $iso_to) {
         $new_entry = $current_entry;
         $new_items = [];
 
         // Load appointments for today and tomorrow
-        $appointments = \Magistraal\Appointments\get_all($iso_start, $iso_end) ?? [];
+        $appointments = \Magistraal\Appointments\get_all($iso_from, $iso_to) ?? [];
         
         if(isset($appointments)) {
             foreach ($appointments as $day) {

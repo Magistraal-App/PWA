@@ -1,8 +1,8 @@
 <?php 
     namespace Magistraal\Studyguides;
 
-    function get_all() {
-        return \Magistraal\Studyguides\format_all(\Magister\Session::studyguideList() ?? []);
+    function get_all($filter = null) {
+        return \Magistraal\Studyguides\format_all(\Magister\Session::studyguideList() ?? [], $filter);
     }
 
     function get($id) {

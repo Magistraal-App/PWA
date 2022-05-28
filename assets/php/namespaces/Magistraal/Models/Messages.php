@@ -1,19 +1,19 @@
 <?php 
     namespace Magistraal\Messages;
 
-    function get($id, $filter = []) {
-        return \Magistraal\Messages\format(\Magister\Session::messageGet($id), $filter);
+    function get($id, $filter = null) {
+        return \Magistraal\Messages\format(\Magister\Session::messageGet($id) ?? [], $filter);
     }
 
-    function get_all($top = 1000, $skip = 0, $folder, $filter = []) {
-        return \Magistraal\Messages\format_all(\Magister\Session::messageList($top, $skip, $folder), $top, $skip, $folder, $filter);
+    function get_all($top = 1000, $skip = 0, $folder, $filter = null) {
+        return \Magistraal\Messages\format_all(\Magister\Session::messageList($top, $skip, $folder) ?? [], $top, $skip, $folder, $filter);
     }
 
     function delete($id) {
         return \Magister\Session::messageDelete($id);
     }
 
-    function format($message, $filter = []) {
+    function format($message, $filter = null) {
         $formatted = [
             'content'         => $message['inhoud'] ?? '',
             'has_attachments' => $message['heeftBijlagen'] ?? null,
@@ -77,18 +77,11 @@
                 ];
             }
         }
-        
-        // Filter out non-wanted items
-        if(!empty($filter)) {
-            $formatted = array_filter($formatted, function ($key) use ($filter) {
-                return in_array($key, $filter);
-            }, ARRAY_FILTER_USE_KEY);
-        }
 
-        return $formatted;
+        return filter_items($formatted, $filter);
     }
 
-    function format_all($messages, $top, $skip, $folder = 'inbox', $filter = []) {
+    function format_all($messages, $top, $skip, $folder = 'inbox', $filter = null) {
         $amount_unread = 0;
         $items = [];
             

@@ -1,3 +1,49 @@
+/* ============================ */
+/*    FIREBASE NOTIFICATIONS    */
+/* ============================ */
+
+console.log('[service-worker.js] Loading Firebase...');
+
+importScripts('https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js');
+
+// Compat scripts provide the v8 API
+importScripts('https://www.gstatic.com/firebasejs/9.8.1/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.8.1/firebase-messaging-compat.js');
+
+// Initialize Firebase (v8)
+firebase.initializeApp({
+    apiKey: "AIzaSyCeEjw-h8t6-7EAVtcxe2mK0gV52JVe938",
+    authDomain: "magistraal-ed92d.firebaseapp.com",
+    projectId: "magistraal-ed92d",
+    storageBucket: "magistraal-ed92d.appspot.com",
+    messagingSenderId: "276429310436",
+    appId: "1:276429310436:web:0e7fc77f5ded2c9a3d9ff1"
+});
+
+// Get messaging instance
+const messaging = firebase.messaging();
+
+console.log(ServiceWorkerRegistration);
+
+messaging.onBackgroundMessage((payload) => {
+    console.log('[service-worker.js] Received background message:', payload);
+
+    if(typeof payload.data == 'undefined' || payload.data === null) {
+        return;
+    }
+
+    const data = typeof payload.data == 'object' ? payload.data : JSON.parse(payload.data['gcm.notification.data'] || '{}') || {};
+
+    return self.registration.showNotification(data.title || undefined, {
+        body: data.body || undefined,
+        icon: '/magistraal/client/assets/images/app/logo-transparent/512x512.png',
+        badge: '/magistraal/client/assets/images/app/badge/128x128.png',
+        timestamp: Math.floor(data.timestamp * 1000 || Date.now())
+    });
+});
+
+console.log('[service-worker.js] Loaded Firebase!');
+
 self.addEventListener('fetch', function (e) {
 	// https://stackoverflow.com/a/49719964
     if (e.request.cache === 'only-if-cached' && e.request.mode !== 'same-origin') return;
@@ -9,6 +55,7 @@ self.addEventListener('fetch', function (e) {
 })
 
 self.addEventListener('install', function (e) {
+    console.log('[service-worker.js] Installed!');
     e.waitUntil(
         caches.open(cacheName).then(function (cache) {
             return cache.addAll(resources)
@@ -17,6 +64,7 @@ self.addEventListener('install', function (e) {
 })
 
 self.addEventListener('activate', function (e) {
+    console.log('[service-worker.js] Activated!');
     e.waitUntil(
         caches.keys().then(function (keyList) {
             return Promise.all(keyList.map(function (key, i) {

@@ -1,12 +1,12 @@
 <?php 
     namespace Magistraal\Appointments;
 
-    function get($id, $filter = []) {
-        return \Magistraal\Appointments\format(\Magister\Session::appointmentGet($id), $filter);
+    function get_all($iso_from, $iso_to, $filter = null) {
+        return \Magistraal\Appointments\format_all(\Magister\Session::appointmentList($iso_from, $iso_to) ?? [], $iso_from, $iso_to, $filter);
     }
 
-    function get_all($iso_from, $iso_to, $filter = []) {
-        return \Magistraal\Appointments\format_all(\Magister\Session::appointmentList($iso_from, $iso_to), $iso_from, $iso_to, $filter);
+    function get($id, $filter = null) {
+        return \Magistraal\Appointments\format(\Magister\Session::appointmentGet($id) ?? [], $filter);
     }
 
     function create($formatted) {
@@ -21,25 +21,7 @@
         return \Magister\Session::appointmentFinish($id, $finished);
     }
 
-    function find_changes($token_id) {
-        $db = \Magistraal\Database\connect();
-
-        \Magister\Session::start($token_id);
-        $user_uuid = \Magister\Session::$userUuid;
-        $wp1 = microtime(true);
-        $wp2 = microtime(true);
-        echo(round($wp2 - $wp1, 2) . "ms for logging in\n");
-        // Get all appointments for today
-        $appointments = \Magistraal\Appointments\get_all(
-            date_iso(strtotime('-30 days')), 
-            date_iso(strtotime('-29 days') - 1), 
-            ['id', 'status']
-        );
-        $wp3 = microtime(true);
-        echo(round($wp3 - $wp2, 2) . "ms for loading appointments\n");
-    }
-
-    function format($appointment, $filter = []) {
+    function format($appointment, $filter = null) {
         // Scheid de meeting link van de inhoud
         list($content, $meeting_link) = \Magistraal\Appointments\seperate_lesson_content($appointment['Inhoud']);
 
@@ -96,14 +78,7 @@
             }
         }
 
-        // Filter out non-wanted items
-        if(!empty($filter)) {
-            $formatted = array_filter($formatted, function ($key) use ($filter) {
-                return in_array($key, $filter);
-            }, ARRAY_FILTER_USE_KEY);
-        }
-
-        return $formatted;
+        return filter_items($formatted, $filter);
     }
 
     function deformat($formatted) {

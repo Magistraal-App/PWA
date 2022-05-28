@@ -1,11 +1,11 @@
 <?php 
     namespace Magistraal\Absences;
 
-    function get_all($iso_from, $iso_to) {
-        return \Magistraal\Absences\format_all(\Magister\Session::absencesList($iso_from, $iso_to), $iso_from, $iso_to);
+    function get_all($iso_from, $iso_to, $filter = null) {
+        return \Magistraal\Absences\format_all(\Magister\Session::absencesList($iso_from, $iso_to) ?? [], $iso_from, $iso_to, $filter);
     }
 
-    function format_all($absences, $iso_from, $iso_to) {
+    function format_all($absences, $iso_from, $iso_to, $filter = null) {
         $unix_from = strtotime($iso_from);
         $unix_to   = strtotime($iso_to);
 
@@ -25,20 +25,19 @@
                 continue;
             }
 
-            $formatted[$yearmonth]['absences'][] = \Magistraal\Absences\format($absence);
+            $formatted[$yearmonth]['absences'][] = \Magistraal\Absences\format($absence, $filter);
         }
 
         uasort($formatted, function($a, $b) {
             return ($a['unix'] < $b['unix'] ? 1 : -1);
         });
 
-
         return $formatted;
     }
 
-    function format($absence) {
-        return [
-            'abbr'        => $absence['Code'],
+    function format($absence, $filter = null) {
+        $formatted = [
+            'code'        => $absence['Code'],
             'appointment' => \Magistraal\Appointments\format($absence['Afspraak']),
             'description' => trim($absence['Omschrijving']),
             'id'          => $absence['Id'],
@@ -46,6 +45,8 @@
             'type'        => \Magistraal\Absences\remap_type($absence['Verantwoordingtype']),
             'permitted'   => $absence['Geoorloofd']
         ];
+
+        return filter_items($formatted, $filter);
     }
 
     function remap_type($int) {

@@ -1,11 +1,11 @@
 <?php 
     namespace Magistraal\Account;
 
-    function get_all() {
-        return \Magistraal\Account\format_all(\Magister\Session::accountList());
+    function get_all($filter = null) {
+        return \Magistraal\Account\format_all(\Magister\Session::accountList() ?? [], $filter);
     }
 
-    function format_all($account) {
+    function format_all($account, $filter = null) {
         $formatted = [
             'personal' => [
                 'uuid'             => $account['personal']['UuId'] ?? null,
@@ -44,7 +44,7 @@
         $formatted['personal']['full_name'] = $formatted['personal']['name'].' '.(isset($formatted['personal']['infix']) ? $formatted['personal']['infix'].' ' : '').$formatted['personal']['surname'];
         $formatted['personal']['full_name_official'] = $formatted['personal']['name_official'].' '.(isset($formatted['personal']['infix_official']) ? $formatted['personal']['infix_official'].' ' : '').$formatted['personal']['surname_official'];
 
-        return $formatted;
+        return filter_items($formatted, $filter);
     }
 
     function format_address_item($item, $type) {

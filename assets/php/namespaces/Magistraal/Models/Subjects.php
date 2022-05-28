@@ -1,16 +1,22 @@
 <?php 
     namespace Magistraal\Subjects;
 
-    function format($subject) {
-        return [
-            'id'          => $subject['id'],
-            'abbr'        => $subject['afkorting'],
-            'description' => $subject['omschrijving'],
-            'exemption'   => $subject['vrijstelling'] || $subject['heeftOntheffing'],
-            'teacher'     => $subject['docent'],
-            'start'       => $subject['begindatum'],
-            'end'         => $subject['einddatum']
+    function get_all($course_id = null, $filter = null) {
+        return \Magistraal\Subjects\format_all(\Magister\Session::subjectList($course_id), $filter);
+    }
+
+    function format($subject, $filter = null) {
+        $formatted =  [
+            'id'          => $subject['id'] ?? null,
+            'code'        => $subject['afkorting'] ?? null,
+            'description' => $subject['omschrijving'] ?? null,
+            'exemption'   => ($subject['vrijstelling'] ?? null || $subject['heeftOntheffing'] ?? null) ?? false,
+            'teacher'     => $subject['docent'] ?? null,
+            'start'       => $subject['begindatum'] ?? null,
+            'end'         => $subject['einddatum'] ?? null
         ];
+
+        return filter_items($formatted, $filter);
     }
     
     function format_all($subjects) {

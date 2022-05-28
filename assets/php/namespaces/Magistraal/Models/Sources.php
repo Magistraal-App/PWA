@@ -1,11 +1,11 @@
 <?php 
     namespace Magistraal\Sources;
 
-    function get_all($parent_id = null) {
-        return \Magistraal\Sources\format_all(\Magister\Session::sourceList($parent_id));
+    function get_all($parent_id = null, $filter = null) {
+        return \Magistraal\Sources\format_all(\Magister\Session::sourceList($parent_id) ?? [], $filter);
     }
 
-    function format($source) {
+    function format($source, $filter = null) {
         $formatted = [
             'id'           => $source['Id'] ?? null,
             'name'         => $source['Naam'] ?? '',
@@ -17,14 +17,14 @@
             'order'        => $source['Volgnr'] ?? null
         ];
 
-        return $formatted;
+        return filter_items($formatted, $filter);
     }
 
-    function format_all($sources) {
+    function format_all($sources, $filter = null) {
         $formatted = [];
 
         foreach ($sources as $source) {
-            $formatted[] = \Magistraal\Sources\format($source);
+            $formatted[] = \Magistraal\Sources\format($source, $filter);
         }
 
         uasort($formatted, function($a, $b) {

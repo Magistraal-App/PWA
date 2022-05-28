@@ -92,4 +92,14 @@
 
         return substr_replace($haystack, $replace, $start, $end - $start);
     }
+
+    function filter_items($item, $filter = []) {
+        if(isset($filter) && !empty($filter)) {
+            $item = array_filter($item, function ($key) use ($filter) {
+                return in_array($key, $filter);
+            }, ARRAY_FILTER_USE_KEY);
+        }
+
+        return $item;
+    }
 ?>

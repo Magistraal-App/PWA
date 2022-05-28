@@ -10,8 +10,11 @@ firebase.initializeApp({
     appId: "1:276429310436:web:0e7fc77f5ded2c9a3d9ff1"
 });
 
-// Load service worker
-navigator.serviceWorker.register('../../firebase-messaging-sw.js').then(registration => {
+// Register service worker
+console.log('[firebase.js] Trying to register service worker...');
+navigator.serviceWorker.register('../../service-worker.js.php').then(registration => {
+    console.log('[firebase.js] Succesfully registered service worker!');
+
     // Get messaging instance
     const messaging = firebase.messaging();
 
@@ -24,7 +27,7 @@ navigator.serviceWorker.register('../../firebase-messaging-sw.js').then(registra
             return;
         }
 
-        console.log('[init-firebase.js] Token:', currentToken);
+        console.log('[firebase.js] Token:', currentToken);
         
         // Send message token to server
         magistraal.api.call({
@@ -37,7 +40,7 @@ navigator.serviceWorker.register('../../firebase-messaging-sw.js').then(registra
         })
 
         messaging.onMessage(payload => {
-            console.log('[init-firebase.js] Received foreground message:', payload);
+            console.log('[firebase.js] Received foreground message:', payload);
 
             if(!isSet(payload.data)) {
                 return;
@@ -53,6 +56,7 @@ navigator.serviceWorker.register('../../firebase-messaging-sw.js').then(registra
         });
     }).catch((err) => {
         console.log('An error occurred while retrieving token. ', err);
-        // ...
     });
-})
+}).catch((err) => {
+    console.log('An error occurred while registering service worker. ', err);
+});

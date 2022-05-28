@@ -306,13 +306,29 @@
         /*           Courses            */
         /* ============================ */
 
-        public static function coursesList() {
+        public static function courseList() {
             $date_from = '2012-01-01';
-            $date_to   = date('Y-m-d', strtotime('+2 years'));
+            $date_to   = date('Y-m-d', strtotime('+1 year'));
 
-            $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId."/aanmeldingen/?begin={$date_from}&tot={$date_to}");
+            $courses = \Magistraal\Api\call(
+                \Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId."/aanmeldingen/?begin={$date_from}&tot={$date_to}"
+            )['body']['items'] ?? null;
 
-            return $response['body']['items'] ?? [];
+            return $courses;
+        }
+
+        public static function courseActiveId() {
+            $courses = \Magistraal\Courses\get_all(null, null, false);
+
+            foreach ($courses as $course) {
+                if($course['active'] !== true) {
+                    continue;
+                }
+
+                return $course['id'];
+            }
+
+            return null;
         }
 
         /* ============================ */
@@ -371,37 +387,6 @@
             ]);
             return ['success' => $response['info']['success'], 'data' => $response['body']];
         }
-
-        /* ============================ */
-        /*           Courses            */
-        /* ============================ */
-
-        public static function courseList() {
-            $result = [];
-
-            $from_date = '2012-01-01';
-            $end_date  = date('Y-m-d', strtotime('+1 year'));
-
-            $courses = \Magistraal\Api\call(\Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId."/aanmeldingen/?begin={$from_date}&einde={$end_date}")['body']['items'] ?? \Magistraal\Response\error('error_obtaining_courses');
-
-            foreach ($courses as $course) {
-                $result[$course['id']] = $course;
-
-                // Load terms for this course
-                $terms = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/aanmeldingen/{$course['id']}/cijfers/cijferperiodenvooraanmelding")['body']['Items'] ?? \Magistraal\Response\error('error_getting_terms');
-                $result[$course['id']]['terms'] = $terms;
-
-                // Load subjects for this course
-                $subjects = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/aanmeldingen/{$course['id']}/vakken")['body'] ?? \Magistraal\Response\error('error_getting_subjects');
-                $result[$course['id']]['subjects'] = $subjects;
-
-                // Load grades for this course
-                $grades = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/aanmeldingen/{$course['id']}/cijfers/cijferoverzichtvooraanmelding?actievePerioden=false&alleenBerekendeKolommen=false&alleenPTAKolommen=false")['body']['Items'] ?? \Magistraal\Response\error('error_getting_grades');
-                $result[$course['id']]['grades'] = $grades;
-            }
-
-            return $result;
-        }
         
         /* ============================ */
         /*            Files             */
@@ -424,6 +409,16 @@
             $response = \Magistraal\Api\call(\Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/cijfers/laatste?top={$top}&skip=0");
             
             return $response['body']['items'] ?? [];
+        }
+
+        public static function gradeOverview($course_id = null) {
+            $course_id = $course_id ?? \Magister\Session::courseActiveId();
+
+            $grades = \Magistraal\Api\call(
+                \Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/aanmeldingen/{$course_id}/cijfers/cijferoverzichtvooraanmelding?actievePerioden=false&alleenBerekendeKolommen=false&alleenPTAKolommen=false"
+            )['body']['Items'] ?? null;
+
+            return $grades;
         }
 
         /* ============================ */
@@ -482,13 +477,17 @@
         }
 
         public static function messageGet($id) {
-            $message = \Magistraal\Browser\Browser::request(\Magister\Session::$domain."/api/berichten/berichten/{$id}/")['body'];
+            $message = \Magistraal\Api\call(
+                \Magister\Session::$domain."/api/berichten/berichten/{$id}/"
+            )['body'] ?? null;
 
             if(isset($message['heeftBijlagen']) && $message['heeftBijlagen'] == true) {
                 // Voeg bijlage toe aan sidebar
                 $location            = $message['links']['bijlagen']['href'] ?? null;
                 if(isset($location)) {
-                    $message['bijlagen'] = \Magistraal\Browser\Browser::request(\Magister\Session::$domain.$location)['body']['items'];
+                    $message['bijlagen'] = \Magistraal\Api\call(
+                        \Magister\Session::$domain.$location
+                    )['body']['items'] ?? null;
                 } else {
                     $message['bijlagen'] = [];
                 }
@@ -568,17 +567,17 @@
 
         public static function accountList() {
             // Laad naam
-            $personal = \Magistraal\Browser\Browser::request(
+            $personal = \Magistraal\Api\call(
                 \Magister\Session::$domain.'/api/account/'
             )['body'] ?? null;
 
             // Laad email en telefoonnummer
-            $contact = \Magistraal\Browser\Browser::request(
+            $contact = \Magistraal\Api\call(
                 \Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId.'/profiel/'
             )['body'] ?? null;
 
             // Laad adressen
-            $residences = \Magistraal\Browser\Browser::request(
+            $residences = \Magistraal\Api\call(
                 \Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId.'/adressen/'
             )['body']['items'] ?? null;
 
@@ -590,7 +589,7 @@
         /* ============================ */
 
         public static function studyguideList() {
-            $studyguides = \Magistraal\Browser\Browser::request(
+            $studyguides = \Magistraal\Api\call(
                 \Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId.'/studiewijzers'
             )['body']['Items'] ?? null;
 
@@ -598,7 +597,7 @@
         }
 
         public static function studyguideSourceList($id, $detail_id) {
-            $sources = \Magistraal\Browser\Browser::request(
+            $sources = \Magistraal\Api\call(
                 \Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId."/studiewijzers/{$id}/onderdelen/{$detail_id}?gebruikMappenStructuur=true"
             )['body']['Bronnen'] ?? null;
 
@@ -606,11 +605,54 @@
         }
 
         public static function studyguideGet($id) {
-            $studyguide = \Magistraal\Browser\Browser::request(
+            $studyguide = \Magistraal\Api\call(
                 \Magister\Session::$domain.'/api/leerlingen/'.\Magister\Session::$userId.'/studiewijzers/'.$id
             )['body'] ?? null;
 
             return $studyguide;
+        }
+
+        /* ============================ */
+        /*            Subjects          */
+        /* ============================ */
+        
+        public static function subjectList($course_id = null) {
+            $course_id = $course_id ?? \Magister\Session::courseActiveId();
+
+            $subjects = \Magistraal\Api\call(
+                \Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/aanmeldingen/{$course_id}/vakken"
+            )['body'] ?? null;
+
+            return $subjects;
+        }
+
+        /* ============================ */
+        /*              Tasks           */
+        /* ============================ */
+
+        public static function taskList($date_from, $date_to, $top = 1000, $skip = 0) {
+            $date_from = $date_from ?? (intval(date('Y'))-1).'-08-01';
+            $date_to   = $date_to ?? intval(date('Y')).'-07-31';
+            
+            $tasks = \Magistraal\Api\call(
+                \Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/opdrachten?skip={$skip}&top={$top}&startdatum={$date_from}&einddatum={$date_to}&status=alle"
+            )['body']['Items'] ?? null;
+            
+            return $tasks;
+        }
+
+        /* ============================ */
+        /*            Terms          */
+        /* ============================ */
+        
+        public static function termList($course_id = null) {
+            $course_id = $course_id ?? \Magister\Session::courseActiveId();
+
+            $terms = \Magistraal\Api\call(
+                \Magister\Session::$domain.'/api/personen/'.\Magister\Session::$userId."/aanmeldingen/{$course_id}/cijfers/cijferperiodenvooraanmelding"
+            )['body']['Items'] ?? null;
+
+            return $terms;
         }
     }
 ?>

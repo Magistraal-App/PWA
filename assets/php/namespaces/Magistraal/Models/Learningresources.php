@@ -1,16 +1,16 @@
 <?php
     namespace Magistraal\Learningresources;
 
-    function get_all($filter = []) {
-        return \Magistraal\Learningresources\format_all(\Magister\Session::learningresourceList(), $filter);
+    function get_all($filter = null) {
+        return \Magistraal\Learningresources\format_all(\Magister\Session::learningresourceList() ?? [], $filter);
     }
 
-    function get($id) {
-        return \Magister\Session::learningresourceGet($id);
+    function get($id, $filter = null) {
+        return \Magistraal\Learningresources\format(\Magister\Session::learningresourceGet($id) ?? [], $filter);
     }
 
-    function format($learningresource) {
-        return [
+    function format($learningresource, $filter = null) {
+        $formatted = [
             'id'          => $learningresource['EAN'],
             'description' => trim($learningresource['Titel']),
             'publisher'   => trim($learningresource['Uitgeverij']),
@@ -20,9 +20,11 @@
                 'code'        => $learningresource['Vak']['Afkorting']
             ]
         ];
+
+        return filter_items($formatted, $filter);
     }
 
-    function format_all($learningresources, $filter) {
+    function format_all($learningresources, $filter = null) {
         $formatted = [];
 
         foreach ($learningresources as $learningresource) {
@@ -32,13 +34,6 @@
             }
 
             $formatted[] = \Magistraal\Learningresources\format($learningresource, $filter);
-        }
-
-        // Filter out non-wanted items
-        if(!empty($filter)) {
-            $formatted = array_filter($formatted, function ($key) use ($filter) {
-                return in_array($key, $filter);
-            }, ARRAY_FILTER_USE_KEY);
         }
 
         // Sorteer leermiddelen

@@ -1,11 +1,15 @@
 <?php 
     namespace Magistraal\Grades;
 
-    function get_all($top = null, $filter = []) {
-        return \Magistraal\Grades\format_all(\Magister\Session::gradeList($top), $filter);
+    function get_all($top = null, $filter = null) {
+        return \Magistraal\Grades\format_all(\Magister\Session::gradeList($top) ?? [], $filter);
     }
 
-    function format($grade, $filter = []) {
+    function get_all_overview($course_id = null) {
+        return \Magistraal\Grades\format_all_overview(\Magister\Session::gradeOverview($course_id));
+    }
+
+    function format($grade, $filter = null) {
         $value_float = \Magistraal\Grades\grade_str_to_float($grade['waarde']);
 
         $formatted = [
@@ -16,7 +20,7 @@
             'exemption'     => $grade['heeftVrijstelling'],
             'make_up'       => $grade['moetInhalen'],
             'subject'       => [
-                'abbr'          => $grade['vak']['code'],
+                'code'          => $grade['vak']['code'],
                 'description'   => $grade['vak']['omschrijving']
             ],
             'value_str'     => $grade['waarde'],
@@ -25,17 +29,10 @@
             'weight'        => $grade['weegfactor']
         ];
 
-        // Filter out non-wanted items
-        if(!empty($filter)) {
-            $formatted = array_filter($formatted, function ($key) use ($filter) {
-                return in_array($key, $filter);
-            }, ARRAY_FILTER_USE_KEY);
-        }
-
-        return $formatted;
+        return filter_items($formatted, $filter);
     }
 
-    function format_overview($grade, $filter = []) {
+    function format_overview($grade, $filter = null) {
         $formatted = [
             'id'            => $grade['CijferId'] ?? null,
             'term'          => [
@@ -44,7 +41,7 @@
             ],
             'subject'       => [
                 'id'            => $grade['Vak']['Id'] ?? null,
-                'abbr'          => $grade['Vak']['Afkorting'],
+                'code'          => $grade['Vak']['Afkorting'],
                 'description'   => $grade['Vak']['Omschrijving'] ?? ''
             ],
             'entered_by'    => $grade['IngevoerdDoor'] ?? '',
@@ -60,22 +57,15 @@
                 'number'        => $grade['CijferKolom']['KolomNummer'] ?? null,
                 'order'         => $grade['CijferKolom']['KolomVolgNummer'] ?? null,
                 'description'   => $grade['CijferKolom']['KolomNaam'] ?? '',
-                'type'          => $grade['CijferKolom']['KolomSoort'] ?? null,
+                'type'          => $grade['CijferKolom']['KolomSoort'] == 1 ? 'grades' : 'averages',
                 'variant'       => $grade['CijferKolom']['IsPTAKolom'] ? 'pta' : 'normal'
             ]
         ];
 
-        // Filter out non-wanted items
-        if(!empty($filter)) {
-            $formatted = array_filter($formatted, function ($key) use ($filter) {
-                return in_array($key, $filter);
-            }, ARRAY_FILTER_USE_KEY);
-        }
-
-        return $formatted;
+        return filter_items($formatted, $filter);
     }
  
-    function format_all($grades, $filter = []) {
+    function format_all($grades, $filter = null) {
         $formatted = [];
 
         foreach ($grades as $grade) {
@@ -85,7 +75,7 @@
         return $formatted;
     }
 
-    function format_all_overview($grades, $filter = []) {
+    function format_all_overview($grades, $filter = null) {
         $formatted = [];
 
         foreach ($grades as $grade) {

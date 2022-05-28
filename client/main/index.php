@@ -82,10 +82,10 @@
                 <i class="fal fa-map-signs"></i>
                 <span data-translation="generic.page.studyguides/list.title"></span>
             </li>
-            <li tabindex="0" class="nav-item text-inverse text-muted-inverse" #onclick="magistraal.page.load({'tasks'});" data-magistraal="nav-item-tasks">
+            <!-- <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'tasks/list'});" data-magistraal="nav-item-tasks">
                 <i class="fal fa-pencil-alt"></i>
                 <span data-translation="generic.page.tasks/list.title"></span>
-            </li>
+            </li> -->
         </ul>
         <ul class="nav-items mt-auto">
             <li tabindex="0" class="nav-item text-inverse" onclick="magistraal.page.load({page: 'messages/list'});" data-magistraal="nav-item-messages">
