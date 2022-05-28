@@ -1417,6 +1417,12 @@ footer [data-magistraal="sidebar-actions"] {
     }
 }
 
+@media(max-width: 399.98px) {
+    .btn-with-icon:nth-of-type(n+3) .btn-text {
+        display: none !important;
+    }
+}
+
 
 /* ============================ */
 /*            Fonts             */

@@ -210,21 +210,29 @@ const magistraal = {
 
 						// Als de gebruiker offline is
 						if(response.readyState == 0 && response.status == 0) {
-							const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`).value;
+							console.error(`Failed to load page ${parameters.page}:`, 'User is offline');
+							const cachedResponse = magistraalPersistentStorage.get(`api_response.${parameters.url}.${JSON.stringify(parameters.data)}`);
 
-							if(isSet(cachedResponse)) {
+							if(isSet(cachedResponse.value)) {
 								// Voer callback uit met response uit cache
 								try {
-									resolve(cachedResponse);
+									resolve(cachedResponse.value);
 									if(typeof parameters.callback == 'function') {
-										parameters.callback(cachedResponse, 'cache_final', undefined, parameters.url);
+										parameters.callback(cachedResponse.value, 'cache_final', undefined, parameters.url);
 									}
+
+									const cacheFromToday = new Date().toDateString() == new Date(cachedResponse.storedAt).toDateString();
+									const formattedDate = magistraal.locale.formatDate(cachedResponse.storedAt / 1000, (cacheFromToday ? 'H:i' :'d-m-Y H:i'));
+									magistraal.console.info(`${magistraal.locale.translate('console.info.last_updated')} ${formattedDate}`);
 								} catch(err) {
 									console.error(`Failed to load page ${parameters.page}:`, err);
 									magistraal.console.error();
 								}
-								return;
+							} else {
+								magistraal.console.error('console.error.because_offline');
 							}
+
+							return;
 						} else {
 							// Beantwoord de promise alleen als de response geschikt is om verder te gebruiken
 							if((isSet(response.responseJSON) && isSet(response.responseJSON.info)) || parameters.alwaysReturn) {
@@ -235,7 +243,6 @@ const magistraal = {
 							}
 						}
 						
-						console.error(response);
 						if(parameters.inBackground !== true) {
 							magistraal.console.error();
 						}
@@ -2442,7 +2449,7 @@ const magistraal = {
 			$.each(feed.actions, function(actionType, action) {
 				let $action     = magistraal.template.get('sidebar-action');
 				let actionColor = magistraal.mapping.colors('sidebar_action', actionType);
-				$action.addClass(`btn-${actionColor}`);
+				$action.addClass(`btn-${actionColor} online-only`);
 
 				$action.html(`
 					<i class="btn-icon ${action?.icon}"></i>

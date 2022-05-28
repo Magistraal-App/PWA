@@ -558,7 +558,7 @@
                         <i class="btn-icon fal fa-times-circle"></i>
                         <span class="btn-text" data-translation="generic.action.cancel"></span>
                     </button>
-                    <button type="button" class="btn btn-secondary btn-with-icon" data-popup-action="confirm" onclick="magistraal.appointments.create($(this).parents('form').formSerialize(), $(this).parents('form'));">
+                    <button type="button" class="btn btn-secondary btn-with-icon online-only" data-popup-action="confirm" onclick="magistraal.appointments.create($(this).parents('form').formSerialize(), $(this).parents('form'));">
                         <i class="btn-icon fal fa-check-circle"></i>
                         <span class="btn-text" data-translation="generic.action.save"></span>
                     </button>
@@ -617,7 +617,7 @@
                         <i class="btn-icon fal fa-times-circle"></i>
                         <span class="btn-text" data-translation="generic.action.cancel"></span>
                     </button>
-                    <button type="button" class="btn btn-secondary btn-with-icon" data-popup-action="confirm" onclick="magistraal.messages.send($(this).parents('form').formSerialize(), $(this).parents('form'));">
+                    <button type="button" class="btn btn-secondary btn-with-icon online-only" data-popup-action="confirm" onclick="magistraal.messages.send($(this).parents('form').formSerialize(), $(this).parents('form'));">
                         <i class="btn-icon fal fa-paper-plane"></i>
                         <span class="btn-text" data-translation="generic.action.send"></span>
                     </button>

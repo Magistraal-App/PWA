@@ -177,20 +177,22 @@ $(document).on('click', function(e) {
 /*           On/Offline         */
 /* ============================ */
 
-$(document).on('magistraal.ready', function() {
-    $('body').attr('data-online', isOnline());
-})
 
 function isOnline() {
     return window.navigator.onLine;
 }
 
-$(window).on('online', function() {
-    $('body').attr('data-online', true);
+$(document).on('magistraal.ready', function() {
+    $('body').attr('data-online', isOnline());
 })
 
-$(window).on('offline', function() {
-    $('body').attr('data-online', false);
+$(window).on('online offline', function() {
+    const userIsOnline = isOnline();
+
+    $('body').attr('data-online', userIsOnline);
+    console.log('online', userIsOnline);
+
+    magistraal.console.info(`console.info.internet_${userIsOnline ? 'online' : 'offline'}`);
 })
 
 /* ============================ */
