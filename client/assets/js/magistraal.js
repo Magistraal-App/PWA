@@ -97,6 +97,7 @@ const magistraal = {
 			if(!isSet(parameters.alwaysReturn)) { parameters.alwaysReturn = {}; }
 			if(!isSet(parameters.cacheMaxAge))  { parameters.cacheMaxAge = 3*24*60*60; }
 			if(!isSet(parameters.inBackground)) { parameters.inBackground = false; }
+			if(!isSet(parameters.callbackData)) { parameters.callbackData = {}; }
 
 			return new Promise((resolve, reject) => {
 				if(parameters.cachable && parameters.source != 'server_only') {
@@ -111,7 +112,7 @@ const magistraal = {
 							try {
 								resolve(cachedResponse);
 								if(typeof parameters.callback == 'function') {
-									parameters.callback(cachedResponse, 'cache_final', undefined, parameters.url);
+									parameters.callback(cachedResponse, 'cache_final', undefined, parameters.url, parameters.callbackData);
 								}
 
 								return;
@@ -126,7 +127,7 @@ const magistraal = {
 							try {
 								resolve(cachedResponse);
 								if(typeof parameters.callback == 'function') {
-									parameters.callback(cachedResponse, 'cache_pre', undefined, parameters.url);
+									parameters.callback(cachedResponse, 'cache_pre', undefined, parameters.url, parameters.callbackData);
 								}
 							} catch(err) {
 								console.error('An error occured with cached response:', err);
@@ -167,7 +168,7 @@ const magistraal = {
 							try {
 								resolve(response);
 								if(typeof parameters.callback == 'function') {
-									parameters.callback(response, 'server_final', request, parameters.url);
+									parameters.callback(response, 'server_final', request, parameters.url, parameters.callbackData);
 								}
 							} catch(err) {
 								console.error(`Failed to load page ${parameters.page}:`, err);
@@ -180,7 +181,7 @@ const magistraal = {
 								if(parameters.alwaysReturn) {
 									resolve(response);
 									if(typeof parameters.callback == 'function') {
-										parameters.callback(response, 'server_final', request, parameters.url);
+										parameters.callback(response, 'server_final', request, parameters.url, parameters.callbackData);
 									}
 								}
 							} catch(err) {
@@ -218,7 +219,7 @@ const magistraal = {
 								try {
 									resolve(cachedResponse.value);
 									if(typeof parameters.callback == 'function') {
-										parameters.callback(cachedResponse.value, 'cache_final', undefined, parameters.url);
+										parameters.callback(cachedResponse.value, 'cache_final', undefined, parameters.url, parameters.callbackData);
 									}
 
 									const cacheFromToday = new Date().toDateString() == new Date(cachedResponse.storedAt).toDateString();
@@ -238,7 +239,7 @@ const magistraal = {
 							if((isSet(response.responseJSON) && isSet(response.responseJSON.info)) || parameters.alwaysReturn) {
 								reject(response);
 								if(typeof parameters.callback == 'function') {
-									parameters.callback(response, 'cache_final', undefined, parameters.url);
+									parameters.callback(response, 'cache_final', undefined, parameters.url, parameters.callbackData);
 								}
 							}
 						}
@@ -275,7 +276,7 @@ const magistraal = {
 					let $absence = magistraal.template.get('absence-list-item');
 
 					// Informatie
-					$absence.find('.list-item-title').html(absence.appointment.description + '<span class="bullet"></span>' + magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'H:i'));
+					$absence.find('.list-item-title').html(absence.appointment.description + '<span class="bullet"></span>' + magistraal.locale.formatDate(absence.appointment.start.time, 'H:i') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'H:i'));
 					$absence.find('.list-item-icon').text(absence.lesson || absence.code);
 					$absence.find('.list-item-content').text(absence.description);
 					
@@ -673,7 +674,7 @@ const magistraal = {
 			
 			$.each(response.data, function (i, grade) {
 				const $grade    = magistraal.template.get('grade-list-item');
-				const enteredAt = magistraal.locale.formatDate(grade.entered_at, 'l d F Y H:i');
+				const enteredAt = capitalizeFirst(magistraal.locale.formatDate(grade.entered_at, 'l d F Y H:i'));
 
 				$grade.attr({
 					'data-counts': grade.counts,
@@ -757,7 +758,7 @@ const magistraal = {
 					termGradesCount += 1;
 					
 					const $average           = magistraal.template.get('grade-overview-list-item');
-					const enteredAt          = magistraal.locale.formatDate(average.entered_at, 'l d F Y H:i');
+					const enteredAt          = capitalizeFirst(magistraal.locale.formatDate(average.entered_at, 'l d F Y H:i'));
 					const averageDescription = magistraal.locale.translate('grades.term_average')+' '+average.term.description;
 
 					$average.find('.list-item-icon').text(average.value_str);
@@ -792,18 +793,20 @@ const magistraal = {
 				})
 
 				// Toon gemiddelde over alle vakken voor elke periode
-				const termAverage = termGradesSum / termGradesCount;
+				const termAverage = parseFloat((termGradesSum / termGradesCount).toFixed(1));
 				const termAverageDecimals = isSet(averages[0]) && isSet(averages[0].value_str) ? averages[0].value_str.includes(',') || averages[0].value_str.includes('.') : 1;
+				const termAverageTitle = magistraal.locale.translate('grades.term_average_total') + ' ' + averages[0].term.description;
 
 				const $average = magistraal.template.get('grade-overview-list-item-average');
 				$average.attr({
 					'data-interesting': false,
 					'data-sufficient': termAverage >= 5.5,
+					'data-search': termAverageTitle,
 					'data-value': termAverage
 				});
 				$average.find('.list-item-icon').text(termAverage.toFixed(termAverageDecimals).toString().replace('.', ','));
 
-				$average.find('.grade-subject').text(magistraal.locale.translate('grades.term_average_total') + ' ' + averages[0].term.description);
+				$average.find('.grade-subject').text(termAverageTitle);
 				$average.find('.grade-description').text(termGradesCount + ' ' + magistraal.locale.translate('grades.term_grades_amount'));
 
 				// Voeg gemiddelde toe aan groep
@@ -1069,7 +1072,7 @@ const magistraal = {
 				magistraal.console.success('console.success.delete_message');
 				$message.remove();
 
-				magistraal.page.selectInterestingListItem();
+				magistraal.page.selectInterestingListItem(0, true);
 			}).catch(response => {
 				if(response.responseJSON && response.responseJSON.info) {
 					magistraal.console.error(`console.error.${response.responseJSON.info}`);
@@ -1606,6 +1609,10 @@ const magistraal = {
 
 				// Laad de instellingen
 				magistraal.api.call({url: 'user/settings/get_all', source: 'server_only', inBackground: true}).then(res => {
+					// Sla uuid van gebruiker op
+					magistraalPersistentStorage.set('user_uuid', res.data['system.user_uuid']);
+					
+					// Werk UI bij
 					magistraal.settings.updateClient(res.data);
 
 					setTimeout(() => {
@@ -1627,11 +1634,8 @@ const magistraal = {
 						
 							// Laad instellingenpagina voor offline gebruik
 							magistraal.api.call({url: 'settings/list', source: 'prefer_cache', inBackground: true}).then(res => {
-								// Sla user uuid op
-								magistraalPersistentStorage.set('user_uuid', res.data.user_uuid);
-
 								// Laad subpagina's
-								$.each(res.data.items.items, function(itemNamespace, items) {
+								$.each(res.data.items, function(itemNamespace, items) {
 									magistraal.api.call({url: 'settings/list', data: {category: itemNamespace}, source: 'prefer_cache', inBackground: true})
 								})
 							});
@@ -1656,7 +1660,9 @@ const magistraal = {
 				magistraal.locale.load(language).then(() => {
 					$(document).trigger('magistraal.ready');
 					resolve();
-				}).catch(() => {});
+				}).catch(() => {
+					magistraal.page.load({page: 'offline'});
+				});
 			} catch(err) {
 				reject();
 			}
@@ -1670,7 +1676,7 @@ const magistraal = {
 				magistraal.api.call({
 					url: 'locale', 
 					data: {locale: locale},
-					source: 'both',
+					source: 'prefer_cache',
 					callback: magistraal.locale.loadCallback
 				}).finally(() => {
 					resolve();
@@ -1822,11 +1828,9 @@ const magistraal = {
 			// Aanpassingen per pagina
 			switch(parameters.page) {
 				case 'login':
-					window.location.href = '../login/';
-					break;
-				
 				case 'main':
-					window.location.href = '../main';
+				case 'offline':
+					window.location.href = `../${page}/`;
 					break;
 
 				case 'sources/list':
@@ -1879,6 +1883,9 @@ const magistraal = {
 			$('.nav-item').removeClass('active');
 			magistraal.element.get(`nav-item-${parameters.page.split('/')[0] || null}`).addClass('active');
 			
+			// Verberg de terugknop
+			$('body').attr('disabled-data-history', $('body').attr('data-history')).removeAttr('data-history');
+			
 			// Laad de pagina
 			magistraal.page.get(parameters);
 		},
@@ -1926,7 +1933,13 @@ const magistraal = {
 					source: parameters.source,
 					cachable: parameters.cachable, 
 					scope: parameters.scope,
-					callback: function(response, loadType, request, page) {
+					callbackData: {
+						showBack: parameters.showBack
+					},
+					callback: function(response, loadType, request, page, callbackData) {
+						// Toon de terugknop wanneer gewenst
+						$('body').attr('data-history', $('body').attr('disabled-data-history')).removeAttr('disabled-data-history');
+
 						const listItemSelectedIndex = Math.max($('.list-item[data-interesting="true"][data-selected="true"]').index(), 0);
 						callback(response, loadType, request, page);
 						magistraal.page.getCallback(response, loadType, request, page, listItemSelectedIndex);
@@ -1967,10 +1980,14 @@ const magistraal = {
 				$pageSearch.trigger('input');
 			}
 
-			magistraal.page.selectInterestingListItem(listItemSelectedIndex);
+			magistraal.page.selectInterestingListItem(listItemSelectedIndex, true);
 		},
 
-		selectInterestingListItem: (index = 0) => {
+		selectInterestingListItem: (index = 0, biggerScreensOnly = false) => {
+			if(biggerScreensOnly && window.innerWidth < 768) {
+				return;
+			}
+			
 			// Herselecteer item in lijst
 			const $firstLi = magistraal.element.get('main').find(`.list-item[data-interesting="true"]:nth-child(${index+1})`);
 			$firstLi.attr('data-ignore-event', 'click');
@@ -2560,7 +2577,7 @@ const magistraal = {
 				$action.removeAttr('disabled');
 
 				if(doClose) {
-					magistraal.page.selectInterestingListItem();
+					magistraal.page.selectInterestingListItem(0, true);
 					magistraal.sidebar.close();
 				}
 			}, 10);

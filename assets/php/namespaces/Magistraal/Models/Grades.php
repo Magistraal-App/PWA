@@ -14,7 +14,7 @@
 
         $formatted = [
             'column_id'     => $grade['kolomId'],
-            'counts'        => $grade['teltMee'],
+            'counts'        => boolval($grade['teltMee']) && $grade['weegfactor'] > 0,
             'description'   => $grade['omschrijving'],
             'entered_at'    => $grade['ingevoerdOp'] ?? null,
             'exemption'     => $grade['heeftVrijstelling'],

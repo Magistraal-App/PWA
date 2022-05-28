@@ -946,7 +946,7 @@ body[data-sidebar-active="true"] [data-magistraal="sidebar-actions"] {
     display: flex;
 }
 
-body[data-sidebar-active="true"] [data-magistraal="page-buttons-container"] {
+body[data-sidebar-active="true"] footer [data-magistraal="page-buttons-container"] {
     display: none !important;
 }
 
