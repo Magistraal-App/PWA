@@ -1620,7 +1620,9 @@ const magistraal = {
 							magistraal.api.call({url: 'grades/overview', source: 'prefer_cache', inBackground: true});
 							magistraal.api.call({url: 'sources/list', source: 'prefer_cache', inBackground: true});
 							magistraal.api.call({url: 'learningresources/list', source: 'prefer_cache', inBackground: true});
-							
+							magistraal.api.call({url: 'studyguides/list', source: 'prefer_cache', inBackground: true});
+							magistraal.api.call({url: 'tasks/list', source: 'prefer_cache', inBackground: true});
+						
 							// Laad instellingenpagina voor offline gebruik
 							magistraal.api.call({url: 'settings/list', source: 'prefer_cache', inBackground: true}).then(res => {
 								// Sla user uuid op
