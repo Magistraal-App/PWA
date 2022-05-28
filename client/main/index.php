@@ -133,7 +133,7 @@
         <div class="col px-0 d-flex align-items-center" style="width: 0px;" data-magistraal="console-wrapper">
             <span data-magistraal="console"></span>
         </div>
-        <div data-magistraal="page-buttons-container" class="flex-row d-md-none mr-auto"></div>
+        <div data-magistraal="page-buttons-container" class="d-flex d-md-none flex-row mr-auto"></div>
         <div data-magistraal="sidebar-actions" class="flex-row d-md-none mr-auto scrollbar-hidden"></div>
     </footer>
     <div data-magistraal="templates" class="d-none" aria-hidden="true">
