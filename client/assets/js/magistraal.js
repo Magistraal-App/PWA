@@ -984,6 +984,14 @@ const magistraal = {
 			}).then(response => {
 				// Markeer het bericht als gelezen als dit nog niet het geval is
 				if(!read) {
+					// Verlaag het nummer in de ongelezen berichten badge met 1
+					const $badge       = magistraal.element.get('unread-messages-amount-badge');
+					const amountUnread = parseInt($badge.text() || 0);
+
+					console.log(amountUnread);
+
+					magistraal.messages.paintBadge({data: {amount_unread: amountUnread - 1}});
+
 					magistraal.api.call({
 						url: 'messages/read', 
 						data: {id: id, read: true},
@@ -991,6 +999,15 @@ const magistraal = {
 						inBackground: true,
 					}).then(response => {
 						$message.attr('data-read', true);
+
+						// Laad het aantal ongelezen berichten (voor het geval dat er een desync oid is)
+						magistraal.api.call({
+							url: 'messages/list', 
+							source: 'server_only', 
+							data: {filter: ['id']}, 
+							inBackground: true, 
+							callback: magistraal.messages.paintBadge
+						});
 					})
 				}
 			})
