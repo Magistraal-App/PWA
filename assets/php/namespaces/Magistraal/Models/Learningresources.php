@@ -6,18 +6,18 @@
     }
 
     function get($id, $filter = null) {
-        return \Magistraal\Learningresources\format(\Magister\Session::learningresourceGet($id) ?? [], $filter);
+        return \Magister\Session::learningresourceGet($id) ?? [];
     }
 
     function format($learningresource, $filter = null) {
         $formatted = [
-            'id'          => $learningresource['EAN'],
-            'description' => trim($learningresource['Titel']),
-            'publisher'   => trim($learningresource['Uitgeverij']),
+            'id'          => $learningresource['EAN'] ?? null,
+            'description' => trim($learningresource['Titel'] ?? null),
+            'publisher'   => trim($learningresource['Uitgeverij'] ?? null),
             'subject'     => [
-                'id'          => $learningresource['Vak']['Id'],
-                'description' => $learningresource['Vak']['Omschrijving'],
-                'code'        => $learningresource['Vak']['Afkorting']
+                'id'          => $learningresource['Vak']['Id'] ?? null,
+                'description' => $learningresource['Vak']['Omschrijving'] ?? null,
+                'code'        => $learningresource['Vak']['Afkorting'] ?? null
             ]
         ];
 
@@ -28,18 +28,8 @@
         $formatted = [];
 
         foreach ($learningresources as $learningresource) {
-            // Ga verder als het leermiddel verlopen is
-            if(!isset($learningresource['Eind']) || strtotime($learningresource['Eind']) < time()) {
-                continue;
-            }
-
             $formatted[] = \Magistraal\Learningresources\format($learningresource, $filter);
         }
-
-        // Sorteer leermiddelen
-        usort($formatted, function($a, $b) {
-            return strcmp($a['description'], $b['description']);
-        });
 
         return $formatted;
     }

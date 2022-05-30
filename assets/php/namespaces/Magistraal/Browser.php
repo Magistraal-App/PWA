@@ -86,7 +86,7 @@
             $info['success'] = substr($info['http_code'], 0, 1) == '2' ? true : false;
 
             // Redirect
-            if($options['redirects'] != false && isset($headers['location']) || isset($body['location'])) {
+            if($options['redirects'] != false && (isset($headers['location']) || isset($body['location']))) {
                 $new_url = $headers['location'] ?? $body['location'];
                 if(strpos($new_url, '/') === 0) { // Relative url on same domain
                     $new_url = parse_url($url, PHP_URL_SCHEME).'://'.parse_url($url, PHP_URL_HOST).$new_url;

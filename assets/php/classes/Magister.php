@@ -437,7 +437,7 @@
             ]);
 
             return [
-                'location' => $response['info']['url'] ?? null
+                'location' => $response['body']['location'] ?? null
             ];
         }
 
