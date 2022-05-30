@@ -1,7 +1,7 @@
 <?php 
     namespace Magistraal\Cron\Appointments;
 
-    function find_changes(array $current_entry, string $iso_from, string $iso_to) {
+    function find_changes(array $current_entry, string $iso_from, string $iso_to, $amount = 24) {
         $new_entry = $current_entry;
         $new_items = [];
 
@@ -16,20 +16,25 @@
                         continue;
                     }
                     
-                    // Continue if the appointment was already discovered as canceled
-                    if(isset($current_entry[$appointment['id']]) && $current_entry[$appointment['id']] == 'canceled') {
+                    // Continue if the appointment was already found
+                    if(in_array($appointment['id'], $current_entry)) {
                         continue;
                     }
 
-                    // Store the appointment since it was not yet discovered
+                    // Continue if the appointment has already started
+                    if(strtotime($appointment['start']['time']) >= time()) {
+                        continue;
+                    }
+
+                    // Store the appointment since it was not yet found
                     $new_items[] = $appointment;
-                    $new_entry[$appointment['id']] = $appointment['status'];
+                    array_unshift($new_entry, $appointment['id']);
                 }
             }
         }
     
         return [
-            'new_entry' => array_slice($new_entry, -24, 24, true),
+            'new_entry' => array_slice($new_entry, -$amount, $amount, true),
             'new_items' => $new_items
         ];
     }

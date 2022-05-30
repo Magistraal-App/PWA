@@ -34,6 +34,10 @@
             continue;
         }
 
+        if(\Magister\Session::$userUuid != '3b989f3a668d4dab8ceca22b1929061b-f291100d88c24594b984341f002d7471') {
+            continue;
+        }
+
         $timestamp2 = \Magistraal\Debug\get_timestamp();
 
         // Grab appointment ids, message ids and grade ids for this user_uuid
