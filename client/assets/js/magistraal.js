@@ -520,10 +520,8 @@ const magistraal = {
 			let attachmentsHTML = '';
 			const appointment = response.data;
 
-			console.log(magistraalStorage.get('sidebarId').value, appointment.id);
-
 			// Stop als de afspraak niet meer geselecteerd is
-			if(magistraalStorage.get('sidebarId').value != appointment.id) {
+			if(magistraal.sidebar.getId(appointment.id) != appointment.id) {
 				magistraal.console.clear();
 				return;
 			}
@@ -732,8 +730,6 @@ const magistraal = {
 			let columns = [];
 
 			$.each(response.data.grades, function(i, average) {
-				console.log(average.column);
-
 				// Ga verder als het kolomtype niet gelijk is aan gemiddelde
 				if(average.column.type != 'averages') {
 					return true;
@@ -958,7 +954,7 @@ const magistraal = {
 					};
 				} else {
 					sidebarFeed = {
-						id: messageSent.id,
+						id: message.id,
 						title: message.subject,
 						subtitle: capitalizeFirst(magistraal.locale.formatDate(message.sent_at, 'l d F Y H:i')),
 						table: {}
@@ -1003,8 +999,6 @@ const magistraal = {
 					const $badge       = magistraal.element.get('unread-messages-amount-badge');
 					const amountUnread = parseInt($badge.text() || 0);
 
-					console.log(amountUnread);
-
 					magistraal.messages.paintBadge({data: {amount_unread: amountUnread - 1}});
 
 					magistraal.api.call({
@@ -1033,7 +1027,7 @@ const magistraal = {
 			const message       = response.data;
 
 			// Stop als het bericht niet meer geselecteerd is
-			if(magistraalStorage.get('sidebarId').value != message.id) {
+			if(magistraal.sidebar.getId(message.id) != message.id) {
 				magistraal.console.clear();
 				return;
 			}
@@ -2636,6 +2630,10 @@ const magistraal = {
 					magistraal.sidebar.close();
 				}
 			}, 10);
+		},
+
+		getId: (fallback = null) => {
+			return magistraalStorage.get('sidebarId').value || fallback || 0;
 		}
 	},
 	popup: {
