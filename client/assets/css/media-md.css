@@ -42,7 +42,7 @@
 
     [data-magistraal="sidebar-actions"] {
         background-color: transparent;
-        padding: 0 var(--spacing-md) calc(var(--spacing-md) + var(--spacing-lg) + var(--spacing-lg)) var(--spacing-md);
+        padding: var(--spacing-lg) var(--spacing-md) calc(var(--spacing-md) + var(--spacing-lg) + var(--spacing-lg)) var(--spacing-md);
         justify-content: start;
     }
 

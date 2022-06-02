@@ -443,6 +443,7 @@ const magistraal = {
 					
 					// Maak een sidebar feed
 					let sidebarFeed = {
+						id: appointment.id,
 						title: appointment['description'],
 						subtitle: `${magistraal.locale.formatDate(appointment.start.time, 'Hi')} - ${magistraal.locale.formatDate(appointment.end.time, 'H:i')}`,
 						table: {
@@ -515,8 +516,17 @@ const magistraal = {
 			});
 		},
 
-		viewCallback: (appointment, loadType) => {
+		viewCallback: (response, loadType) => {
 			let attachmentsHTML = '';
+			const appointment = response.data;
+
+			console.log(magistraalStorage.get('sidebarId').value, appointment.id);
+
+			// Stop als de afspraak niet meer geselecteerd is
+			if(magistraalStorage.get('sidebarId').value != appointment.id) {
+				magistraal.console.clear();
+				return;
+			}
 
 			if(appointment.attachments.length > 0) {
 				$.each(appointment.attachments, function(i, attachment) {
@@ -695,9 +705,10 @@ const magistraal = {
 				$grade.find('.grade-entered-at').text(enteredAt);
 
 				let sidebarFeed = {
-					'title': grade.subject.description,
-					'subtitle': capitalizeFirst(grade.description),
-					'table': {
+					id: grade.column_id,
+					title: grade.subject.description,
+					subtitle: capitalizeFirst(grade.description),
+					table: {
 						'grade.value': grade.value_str,
 						'grade.weight': `${grade.weight}x`,
 						'grade.entered_at': capitalizeFirst(enteredAt),
@@ -779,9 +790,10 @@ const magistraal = {
 					});
 
 					let sidebarFeed = {
-						'title': average.subject.description,
-						'subtitle': averageDescription,
-						'table': {
+						id: average.id, 
+						title: average.subject.description,
+						subtitle: averageDescription,
+						table: {
 							'grade.value': average.value_str,
 							'grade.entered_at': capitalizeFirst(enteredAt),
 							'grade.counts': magistraal.locale.formatBoolean(average.counts),
@@ -848,6 +860,7 @@ const magistraal = {
 				$learningResource.attr('data-search', learningResource.subject.description+' '+learningResource.description);
 
 				let sidebarFeed = {
+					id: learningResource.id,
 					title: learningResource.description,
 					subtitle: learningResource.subject.description,
 					table: {
@@ -935,6 +948,7 @@ const magistraal = {
 				let sidebarFeed;
 				if(response.folder == 'inbox') {
 					sidebarFeed = {
+						id: message.id,
 						title: message.subject,
 						subtitle: message.sender.name,
 						table: {
@@ -944,6 +958,7 @@ const magistraal = {
 					};
 				} else {
 					sidebarFeed = {
+						id: messageSent.id,
 						title: message.subject,
 						subtitle: capitalizeFirst(magistraal.locale.formatDate(message.sent_at, 'l d F Y H:i')),
 						table: {}
@@ -1016,6 +1031,12 @@ const magistraal = {
 		viewCallback: (response, loadType) => {
 			let attachmentsHTML = '';
 			const message       = response.data;
+
+			// Stop als het bericht niet meer geselecteerd is
+			if(magistraalStorage.get('sidebarId').value != message.id) {
+				magistraal.console.clear();
+				return;
+			}
 
 			// Maak de bijlage
 			if(message.attachments.length > 0) {
@@ -1487,6 +1508,7 @@ const magistraal = {
 					$source.attr('data-interesting', true);
 
 					let sidebarFeed = {
+						id: source.id,
 						title: source.name,
 						subtitle: description,
 						table: {
@@ -1507,6 +1529,7 @@ const magistraal = {
 					$source.attr('data-interesting', true);
 
 					let sidebarFeed = {
+						id: source.id,
 						title: source.name,
 						subtitle: description,
 						table: {
@@ -2282,7 +2305,7 @@ const magistraal = {
 
 				this.$wrapper = this.$input.closest('.input-wrapper');
 				this.$wrapper.addClass('input-search-wrapper');
-				this.$results = $('<ul class="input-search-results dropdown-menu"></ul>');
+				this.$results = $('<ul class="input-search-results dropdown-menu dropdown-menu-full-width"></ul>');
 				this.$results.append(`<li class="input-search-result dropdown-item">${magistraal.locale.translate('generic.search.no_matches')}</li>`);
 				this.$results.appendTo(this.$wrapper);
 				if(!this.$input.attr('placeholder')) {
@@ -2442,10 +2465,11 @@ const magistraal = {
 	},
 	sidebar: {
 		addFeed: ($elem = undefined, feed) => {
-			feed.title    = feed?.title || '';
-			feed.subtitle = feed?.subtitle || '';
-			feed.table    = feed?.table || {};
-			feed.actions  = feed?.actions || {};
+			feed.title    = feed.title || '';
+			feed.subtitle = feed.subtitle || '';
+			feed.table    = feed.table || {};
+			feed.actions  = feed.actions || {};
+			feed.id       = feed.id || 0;
 			$elem = $elem || magistraal.element.get('sidebar');
 			$elem.attr('data-sidebar-feed', encodeURI(JSON.stringify(feed)));
 			return true;
@@ -2509,19 +2533,22 @@ const magistraal = {
 				$action.appendTo($sidebarActions);
 			})
 
+			magistraalStorage.set('sidebarId', feed.id);
+
 			if(openSidebar) {
 				magistraal.sidebar.open();
 			}
 		},
 
 		updateFeed: (updatedFeed, insertTableAfterKey = undefined) => {
-			let newFeed                = {title: '', subtitle: '', table: {}, actions: {}};
+			let newFeed                = {id: '', title: '', subtitle: '', table: {}, actions: {}};
 			let currentFeed            = magistraal.sidebar.getFeed();
 			let currentFeedTableLength = Object.keys(currentFeed.table).length;
 			
-			// Overwrite title and subtitle
-			newFeed.title = updatedFeed?.title || currentFeed.title; 
+			// Overwrite id, title and subtitle
+			newFeed.title    = updatedFeed?.title || currentFeed.title; 
 			newFeed.subtitle = updatedFeed?.subtitle || currentFeed.subtitle; 
+			newFeed.id       = updatedFeed?.id || currentFeed.id;
 
 			// Merge table
 			if(Object.keys(currentFeed.table).length > 0) {

@@ -1395,7 +1395,7 @@ footer [data-magistraal="sidebar-actions"] {
 }
 
 @media(max-width: 767.98px) {
-    [data-settings*="appearance.best_handed=right"] .dropdown-menu {
+    [data-settings*="appearance.best_handed=right"] .dropdown-menu:not(.dropdown-menu-full-width) {
         left: unset;
         right: 0;
     }
