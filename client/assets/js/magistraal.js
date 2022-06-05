@@ -796,8 +796,8 @@ const magistraal = {
 			// Ga alle perioden bijlangs
 			$.each(averagesPerTerm, function(termId, averages) {
 				// Maak een groep en stel de titel in
-				let $list = magistraal.template.get('list');
-				$list.find('.grades-group-title').text(magistraal.locale.translate('grades.grade_term')+' '+averages[0].term.description);
+				const $list = magistraal.template.get('list');
+				$list.find('.list-title').text(magistraal.locale.translate('grades.grade_term')+' '+averages[0].term.description);
 
 				// Sorteer de gemiddeldes op alfabetische volgorde van het vak
 				averages = averages.sort(function(a, b) {
