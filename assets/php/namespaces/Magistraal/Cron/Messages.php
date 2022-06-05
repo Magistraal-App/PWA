@@ -26,7 +26,7 @@
             }
 
             // Continue if this message was already discovered
-            if(isset($current_entry[$message['id']])) {
+            if(in_array($message['id'], $current_entry)) {
                 continue;
             }
 
