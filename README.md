@@ -5,6 +5,9 @@ Magistraal biedt leerlingen een betere en modernere manier om het administratie-
 
 ## Todo
 - [ ] Maken: Pagina om berekeningen met cijfers uit te voeren
+- [ ] Maken: Berichten permanent verwijderbaar maken uit prullenbak
+- [ ] Maken: Carousel verplaatst naar pagina met het eerste zoekresultaat
+- [ ] Maken: Terugknop op pagina's Bronnen en Studiewijzers op desktops
 - [ ] Maken: Meldingen op iOS via Pushcut
 - [ ] Maken: Afsprakenlijst datumkiezer
 - [ ] Maken: Jaarkiezer bij afwezigheid
