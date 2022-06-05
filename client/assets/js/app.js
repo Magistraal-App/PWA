@@ -241,13 +241,14 @@ class responsiveCarousel {
             return;
         }
 
-        this.direction    = direction;
-        this.$carousel    = $(`<div class="responsive-carousel scrollbar-hidden" data-carousel-direction="${direction}"><div class="responsive-carousel-header" style="display: none;"><div class="responsive-carousel-header-items d-flex flex-row"></div></div><div class="responsive-carousel-body scrollbar-hidden"></div></div>`);
-        this.$header      = this.$carousel.find('.responsive-carousel-header');
-        this.$headerItems = this.$header.find('.responsive-carousel-header-items');
-        this.$body        = this.$carousel.find('.responsive-carousel-body');
+        this.direction      = direction;
+        this.$carousel      = $(`<div class="responsive-carousel scrollbar-hidden" data-carousel-direction="${direction}"><div class="responsive-carousel-header" style="display: none;"><div class="responsive-carousel-header-items d-flex flex-row"></div></div><div class="responsive-carousel-body scrollbar-hidden"></div></div>`);
+        this.$header        = this.$carousel.find('.responsive-carousel-header');
+        this.$headerItems   = this.$header.find('.responsive-carousel-header-items');
+        this.$body          = this.$carousel.find('.responsive-carousel-body');
+        this.lastSlideIndex = this.getSlideIndex();
 
-        this.$body.on('scroll', (e) => { this.scrollCallback(e); })
+        this.$body.on('scroll', (e) => { this.scrollEvent(e); })
 
         return this;
     }
@@ -274,8 +275,8 @@ class responsiveCarousel {
         return this.$body.find('.responsive-carousel-slide').length;
     }
 
-    setSlideIndex(index) {
-        const $slide = this.$body.find(`.responsive-carousel-slide:nth-child(${index + 1})`);
+    setSlideIndex(slideIndex) {
+        const $slide = this.$body.find(`.responsive-carousel-slide:nth-child(${slideIndex + 1})`);
 
         if($slide.length == 0) {
             return this;
@@ -294,8 +295,23 @@ class responsiveCarousel {
         return Math.round((scrollPos / maxScrollPos) * slideCount);
     }
 
-    scrollCallback(e) {
-        console.log('scroll!', e);
+    scrollEvent(e) {
+        const slideIndex = this.getSlideIndex();
+        const $slide     = this.$body.find(`.responsive-carousel-slide:nth-child(${slideIndex + 1})`);
+
+        // Als de gebruiker naar een andere slide is gescrolled
+        if(this.lastSlideIndex != slideIndex) {
+            this.updateIndicator();
+
+            if(isSet(this.scrollCallback) && typeof this.scrollCallback == 'function') {
+                this.scrollCallback(this, $slide);
+            }
+        }
+
+        this.lastSlideIndex = slideIndex;
+    }
+
+    updateIndicator() {
         const $carouselIndicator = magistraal.element.get('responsive-carousel-indicator');
         const slideIndex         = this.getSlideIndex();
 
@@ -303,11 +319,7 @@ class responsiveCarousel {
         $carouselIndicator.find(`.responsive-carousel-indicator-item:nth-child(${slideIndex + 1})`).addClass('active');
     }
 
-    jQueryObject() {
-        return this.$carousel;
-    }
-
-    updateIndicator(showIndicator = false) {
+    reloadIndicator(showIndicator = false) {
         const $carouselIndicator     = magistraal.element.get('responsive-carousel-indicator');
         const $carouselIndicatorItem = magistraal.template.get('responsive-carousel-indicator-item');
         const slideCount             = this.getSlideCount();
@@ -325,6 +337,10 @@ class responsiveCarousel {
                 $carouselIndicator.removeClass('show');
             }, 1000);
         }
+    }
+
+    jQueryObject() {
+        return this.$carousel;
     }
 }
 
@@ -604,7 +620,13 @@ $(document).on('click', '[data-popup-action]', function(e) {
     let popup   = $button.parents('[data-magistraal-popup]').first().attr('data-magistraal-popup');
     
     disablePopstateEvent(50);
-    magistraal.popup.close(popup, true, true);
+    if(action == 'confirm') {
+        // Do not clear form if the action is confirm
+        magistraal.popup.close(popup, true, false);
+    } else {
+        // Clear form if the action is cancel
+        magistraal.popup.close(popup, true, true);
+    }
 })
 
 $(document).on('click', '.sidebar-action[data-action]', function() {

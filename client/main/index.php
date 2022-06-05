@@ -138,11 +138,6 @@
     </footer>
     <div data-magistraal="templates" class="d-none" aria-hidden="true">
         <!-- ABSENCES -->
-            <!-- Group -->
-            <div data-magistraal-template="absences-group" class="absences-group list-item-group">
-                <h4 class="absences-group-title"></h4>
-            </div>
-
             <!-- List item -->
             <div data-magistraal-template="absence-list-item" tabindex="0" class="absence-list-item list-item" onclick="magistraal.sidebar.selectFeed($(this));">
                 <div class="list-item-icon font-heading"></div>
@@ -164,11 +159,6 @@
             </div>
 
         <!-- APPOINTMENTS -->
-            <!-- Group -->
-            <div data-magistraal-template="appointments-group" class="appointments-group list-item-group">
-                <h4 class="appointments-group-title"></h4>
-            </div>
-
             <!-- List item -->
             <div data-magistraal-template="appointment" tabindex="0" class="appointment-list-item list-item" onclick="magistraal.sidebar.selectFeed($(this)); magistraal.appointments.view($(this).attr('data-id'));">
                 <div class="list-item-icon font-heading"></div>
@@ -184,11 +174,6 @@
             </div>
 
         <!-- GRADES -->
-            <!-- Group -->
-            <div data-magistraal-template="grades-group" class="grades-group list-item-group">
-                <h4 class="grades-group-title"></h4>
-            </div>
-
             <!-- List item -->
             <div data-magistraal-template="grade-list-item" tabindex="0" class="grade-list-item list-item list-item-flex" onclick="magistraal.sidebar.selectFeed($(this));">
                 <div class="grade-value list-item-icon font-heading"></div>
@@ -299,23 +284,35 @@
               <!-- Action -->
             <div data-magistraal-template="sidebar-action" class="sidebar-action btn btn-with-icon"></div>
 
-        <!-- DIALOG -->
-            <div data-magistraal-template="dialog" class="dialog">
-                <div class="dialog-main">
-                    <h3 class="dialog-title"></h3>
-                    <span class="dialog-description text-muted"></span>
+
+        <!-- GENERAL -->
+            <!-- Dialog -->
+                <div data-magistraal-template="dialog" class="dialog">
+                    <div class="dialog-main">
+                        <h3 class="dialog-title"></h3>
+                        <span class="dialog-description text-muted"></span>
+                    </div>
+                    <div class="dialog-footer">
+                        <button class="btn btn-secondary btn-with-icon" data-dialog-action="yes">
+                            <i class="btn-icon fal fa-check-circle"></i>
+                            <span class="btn-text" data-translation="generic.bool.true"></span>
+                        </button>
+                        <button class="btn btn-danger btn-with-icon" data-dialog-action="no">
+                            <i class="btn-icon fal fa-times-circle"></i>
+                            <span class="btn-text" data-translation="generic.bool.false"></span>
+                        </button>
+                    </div>
                 </div>
-                <div class="dialog-footer">
-                    <button class="btn btn-secondary btn-with-icon" data-dialog-action="yes">
-                        <i class="btn-icon fal fa-check-circle"></i>
-                        <span class="btn-text" data-translation="generic.bool.true"></span>
-                    </button>
-                    <button class="btn btn-danger btn-with-icon" data-dialog-action="no">
-                        <i class="btn-icon fal fa-times-circle"></i>
-                        <span class="btn-text" data-translation="generic.bool.false"></span>
-                    </button>
-                </div>
+
+            <!-- List -->
+            <div data-magistraal-template="list" class="list">
+                <h4 class="list-title"></h4>
             </div>
+
+            <div data-magistraal-template="list-message-empty" class="list-message-empty">
+
+            </div>
+
         
         <!-- PAGE BUTTONS -->
             <!-- Absences -->

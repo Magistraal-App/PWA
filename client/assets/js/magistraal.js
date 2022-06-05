@@ -269,8 +269,8 @@ const magistraal = {
 				}
 
 				// Maak een groep en stel de titel in
-				let $absencesGroup = magistraal.template.get('absences-group');
-				$absencesGroup.find('.absences-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'F Y')));
+				let $absencesGroup = magistraal.template.get('list');
+				$absencesGroup.find('.list-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'F Y')));
 				
 				// Ga alle absenties bij langs
 				$.each(data.absences, function (i, absence) {
@@ -296,7 +296,7 @@ const magistraal = {
 						'subtitle': absence.description,
 						'table': {
 							'absence.date': capitalizeFirst(magistraal.locale.formatDate(absence.appointment.start.time, 'l d F Y')),
-							'absence.time': magistraal.locale.formatDate(absence.appointment.start.time, 'Hi') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'H:i'),
+							'absence.time': magistraal.locale.formatDate(absence.appointment.start.time, 'H:i') + ' - ' + magistraal.locale.formatDate(absence.appointment.end.time, 'H:i'),
 							'absence.lesson': absence.lesson,
 							'absence.permitted': magistraal.locale.formatBoolean(absence.permitted)
 						}
@@ -313,7 +313,7 @@ const magistraal = {
 			// Werk de inhoud bij
 			magistraal.page.setContent(carousel.jQueryObject(), false, loadType);
 
-			carousel.updateIndicator(loadType.includes('final'));
+			carousel.reloadIndicator(loadType.includes('final'));
 		},
 
 		selectYearHandler: (formData) => {
@@ -388,11 +388,13 @@ const magistraal = {
 			
 			$.each(response.data, function (day, data) {
 				// Maak een groep en stel de titel in
-				let $appointmentsGroup = magistraal.template.get('appointments-group');
-				$appointmentsGroup.find('.appointments-group-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'l d F')));
+				let $appointmentGroup = magistraal.template.get('list');
+				$appointmentGroup.find('.list-title').text(capitalizeFirst(magistraal.locale.formatDate(data.time, 'l d F')));
 
-				// Ga naar de volgende dag ls er geen afspraken op deze dag zijn
+				// Toon een bericht als er geen afspraken zijn
 				if(data.items.length == 0) {
+					const $item = magistraal.template.get('list-message-empty');
+					$item.appendTo($appointmentGroup);
 					return true;
 				}
 
@@ -417,7 +419,9 @@ const magistraal = {
 						'data-interesting': (appointment.status != 'canceled'),
 						'data-search': `${appointment.subjects.join(', ')} ${appointment.description} ${appointment.content_text}`.trim(),
 						'data-status': appointment.status,
-						'data-type': appointment.type
+						'data-type': appointment.type,
+						'data-start': appointment.start.time,
+						'data-end': appointment.end.time
 					});
 
 					// Pictogram
@@ -445,7 +449,7 @@ const magistraal = {
 					let sidebarFeed = {
 						id: appointment.id,
 						title: appointment['description'],
-						subtitle: `${magistraal.locale.formatDate(appointment.start.time, 'Hi')} - ${magistraal.locale.formatDate(appointment.end.time, 'H:i')}`,
+						subtitle: `${magistraal.locale.formatDate(appointment.start.time, 'H:i')} - ${magistraal.locale.formatDate(appointment.end.time, 'H:i')}`,
 						table: {
 							'appointment.facility': appointment.facility,
 							'appointment.start': capitalizeFirst(magistraal.locale.formatDate(appointment.start.time, 'l d F Y H:i')),
@@ -488,17 +492,52 @@ const magistraal = {
 					magistraal.sidebar.addFeed($appointment, sidebarFeed);
 
 					// Voeg de afspraak toe aan de groep
-					$appointment.appendTo($appointmentsGroup);
+					$appointment.appendTo($appointmentGroup);
 				});
 
 				// Voeg de groep toe aan de inhoud
-				carousel.addSlide($appointmentsGroup, 12);
+				carousel.addSlide($appointmentGroup, 12);
 			});
+
+			// Voeg callback toe voor het laden van nieuwe afspraken
+			carousel.scrollCallback = magistraal.appointments.carouselLoadSlides;
 
 			// Werk de inhoud bij
 			magistraal.page.setContent(carousel.jQueryObject(), false, loadType);
 
-			carousel.updateIndicator(loadType.includes('final'));
+			carousel.reloadIndicator(loadType.includes('final'));
+		},
+
+		carouselLoadSlides: (carousel, $slide) => {
+			const slideIndex = carousel.getSlideIndex();
+			const slideCount = carousel.getSlideCount();
+			let operator     = 0;
+
+			if(slideIndex <= 2) { // Slide 0 of 1
+				let operator = -1;
+			} else if(slideCount - slideIndex <= 2) { // Laatste of eenalaatste slide
+				operator = 1;
+			} else { // Een andere slide
+				return;
+			}
+
+			const $appointment = $slide.find('.appointment-list-item').first();
+			const slideDate    = new Date($appointment.attr('data-start'));
+				
+			// Bereken start en einddatum van vorige week (maandag en zondag)	
+			const beforeOneWeek = new Date(slideDate - 60 * 60 * 24 * 7 * 1000)
+			const day = beforeOneWeek.getDay()
+			const diffToMonday = beforeOneWeek.getDate() - day + (day === 0 ? -6 : 1)
+			const lastMonday = new Date(beforeOneWeek.setDate(diffToMonday))
+			
+			magistraal.api.call({
+				url: 'appointments/list',
+				data: {
+					from: magistraal.locale.formatDate(lastMonday, 'd-m-Y')
+				}
+			}).then(response => {
+				console.log(response);
+			})
 		},
 
 		view: (id) => {
@@ -590,6 +629,8 @@ const magistraal = {
 				magistraal.console.success('console.success.create_appointment');
 				magistraal.page.reload();
 
+				console.log('appointment succesfully created!');
+
 				if($form) {
 					$form.formReset();
 				}
@@ -620,7 +661,9 @@ const magistraal = {
 		},
 
 		delete: (id) => {
-			const $appointment = $(`.appointment-list-item[data-id="${id}"]`);
+			const $listItem       = $(`.appointment-list-item[data-id="${id}"]`);
+			const $listItemParent = $listItem.parent();
+			const $listGroup      = $listItem.closest('.list-group');
 			magistraal.console.loading('console.loading.delete_appointment');
 
 			magistraal.api.call({
@@ -629,13 +672,18 @@ const magistraal = {
 				source: 'server_only'
 			}).then(data => {
 				magistraal.console.success('console.success.delete_appointment');
-				$appointment.remove();
+				$listItem.remove();
+
+				// Remove the group if it is empty
+				if($listItemParent.children().length == 0){
+					$listGroup.remove();
+				}
 			}).catch(response => {
 				if(response.responseJSON && response.responseJSON.info) {
 					magistraal.console.error(`console.error.${response.responseJSON.info}`);
 					return false;
 				}
-			}).finallly(response => {
+			}).then(response => {
 				magistraal.sidebar.actionEnded('delete', true);
 			})
 		}
@@ -683,10 +731,10 @@ const magistraal = {
 			const $html = $('<div></div>');
 			
 			$.each(response.data, function (i, grade) {
-				const $grade    = magistraal.template.get('grade-list-item');
+				const $listItem = magistraal.template.get('grade-list-item');
 				const enteredAt = capitalizeFirst(magistraal.locale.formatDate(grade.entered_at, 'l d F Y H:i'));
 
-				$grade.attr({
+				$listItem.attr({
 					'data-counts': grade.counts,
 					'data-exemption': grade.exemption,
 					'data-interesting': true,
@@ -696,11 +744,11 @@ const magistraal = {
 					'data-weight': grade.weight
 				});
 
-				$grade.find('.list-item-icon').text(grade.value_str);
-				$grade.find('.grade-subject').text(grade.subject.description);
-				$grade.find('.grade-description').text(grade.description);
-				$grade.find('.grade-weight').text(`${grade.weight}x`);
-				$grade.find('.grade-entered-at').text(enteredAt);
+				$listItem.find('.list-item-icon').text(grade.value_str);
+				$listItem.find('.grade-subject').text(grade.subject.description);
+				$listItem.find('.grade-description').text(grade.description);
+				$listItem.find('.grade-weight').text(`${grade.weight}x`);
+				$listItem.find('.grade-entered-at').text(enteredAt);
 
 				let sidebarFeed = {
 					id: grade.column_id,
@@ -715,9 +763,9 @@ const magistraal = {
 					}
 				};
 
-				magistraal.sidebar.addFeed($grade, sidebarFeed);
+				magistraal.sidebar.addFeed($listItem, sidebarFeed);
 
-				$grade.appendTo($html);
+				$listItem.appendTo($html);
 			});
 
 			magistraal.page.setContent($html, true, loadType);
@@ -725,9 +773,7 @@ const magistraal = {
 
 		paintOverview: (response, loadType) => {
 			let carousel = new responsiveCarousel('x');
-			let idsOfColumnsTypeAverages = [];
 			let averagesPerTerm = {};
-			let columns = [];
 
 			$.each(response.data.grades, function(i, average) {
 				// Ga verder als het kolomtype niet gelijk is aan gemiddelde
@@ -750,8 +796,8 @@ const magistraal = {
 			// Ga alle perioden bijlangs
 			$.each(averagesPerTerm, function(termId, averages) {
 				// Maak een groep en stel de titel in
-				let $averagesGroup = magistraal.template.get('grades-group');
-				$averagesGroup.find('.grades-group-title').text(magistraal.locale.translate('grades.grade_term')+' '+averages[0].term.description);
+				let $list = magistraal.template.get('list');
+				$list.find('.grades-group-title').text(magistraal.locale.translate('grades.grade_term')+' '+averages[0].term.description);
 
 				// Sorteer de gemiddeldes op alfabetische volgorde van het vak
 				averages = averages.sort(function(a, b) {
@@ -766,17 +812,17 @@ const magistraal = {
 					termGradesSum   += average.value;
 					termGradesCount += 1;
 					
-					const $average           = magistraal.template.get('grade-overview-list-item');
+					const $listItem          = magistraal.template.get('grade-overview-list-item');
 					const enteredAt          = capitalizeFirst(magistraal.locale.formatDate(average.entered_at, 'l d F Y H:i'));
 					const averageDescription = magistraal.locale.translate('grades.term_average')+' '+average.term.description;
 
-					$average.find('.list-item-icon').text(average.value_str);
-					$average.find('.grade-subject').text(average.subject.description);
-					$average.find('.grade-description').text(averageDescription);
-					$average.find('.grade-sufficient').text(magistraal.locale.formatBoolean(average.value >= 5.5));
-					$average.find('.grade-entered-at').text(enteredAt);
+					$listItem.find('.list-item-icon').text(average.value_str);
+					$listItem.find('.grade-subject').text(average.subject.description);
+					$listItem.find('.grade-description').text(averageDescription);
+					$listItem.find('.grade-sufficient').text(magistraal.locale.formatBoolean(average.value >= 5.5));
+					$listItem.find('.grade-entered-at').text(enteredAt);
 
-					$average.attr({
+					$listItem.attr({
 						'data-counts': average.counts,
 						'data-exemption': average.exemption,
 						'data-interesting': true,
@@ -797,9 +843,9 @@ const magistraal = {
 						}
 					};
 
-					magistraal.sidebar.addFeed($average, sidebarFeed);
+					magistraal.sidebar.addFeed($listItem, sidebarFeed);
 					
-					$average.appendTo($averagesGroup);
+					$listItem.appendTo($list);
 				})
 
 				// Toon gemiddelde over alle vakken voor elke periode
@@ -807,28 +853,28 @@ const magistraal = {
 				const termAverageDecimals = isSet(averages[0]) && isSet(averages[0].value_str) ? averages[0].value_str.includes(',') || averages[0].value_str.includes('.') : 1;
 				const termAverageTitle = magistraal.locale.translate('grades.term_average_total') + ' ' + averages[0].term.description;
 
-				const $average = magistraal.template.get('grade-overview-list-item-average');
-				$average.attr({
+				const $listItem = magistraal.template.get('grade-overview-list-item-average');
+				$listItem.attr({
 					'data-interesting': false,
 					'data-sufficient': termAverage >= 5.5,
 					'data-search': termAverageTitle,
 					'data-value': termAverage
 				});
-				$average.find('.list-item-icon').text(termAverage.toFixed(termAverageDecimals).toString().replace('.', ','));
+				$listItem.find('.list-item-icon').text(termAverage.toFixed(termAverageDecimals).toString().replace('.', ','));
 
-				$average.find('.grade-subject').text(termAverageTitle);
-				$average.find('.grade-description').text(termGradesCount + ' ' + magistraal.locale.translate('grades.term_grades_amount'));
+				$listItem.find('.grade-subject').text(termAverageTitle);
+				$listItem.find('.grade-description').text(termGradesCount + ' ' + magistraal.locale.translate('grades.term_grades_amount'));
 
 				// Voeg gemiddelde toe aan groep
-				$average.appendTo($averagesGroup);
+				$listItem.appendTo($list);
 				
 				// Voeg de groep toe aan de inhoud
-				carousel.addSlide($averagesGroup);
+				carousel.addSlide($list);
 			})
 
 			magistraal.page.setContent(carousel.jQueryObject(), false, loadType);
 
-			carousel.updateIndicator(loadType.includes('final'));
+			carousel.reloadIndicator(loadType.includes('final'));
 		},
 
 		paintCalculator: () => {
@@ -1795,7 +1841,7 @@ const magistraal = {
 						output += magistraal.locale.translate(`generic.day.${date.getDay()}`);
 						break;
 					case 'm': // Maand (nummer)
-						output += addLeadingZero(date.getMonth() + 1) + '-';
+						output += addLeadingZero(date.getMonth() + 1);
 						break;
 					case 'F': // Maand (Vertaling)
 						output += magistraal.locale.translate(`generic.month.${date.getMonth()}`);

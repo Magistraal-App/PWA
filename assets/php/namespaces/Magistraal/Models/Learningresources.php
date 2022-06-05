@@ -31,6 +31,10 @@
             $formatted[] = \Magistraal\Learningresources\format($learningresource, $filter);
         }
 
+        usort($formatted, function($a, $b) {
+            return strcmp($a['description'], $b['description']);
+        });
+
         return $formatted;
     }
 ?>

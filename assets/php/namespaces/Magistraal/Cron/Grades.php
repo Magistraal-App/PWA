@@ -24,8 +24,8 @@
                 continue;
             }
 
-            // Continue if this grade was entered over 30 minutes ago
-            if(strtotime($grade['entered_at']) + 1801232130 <= time()) {
+            // Continue if the grade was entered over 30 minutes ago
+            if(strtotime($grade['entered_at']) + 1800 <= time()) {
                 continue;
             }
 

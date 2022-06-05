@@ -279,18 +279,13 @@ textarea {
 
 .input-search-result.input-search-result-rich {
     display: grid;
-    padding-top: 0;
     grid-template-rows: 1.375em 1.375em;
     grid-template-columns: 2.75em 1fr;
     grid-template-areas: 
         'result-icon result-title'
         'result-icon result-description';
     height: auto;
-    padding: var(--spacing-sm) var(--spacing-md);
-}
-
-.input-search-result.input-search-result-rich:not(:nth-last-child(-n+2)) {
-    padding-bottom: 0.5rem;
+    padding: var(--spacing-md);
 }
 
 .input-search-result-rich .input-search-result-icon {
@@ -630,7 +625,7 @@ textarea {
     --list-item-action-color: var(--text-inverse);
 }
 
-.appointment-list-item[data-status="canceled"] {
+.appointment-list-item[data-status*="canceled"] {
     --list-item-background: var(--danger-accent);
     --list-item-icon-background: var(--danger);
     --list-item-border-color: var(--danger-border);
@@ -638,7 +633,7 @@ textarea {
     --list-item-action-background: var(--danger-border);
 }
 
-.appointment-list-item[data-status="canceled"][data-selected="true"] {
+.appointment-list-item[data-status*="canceled"][data-selected="true"] {
     --list-item-background: var(--danger-border) !important;
 }
 
